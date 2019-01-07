@@ -1,0 +1,81 @@
+/**
+ * Copyright [2019] [Dominic Fischer]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.kgl.vulkan.enums
+
+import com.kgl.vulkan.utils.VkFlag
+import cvulkan.*
+
+actual enum class PipelineStage(override val value: VkPipelineStageFlagBits) : VkFlag<PipelineStage> {
+	TOP_OF_PIPE(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT),
+
+	DRAW_INDIRECT(VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT),
+
+	VERTEX_INPUT(VK_PIPELINE_STAGE_VERTEX_INPUT_BIT),
+
+	VERTEX_SHADER(VK_PIPELINE_STAGE_VERTEX_SHADER_BIT),
+
+	TESSELLATION_CONTROL_SHADER(VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT),
+
+	TESSELLATION_EVALUATION_SHADER(VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT),
+
+	GEOMETRY_SHADER(VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT),
+
+	FRAGMENT_SHADER(VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT),
+
+	EARLY_FRAGMENT_TESTS(VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT),
+
+	LATE_FRAGMENT_TESTS(VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT),
+
+	COLOR_ATTACHMENT_OUTPUT(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT),
+
+	COMPUTE_SHADER(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT),
+
+	TRANSFER(VK_PIPELINE_STAGE_TRANSFER_BIT),
+
+	BOTTOM_OF_PIPE(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT),
+
+	HOST(VK_PIPELINE_STAGE_HOST_BIT),
+
+	ALL_GRAPHICS(VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT),
+
+	ALL_COMMANDS(VK_PIPELINE_STAGE_ALL_COMMANDS_BIT),
+
+	COMMAND_PROCESS_NVX(VK_PIPELINE_STAGE_COMMAND_PROCESS_BIT_NVX),
+
+	CONDITIONAL_RENDERING_EXT(VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT),
+
+	TASK_SHADER_NV(VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV),
+
+	MESH_SHADER_NV(VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV),
+
+	RAY_TRACING_SHADER_NV(VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_NV),
+
+	SHADING_RATE_IMAGE_NV(VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV),
+
+	TRANSFORM_FEEDBACK_EXT(VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT),
+
+	ACCELERATION_STRUCTURE_BUILD_NV(VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV);
+
+	companion object {
+		private val enumLookUpMap: Map<UInt, PipelineStage> =
+				enumValues<PipelineStage>().associateBy({ it.value })
+
+		fun fromMultiple(value: VkPipelineStageFlagBits): VkFlag<PipelineStage> = VkFlag(value)
+
+		fun from(value: VkPipelineStageFlagBits): PipelineStage = enumLookUpMap[value]!!
+	}
+}
+

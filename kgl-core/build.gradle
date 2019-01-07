@@ -1,0 +1,114 @@
+plugins {
+	id "kotlin-multiplatform"
+}
+
+kotlin {
+	targets {
+		fromPreset(presets.jvm, 'jvm')
+		fromPreset(presets.js, 'js')
+		if (os.isWindows() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.mingwX64, 'mingw')
+		}
+		if (os.isLinux() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.linuxX64, 'linux')
+		}
+		if (os.isMacOsX() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.macosX64, 'macos')
+			// fromPreset(presets.iosArm32, 'iosArm32')
+			// fromPreset(presets.iosArm64, 'iosArm64')
+			// fromPreset(presets.iosX64, 'iosX64')
+		}
+		if ((os.isLinux() || os.isMacOsX()) && System.getProperty("idea.active") != "true") {
+			// fromPreset(presets.androidNativeArm32, 'androidNativeArm32')
+			// fromPreset(presets.androidNativeArm64, 'androidNativeArm64')
+		}
+	}
+	sourceSets {
+		commonMain {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+				api "org.jetbrains.kotlinx:kotlinx-io:${kotlinxIOVersion}"
+			}
+		}
+		commonTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test-common'
+				implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+			}
+		}
+		jvmMain {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+				api "org.jetbrains.kotlinx:kotlinx-io-jvm:${kotlinxIOVersion}"
+				api "org.lwjgl:lwjgl:${lwjglVersion}"
+				api "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+			}
+		}
+		jvmTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test'
+				implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+			}
+		}
+		jsMain {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+				api "org.jetbrains.kotlinx:kotlinx-io-js:${kotlinxIOVersion}"
+			}
+		}
+		jsTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test-js'
+			}
+		}
+		if (os.isWindows() || System.getProperty("idea.active") != "true") {
+			mingwMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
+					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_mingw_x64:${kotlinxIOVersion}"
+				}
+			}
+			mingwTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+		if (os.isLinux() || System.getProperty("idea.active") != "true") {
+			linuxMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
+					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_linux_x64:${kotlinxIOVersion}"
+				}
+			}
+			linuxTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+		if (os.isMacOsX() || System.getProperty("idea.active") != "true") {
+			macosMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
+					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_macos_x64:${kotlinxIOVersion}"
+				}
+			}
+			macosTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+	}
+}
+
+kotlin.sourceSets.all {
+	languageSettings {
+		enableLanguageFeature('InlineClasses')
+		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
+	}
+}

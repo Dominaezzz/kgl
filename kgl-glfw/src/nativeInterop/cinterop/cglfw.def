@@ -1,0 +1,18 @@
+package = cglfw
+headers = GLFW/glfw3.h
+headerFilter = GLFW/glfw3.h
+
+#staticLibraries.mingw = libglfw3.a
+#libraryPaths = C:/msys64/mingw64/lib
+
+depends.osx = posix
+depends.mingw = posix windows
+depends.linux = posix
+
+compilerOpts = -DGLFW_INCLUDE_VULKAN
+compilerOpts.mingw = -IC:/msys64/mingw64/include
+compilerOpts.linux = -I/usr/include
+
+linkerOpts.osx = -L/opt/local/lib -L/usr/local/opt/curl/lib -lglfw
+linkerOpts.mingw = -LC:/msys64/mingw64/lib -Wl,-Bstatic -lstdc++ -static -lglfw3 -lgdi32
+linkerOpts.linux = -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lglfw

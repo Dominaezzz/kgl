@@ -1,0 +1,888 @@
+/**
+ * Copyright [2019] [Dominic Fischer]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.kgl.vulkan.handles
+
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import kotlinx.io.core.IoBuffer
+import org.lwjgl.system.MemoryStack
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.EXTDebugMarker.vkDebugMarkerSetObjectNameEXT
+import org.lwjgl.vulkan.EXTDebugMarker.vkDebugMarkerSetObjectTagEXT
+import org.lwjgl.vulkan.EXTDebugUtils.vkSetDebugUtilsObjectNameEXT
+import org.lwjgl.vulkan.EXTDebugUtils.vkSetDebugUtilsObjectTagEXT
+import org.lwjgl.vulkan.EXTDisplayControl.*
+import org.lwjgl.vulkan.EXTHdrMetadata.vkSetHdrMetadataEXT
+import org.lwjgl.vulkan.EXTValidationCache.vkCreateValidationCacheEXT
+import org.lwjgl.vulkan.KHRCreateRenderpass2.vkCreateRenderPass2KHR
+import org.lwjgl.vulkan.KHRDisplaySwapchain.vkCreateSharedSwapchainsKHR
+import org.lwjgl.vulkan.KHRExternalMemoryFd.vkGetMemoryFdPropertiesKHR
+import org.lwjgl.vulkan.KHRSwapchain.*
+import org.lwjgl.vulkan.NVRayTracing.vkBindAccelerationStructureMemoryNV
+import org.lwjgl.vulkan.NVRayTracing.vkCreateAccelerationStructureNV
+import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCreateIndirectCommandsLayoutNVX
+import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCreateObjectTableNVX
+import org.lwjgl.vulkan.VK10.vkUpdateDescriptorSets
+import org.lwjgl.vulkan.VK11.*
+
+actual class Device(override val ptr: VkDevice, actual val physicalDevice: PhysicalDevice) : VkHandleJVM<VkDevice>(), VkHandle {
+	actual val groupPresentCapabilitiesKHR: DeviceGroupPresentCapabilitiesKHR
+		get() {
+			val device = this
+			MemoryStack.stackPush()
+			try {
+				val outputPtr = VkDeviceGroupPresentCapabilitiesKHR.mallocStack()
+				val result = vkGetDeviceGroupPresentCapabilitiesKHR(device.toVkType(), outputPtr)
+				if (result != VK_SUCCESS) handleVkResult(result)
+				return DeviceGroupPresentCapabilitiesKHR.from(outputPtr)
+			} finally {
+				MemoryStack.stackPop()
+			}
+		}
+
+	override fun close() {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			vkDestroyDevice(device.toVkType(), null)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getProcAddr(name: String) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			vkGetDeviceProcAddr(device.toVkType(), name.toVkType())
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getQueue(queueFamilyIndex: UInt, queueIndex: UInt): Queue {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val outputPtr = MemoryStack.stackGet().mallocPointer(1)
+			vkGetDeviceQueue(device.toVkType(), queueFamilyIndex.toVkType(), queueIndex.toVkType(),
+					outputPtr)
+			return Queue(VkQueue(outputPtr[0], ptr), this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun waitIdle() {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val result = vkDeviceWaitIdle(device.toVkType())
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun allocateMemory(block: MemoryAllocateInfoBuilder.() -> Unit): DeviceMemory {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkMemoryAllocateInfo.callocStack()
+			val builder = MemoryAllocateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkAllocateMemory(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return DeviceMemory(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun flushMappedMemoryRanges(block: FlushMappedMemoryRangesBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = FlushMappedMemoryRangesBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkMappedMemoryRange::callocStack)
+			val result = vkFlushMappedMemoryRanges(device.toVkType(), targetArray)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun invalidateMappedMemoryRanges(block: InvalidateMappedMemoryRangesBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = InvalidateMappedMemoryRangesBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkMappedMemoryRange::callocStack)
+			val result = vkInvalidateMappedMemoryRanges(device.toVkType(), targetArray)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createFence(block: FenceCreateInfoBuilder.() -> Unit): Fence {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkFenceCreateInfo.callocStack()
+			val builder = FenceCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateFence(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Fence(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun resetFences(fences: Collection<Fence>) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val result = vkResetFences(device.toVkType(), fences.toVkType())
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun waitForFences(fences: Collection<Fence>, waitAll: Boolean, timeout: ULong): Boolean {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val result = vkWaitForFences(device.toVkType(), fences.toVkType(), waitAll.toVkType(),
+					timeout.toVkType())
+			return when (result) {
+				VK_SUCCESS -> true
+				VK_TIMEOUT -> false
+				else -> handleVkResult(result)
+			}
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createSemaphore(block: SemaphoreCreateInfoBuilder.() -> Unit): Semaphore {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkSemaphoreCreateInfo.callocStack()
+			val builder = SemaphoreCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateSemaphore(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Semaphore(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createEvent(block: EventCreateInfoBuilder.() -> Unit): Event {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkEventCreateInfo.callocStack()
+			val builder = EventCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateEvent(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Event(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createQueryPool(block: QueryPoolCreateInfoBuilder.() -> Unit): QueryPool {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkQueryPoolCreateInfo.callocStack()
+			val builder = QueryPoolCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateQueryPool(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return QueryPool(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createBuffer(queueFamilyIndices: UIntArray, block: BufferCreateInfoBuilder.() -> Unit): Buffer {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkBufferCreateInfo.callocStack()
+			val builder = BufferCreateInfoBuilder(target)
+			builder.init(queueFamilyIndices)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateBuffer(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Buffer(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createImage(queueFamilyIndices: UIntArray, block: ImageCreateInfoBuilder.() -> Unit): Image {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkImageCreateInfo.callocStack()
+			val builder = ImageCreateInfoBuilder(target)
+			builder.init(queueFamilyIndices)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateImage(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Image(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createShaderModule(code: UByteArray, block: ShaderModuleCreateInfoBuilder.() -> Unit): ShaderModule {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkShaderModuleCreateInfo.callocStack()
+			val builder = ShaderModuleCreateInfoBuilder(target)
+			builder.init(code)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateShaderModule(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return ShaderModule(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createPipelineCache(pInitialData: IoBuffer?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkPipelineCacheCreateInfo.callocStack()
+			val builder = PipelineCacheCreateInfoBuilder(target)
+			builder.init(pInitialData)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreatePipelineCache(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return PipelineCache(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>?, block: PipelineLayoutCreateInfoBuilder.() -> Unit): PipelineLayout {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkPipelineLayoutCreateInfo.callocStack()
+			val builder = PipelineLayoutCreateInfoBuilder(target)
+			builder.init(setLayouts)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreatePipelineLayout(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return PipelineLayout(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createGraphicsPipelines(pipelineCache: PipelineCache?, block: CreateGraphicsPipelinesBuilder.() -> Unit): List<Pipeline> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = CreateGraphicsPipelinesBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkGraphicsPipelineCreateInfo::callocStack)
+			val outputCount = targets.size
+			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
+			val result = VK11.vkCreateGraphicsPipelines(device.toVkType(), pipelineCache.toVkType(),
+					targetArray, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return List(outputCount) { Pipeline(outputPtr[it], this) }
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createComputePipelines(pipelineCache: PipelineCache?, block: CreateComputePipelinesBuilder.() -> Unit): List<Pipeline> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = CreateComputePipelinesBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkComputePipelineCreateInfo::callocStack)
+			val outputCount = targets.size
+			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
+			val result = VK11.vkCreateComputePipelines(device.toVkType(), pipelineCache.toVkType(),
+					targetArray, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return List(outputCount) { Pipeline(outputPtr[it], this) }
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createRayTracingPipelinesNV(pipelineCache: PipelineCache?, block: CreateRayTracingPipelinesNVBuilder.() -> Unit): List<Pipeline> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = CreateRayTracingPipelinesNVBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkRayTracingPipelineCreateInfoNV::callocStack)
+			val outputCount = targets.size
+			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
+			val result = NVRayTracing.vkCreateRayTracingPipelinesNV(device.toVkType(), pipelineCache.toVkType(),
+					targetArray, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return List(outputCount) { Pipeline(outputPtr[it], this) }
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createSampler(block: SamplerCreateInfoBuilder.() -> Unit): Sampler {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkSamplerCreateInfo.callocStack()
+			val builder = SamplerCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateSampler(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Sampler(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createDescriptorSetLayout(block: DescriptorSetLayoutCreateInfoBuilder.() -> Unit): DescriptorSetLayout {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDescriptorSetLayoutCreateInfo.callocStack()
+			val builder = DescriptorSetLayoutCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateDescriptorSetLayout(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return DescriptorSetLayout(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createDescriptorPool(maxSets: UInt, block: DescriptorPoolCreateInfoBuilder.() -> Unit): DescriptorPool {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDescriptorPoolCreateInfo.callocStack()
+			val builder = DescriptorPoolCreateInfoBuilder(target)
+			builder.init(maxSets)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateDescriptorPool(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return DescriptorPool(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createRenderPass(block: RenderPassCreateInfoBuilder.() -> Unit): RenderPass {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkRenderPassCreateInfo.callocStack()
+			val builder = RenderPassCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateRenderPass(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return RenderPass(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createCommandPool(queueFamilyIndex: UInt, block: CommandPoolCreateInfoBuilder.() -> Unit): CommandPool {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkCommandPoolCreateInfo.callocStack()
+			val builder = CommandPoolCreateInfoBuilder(target)
+			builder.init(queueFamilyIndex)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateCommandPool(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return CommandPool(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createSharedSwapchainsKHR(block: CreateSharedSwapchainsKHRBuilder.() -> Unit): List<SwapchainKHR> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			TODO()
+			val targets = CreateSharedSwapchainsKHRBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkSwapchainCreateInfoKHR::callocStack)
+			val outputCount = targets.size
+			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
+			val result = vkCreateSharedSwapchainsKHR(device.toVkType(), targetArray, null,
+					outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return List(outputCount) { SwapchainKHR(outputPtr[it], null!!, device) }
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createSwapchainKHR(
+			surface: SurfaceKHR,
+			queueFamilyIndices: UIntArray?,
+			oldSwapchain: SwapchainKHR?,
+			block: SwapchainCreateInfoKHRBuilder.() -> Unit
+	): SwapchainKHR {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkSwapchainCreateInfoKHR.callocStack()
+			val builder = SwapchainCreateInfoKHRBuilder(target)
+			builder.init(surface, queueFamilyIndices, oldSwapchain)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateSwapchainKHR(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return SwapchainKHR(outputPtr[0], surface, device)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createFramebuffer(renderPass: RenderPass, attachments: Collection<ImageView>?, block: FramebufferCreateInfoBuilder.() -> Unit): Framebuffer {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkFramebufferCreateInfo.callocStack()
+			val builder = FramebufferCreateInfoBuilder(target)
+			builder.init(renderPass, attachments)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = VK11.vkCreateFramebuffer(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Framebuffer(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun debugMarkerSetObjectNameEXT(block: DebugMarkerObjectNameInfoEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDebugMarkerObjectNameInfoEXT.callocStack()
+			val builder = DebugMarkerObjectNameInfoEXTBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val result = vkDebugMarkerSetObjectNameEXT(device.toVkType(), target)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun debugMarkerSetObjectTagEXT(pTag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDebugMarkerObjectTagInfoEXT.callocStack()
+			val builder = DebugMarkerObjectTagInfoEXTBuilder(target)
+			builder.init(pTag)
+			builder.apply(block)
+			val result = vkDebugMarkerSetObjectTagEXT(device.toVkType(), target)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createIndirectCommandsLayoutNVX(block: IndirectCommandsLayoutCreateInfoNVXBuilder.() -> Unit): IndirectCommandsLayoutNVX {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkIndirectCommandsLayoutCreateInfoNVX.callocStack()
+			val builder = IndirectCommandsLayoutCreateInfoNVXBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateIndirectCommandsLayoutNVX(device.toVkType(), target, null,
+					outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return IndirectCommandsLayoutNVX(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createObjectTableNVX(
+			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+			objectEntryCounts: UIntArray,
+			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>,
+			block: ObjectTableCreateInfoNVXBuilder.() -> Unit
+	): ObjectTableNVX {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkObjectTableCreateInfoNVX.callocStack()
+			val builder = ObjectTableCreateInfoNVXBuilder(target)
+			builder.init(objectEntryTypes, objectEntryCounts, objectEntryUsageFlags)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateObjectTableNVX(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return ObjectTableNVX(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getMemoryFdPropertiesKHR(handleType: ExternalMemoryHandleType, fd: Int): MemoryFdPropertiesKHR {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val outputPtr = VkMemoryFdPropertiesKHR.mallocStack()
+			val result = vkGetMemoryFdPropertiesKHR(device.toVkType(), handleType.toVkType(),
+					fd.toVkType(), outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return MemoryFdPropertiesKHR.from(outputPtr)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun displayPowerControlEXT(display: DisplayKHR, block: DisplayPowerInfoEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDisplayPowerInfoEXT.callocStack()
+			val builder = DisplayPowerInfoEXTBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val result = vkDisplayPowerControlEXT(device.toVkType(), display.toVkType(), target)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun registerEventEXT(block: DeviceEventInfoEXTBuilder.() -> Unit): Fence {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDeviceEventInfoEXT.callocStack()
+			val builder = DeviceEventInfoEXTBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkRegisterDeviceEventEXT(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Fence(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun registerDisplayEventEXT(display: DisplayKHR, block: DisplayEventInfoEXTBuilder.() -> Unit): Fence {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDisplayEventInfoEXT.callocStack()
+			val builder = DisplayEventInfoEXTBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkRegisterDisplayEventEXT(device.toVkType(), display.toVkType(), target,
+					null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return Fence(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getGroupPeerMemoryFeatures(heapIndex: UInt, localDeviceIndex: UInt, remoteDeviceIndex: UInt): VkFlag<PeerMemoryFeature> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val outputPtr = MemoryStack.stackGet().mallocInt(1)
+			vkGetDeviceGroupPeerMemoryFeatures(device.toVkType(), heapIndex.toVkType(),
+					localDeviceIndex.toVkType(), remoteDeviceIndex.toVkType(), outputPtr)
+			return PeerMemoryFeature.fromMultiple(outputPtr[0])
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun bindBufferMemory2(block: BindBufferMemory2Builder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = BindBufferMemory2Builder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkBindBufferMemoryInfo::callocStack)
+			val result = vkBindBufferMemory2(device.toVkType(), targetArray)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun bindImageMemory2(block: BindImageMemory2Builder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = BindImageMemory2Builder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkBindImageMemoryInfo::callocStack)
+			val result = vkBindImageMemory2(device.toVkType(), targetArray)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getGroupSurfacePresentModesKHR(surface: SurfaceKHR): VkFlag<DeviceGroupPresentModeKHR> {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val outputPtr = MemoryStack.stackGet().mallocInt(1)
+			val result = vkGetDeviceGroupSurfacePresentModesKHR(device.toVkType(),
+					surface.toVkType(), outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return DeviceGroupPresentModeKHR.fromMultiple(outputPtr[0])
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun setHdrMetadataEXT(swapchains: Collection<SwapchainKHR>, block: SetHdrMetadataEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = SetHdrMetadataEXTBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(VkHdrMetadataEXT::callocStack)
+			vkSetHdrMetadataEXT(device.toVkType(), swapchains.toVkType(), targetArray)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createSamplerYcbcrConversion(block: SamplerYcbcrConversionCreateInfoBuilder.() -> Unit): SamplerYcbcrConversion {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkSamplerYcbcrConversionCreateInfo.callocStack()
+			val builder = SamplerYcbcrConversionCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateSamplerYcbcrConversion(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return SamplerYcbcrConversion(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getQueue2(block: DeviceQueueInfo2Builder.() -> Unit): Queue {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDeviceQueueInfo2.callocStack()
+			val builder = DeviceQueueInfo2Builder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocPointer(1)
+			vkGetDeviceQueue2(device.toVkType(), target, outputPtr)
+			return Queue(VkQueue(outputPtr[0], ptr), this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createValidationCacheEXT(pInitialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkValidationCacheCreateInfoEXT.callocStack()
+			val builder = ValidationCacheCreateInfoEXTBuilder(target)
+			builder.init(pInitialData)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateValidationCacheEXT(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return ValidationCacheEXT(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getDescriptorSetLayoutSupport(block: DescriptorSetLayoutCreateInfoBuilder.() -> Unit): DescriptorSetLayoutSupport {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDescriptorSetLayoutCreateInfo.callocStack()
+			val builder = DescriptorSetLayoutCreateInfoBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = VkDescriptorSetLayoutSupport.mallocStack()
+			vkGetDescriptorSetLayoutSupport(device.toVkType(), target, outputPtr)
+			return DescriptorSetLayoutSupport.from(outputPtr)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun setDebugUtilsObjectNameEXT(block: DebugUtilsObjectNameInfoEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDebugUtilsObjectNameInfoEXT.callocStack()
+			val builder = DebugUtilsObjectNameInfoEXTBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val result = vkSetDebugUtilsObjectNameEXT(device.toVkType(), target)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun setDebugUtilsObjectTagEXT(pTag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkDebugUtilsObjectTagInfoEXT.callocStack()
+			val builder = DebugUtilsObjectTagInfoEXTBuilder(target)
+			builder.init(pTag)
+			builder.apply(block)
+			val result = vkSetDebugUtilsObjectTagEXT(device.toVkType(), target)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: IoBuffer): MemoryHostPointerPropertiesEXT {
+		MemoryStack.stackPush()
+		try {
+			TODO()
+//			val outputPtr = VkMemoryHostPointerPropertiesEXT.mallocStack()
+//			val result = vkGetMemoryHostPointerPropertiesEXT(ptr,
+//					handleType.toVkType(), pHostPointer.toVkType(), outputPtr)
+//			if (result != VK_SUCCESS) handleVkResult(result)
+//			return MemoryHostPointerPropertiesEXT.from(outputPtr)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createRenderPass2KHR(correlatedViewMasks: UIntArray, block: RenderPassCreateInfo2KHRBuilder.() -> Unit): RenderPass {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkRenderPassCreateInfo2KHR.callocStack()
+			val builder = RenderPassCreateInfo2KHRBuilder(target)
+			builder.init(correlatedViewMasks)
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateRenderPass2KHR(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return RenderPass(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun createAccelerationStructureNV(block: AccelerationStructureCreateInfoNVBuilder.() -> Unit): AccelerationStructureNV {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val target = VkAccelerationStructureCreateInfoNV.callocStack()
+			val builder = AccelerationStructureCreateInfoNVBuilder(target)
+			builder.init()
+			builder.apply(block)
+			val outputPtr = MemoryStack.stackGet().mallocLong(1)
+			val result = vkCreateAccelerationStructureNV(device.toVkType(), target, null, outputPtr)
+			if (result != VK_SUCCESS) handleVkResult(result)
+			return AccelerationStructureNV(outputPtr[0], this)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun bindAccelerationStructureMemoryNV(block: BindAccelerationStructureMemoryNVBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val targets = BindAccelerationStructureMemoryNVBuilder().apply(block).targets
+			val targetArray =
+					targets.mapToStackArray(VkBindAccelerationStructureMemoryInfoNV::callocStack)
+			val result = vkBindAccelerationStructureMemoryNV(device.toVkType(), targetArray)
+			if (result != VK_SUCCESS) handleVkResult(result)
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+
+	actual fun updateDescriptorSets(block: UpdateDescriptorSetsBuilder.() -> Unit) {
+		val device = this
+		MemoryStack.stackPush()
+		try {
+			val builder = UpdateDescriptorSetsBuilder().apply(block)
+			vkUpdateDescriptorSets(device.toVkType(),
+					builder.targets0.mapToStackArray(VkWriteDescriptorSet::callocStack),
+					builder.targets1.mapToStackArray(VkCopyDescriptorSet::callocStack))
+		} finally {
+			MemoryStack.stackPop()
+		}
+	}
+}
+

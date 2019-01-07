@@ -1,2 +1,49 @@
-# kgl
-Thin frameworks for graphics on Kotlin.
+# Kotlin Graphics Libraries
+Kotlin Multiplatform frameworks for graphics.
+- GLFW
+- Vulkan
+- OpenGL (TODO)
+
+KGL uses LWJGL for the JVM target and the respective native libraries on the native targets.
+It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
+
+## Usage
+```kotlin
+val window = Window(1080, 720, "Sample!") {
+    clientApi = ClientApi.None
+    resizable = false
+    visible = true
+}
+
+val (width, height) = window.size
+val mode = Monitor.primary!!.videoMode
+window.position = ((mode.width - width) / 2) to ((mode.height - height) / 2)
+
+val instance = Instance.create(layers, extensions) {
+    applicationInfo {
+        applicationName = "Test"
+        applicationVersion = VkVersion(1U, 1U, 0U)
+        engineName = "No engine!"
+        engineVersion = VkVersion(1U, 0U, 0U)
+        apiVersion = VkVersion(1u, 0u, 0u)
+    }
+}
+
+val physicalDevice = instance.physicalDevices.first()
+
+val device = physicalDevice.createDevice(layers, extensions) {
+    queues {
+        queue(1U, 1f, 1f) {
+            flags = DeviceQueueCreate.PROTECTED
+        }
+
+        queue(4U, 1f, 0.5f, 0.6f)
+    }
+
+    enabledFeatures {
+        samplerAnisotropy = true
+        geometryShader = true
+        depthClamp = true
+    }
+}
+```

@@ -1,0 +1,17 @@
+package = cvulkan
+headers = vulkan/vulkan.h
+headerFilter = vulkan/*.h
+
+depends.osx = posix
+depends.mingw = posix windows
+depends.linux = posix
+
+compilerOpts.linux = -I/usr/include
+
+linkerOpts.mingw = -lvulkan-1
+linkerOpts.linux = /usr/lib/x86_64-linux-gnu -lvulkan
+linkerOpts.macos = -lvulkan
+---
+static int vkMakeVersion(int major, int minor, int patch) {
+	return VK_MAKE_VERSION(major, minor, patch);
+}

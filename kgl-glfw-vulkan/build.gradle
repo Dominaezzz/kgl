@@ -1,0 +1,89 @@
+plugins {
+	id 'kotlin-multiplatform'
+}
+
+kotlin {
+	targets {
+		fromPreset(presets.jvm, 'jvm')
+		if (os.isWindows() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.mingwX64, 'mingw')
+		}
+		if (os.isLinux() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.linuxX64, 'linux')
+		}
+		if (os.isMacOsX() || System.getProperty("idea.active") != "true") {
+			fromPreset(presets.macosX64, 'macos')
+		}
+	}
+	sourceSets {
+		commonMain {
+			dependencies {
+				implementation project(":kgl-glfw")
+				implementation project(":kgl-vulkan")
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+			}
+		}
+		commonTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test-common'
+				implementation 'org.jetbrains.kotlin:kotlin-test-annotations-common'
+			}
+		}
+		jvmMain {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+				implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}"
+				implementation "org.lwjgl:lwjgl-vulkan:${lwjglVersion}"
+			}
+		}
+		jvmTest {
+			dependencies {
+				implementation 'org.jetbrains.kotlin:kotlin-test'
+				implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+			}
+		}
+		if (os.isWindows() || System.getProperty("idea.active") != "true") {
+			mingwMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+				}
+			}
+			mingwTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+		if (os.isLinux() || System.getProperty("idea.active") != "true") {
+			linuxMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+				}
+			}
+			linuxTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+		if (os.isMacOsX() || System.getProperty("idea.active") != "true") {
+			macosMain {
+				kotlin.srcDirs = ["src/nativeMain/kotlin"]
+				resources.srcDirs = ["src/nativeMain/resources"]
+				dependencies {
+				}
+			}
+			macosTest {
+				kotlin.srcDirs = ["src/nativeTest/kotlin"]
+				resources.srcDirs = ["src/nativeTest/resources"]
+			}
+		}
+	}
+}
+
+kotlin.sourceSets.all {
+	languageSettings {
+		enableLanguageFeature('InlineClasses')
+		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
+	}
+}
