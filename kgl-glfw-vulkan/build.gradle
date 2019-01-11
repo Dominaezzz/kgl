@@ -6,13 +6,26 @@ kotlin {
 	targets {
 		fromPreset(presets.jvm, 'jvm')
 		if (os.isWindows() || System.getProperty("idea.active") != "true") {
-			fromPreset(presets.mingwX64, 'mingw')
+			fromPreset(presets.mingwX64, 'mingw') {
+				compilations.test {
+					linkerOpts "-L${rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/lib')} -Wl,-Bstatic -lstdc++ -static"
+				}
+			}
 		}
 		if (os.isLinux() || System.getProperty("idea.active") != "true") {
-			fromPreset(presets.linuxX64, 'linux')
+			fromPreset(presets.linuxX64, 'linux') {
+				compilations.test {
+					linkerOpts "-L${rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/lib')}"
+				}
+			}
 		}
 		if (os.isMacOsX() || System.getProperty("idea.active") != "true") {
-			fromPreset(presets.macosX64, 'macos')
+			fromPreset(presets.macosX64, 'macos') {
+				compilations.test {
+					linkerOpts "-L${rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/lib')}"
+					linkerOpts "-rpath ${rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/lib')}"
+				}
+			}
 		}
 	}
 	sourceSets {
@@ -78,12 +91,5 @@ kotlin {
 				resources.srcDirs = ["src/nativeTest/resources"]
 			}
 		}
-	}
-}
-
-kotlin.sourceSets.all {
-	languageSettings {
-		enableLanguageFeature('InlineClasses')
-		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
 	}
 }

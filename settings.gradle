@@ -1,8 +1,8 @@
 pluginManagement {
 	repositories {
 		mavenCentral()
-		maven("https://plugins.gradle.org/m2/")
-		maven("http://dl.bintray.com/kotlin/kotlin-eap")
+		maven { url "https://plugins.gradle.org/m2/" }
+		maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
 	}
 
 	resolutionStrategy {
@@ -18,9 +18,7 @@ enableFeaturePreview("GRADLE_METADATA")
 
 rootProject.name = "kgl"
 
-include(
-		":kgl-core",
-		":kgl-glfw",
-		":kgl-glfw-vulkan",
-		":kgl-vulkan"
-)
+include("kgl-core")
+include("kgl-glfw")
+include("kgl-glfw-vulkan")
+include("kgl-vulkan")

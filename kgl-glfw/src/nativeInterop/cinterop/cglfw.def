@@ -11,8 +11,9 @@ depends.linux = posix
 
 compilerOpts = -DGLFW_INCLUDE_VULKAN
 compilerOpts.mingw = -IC:/msys64/mingw64/include
-compilerOpts.linux = -I/usr/include
+compilerOpts.linux = -I/usr/include -I/usr/local/include
+compilerOpts.osx = -I/usr/local/include
 
-linkerOpts.osx = -L/opt/local/lib -L/usr/local/opt/curl/lib -lglfw
+linkerOpts.osx = -L/usr/local/lib -lglfw
 linkerOpts.mingw = -LC:/msys64/mingw64/lib -Wl,-Bstatic -lstdc++ -static -lglfw3 -lgdi32
-linkerOpts.linux = -L/usr/lib64 -L/usr/lib/x86_64-linux-gnu -lglfw
+linkerOpts.linux = -L/usr/lib64 -L/usr/local/lib -L/usr/lib/x86_64-linux-gnu -lglfw3 -ldl -lm -lGL -lGLU -lX11

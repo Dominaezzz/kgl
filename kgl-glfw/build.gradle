@@ -9,7 +9,9 @@ kotlin {
 			fromPreset(presets.mingwX64, 'mingw') {
 				compilations.main {
 					cinterops {
-						cglfw
+						cglfw {
+							includeDirs rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/include')
+						}
 					}
 				}
 			}
@@ -18,7 +20,9 @@ kotlin {
 			fromPreset(presets.linuxX64, 'linux') {
 				compilations.main {
 					cinterops {
-						cglfw
+						cglfw {
+							includeDirs rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/include')
+						}
 					}
 				}
 			}
@@ -27,7 +31,9 @@ kotlin {
 			fromPreset(presets.macosX64, 'macos') {
 				compilations.main {
 					cinterops {
-						cglfw
+						cglfw {
+							includeDirs rootProject.childProjects['kgl-vulkan'].file('src/nativeInterop/vulkan/include')
+						}
 					}
 				}
 			}
@@ -56,6 +62,7 @@ kotlin {
 			dependencies {
 				implementation 'org.jetbrains.kotlin:kotlin-test'
 				implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+				implementation "org.lwjgl:lwjgl:${lwjglVersion}:${lwjglNatives}"
 				implementation "org.lwjgl:lwjgl-glfw:${lwjglVersion}:${lwjglNatives}"
 			}
 		}
@@ -95,12 +102,5 @@ kotlin {
 				resources.srcDirs = ["src/nativeTest/resources"]
 			}
 		}
-	}
-}
-
-kotlin.sourceSets.all {
-	languageSettings {
-		enableLanguageFeature('InlineClasses')
-		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
 	}
 }

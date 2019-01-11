@@ -10,11 +10,12 @@ kotlin {
 				compilations.main {
 					cinterops {
 						cvulkan {
-							compilerOpts "-I${System.getenv("VULKAN_SDK")}/Include"
+							includeDirs project.file('src/nativeInterop/vulkan/include')
 						}
 					}
-
-					linkerOpts "-LC:/msys64/mingw64/lib -L${System.getenv("VULKAN_SDK")}/Lib -Wl,-Bstatic -lstdc++ -static"
+				}
+				compilations.all {
+					linkerOpts "-L${project.file('src/nativeInterop/vulkan/lib')}"
 				}
 			}
 		}
@@ -23,10 +24,12 @@ kotlin {
 				compilations.main {
 					cinterops {
 						cvulkan {
-							// compilerOpts "-I${System.getenv("VULKAN_SDK")}/Include"
+							includeDirs project.file('src/nativeInterop/vulkan/include')
 						}
 					}
-					// linkerOpts "-LC:/msys64/mingw64/lib -L${System.getenv("VULKAN_SDK")}/Lib -Wl,-Bstatic -lstdc++ -static"
+				}
+				compilations.all {
+					linkerOpts "-L${project.file('src/nativeInterop/vulkan/lib')}"
 				}
 			}
 		}
@@ -35,11 +38,13 @@ kotlin {
 				compilations.main {
 					cinterops {
 						cvulkan {
-							// compilerOpts "-I${System.getenv("VULKAN_SDK")}/Include"
+							includeDirs project.file('src/nativeInterop/vulkan/include')
 						}
 					}
-
-					// linkerOpts "-LC:/msys64/mingw64/lib -L${System.getenv("VULKAN_SDK")}/Lib -Wl,-Bstatic -lstdc++ -static"
+				}
+				compilations.all {
+					linkerOpts "-L${project.file('src/nativeInterop/vulkan/lib')}"
+					linkerOpts "-rpath ${project.file('src/nativeInterop/vulkan/lib')}"
 				}
 			}
 		}
@@ -105,12 +110,5 @@ kotlin {
 				resources.srcDirs = ["src/nativeTest/resources"]
 			}
 		}
-	}
-}
-
-kotlin.sourceSets.all {
-	languageSettings {
-		enableLanguageFeature('InlineClasses')
-		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
 	}
 }

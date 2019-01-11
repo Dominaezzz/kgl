@@ -41,13 +41,13 @@ kotlin {
 				implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
 				api "org.jetbrains.kotlinx:kotlinx-io-jvm:${kotlinxIOVersion}"
 				api "org.lwjgl:lwjgl:${lwjglVersion}"
-				api "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
 			}
 		}
 		jvmTest {
 			dependencies {
 				implementation 'org.jetbrains.kotlin:kotlin-test'
 				implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+				implementation "org.lwjgl:lwjgl:${lwjglVersion}:${lwjglNatives}"
 			}
 		}
 		jsMain {
@@ -66,8 +66,7 @@ kotlin {
 				kotlin.srcDirs = ["src/nativeMain/kotlin"]
 				resources.srcDirs = ["src/nativeMain/resources"]
 				dependencies {
-                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
-					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_mingw_x64:${kotlinxIOVersion}"
+                	api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
 				}
 			}
 			mingwTest {
@@ -80,8 +79,7 @@ kotlin {
 				kotlin.srcDirs = ["src/nativeMain/kotlin"]
 				resources.srcDirs = ["src/nativeMain/resources"]
 				dependencies {
-                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
-					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_linux_x64:${kotlinxIOVersion}"
+                	api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
 				}
 			}
 			linuxTest {
@@ -94,8 +92,7 @@ kotlin {
 				kotlin.srcDirs = ["src/nativeMain/kotlin"]
 				resources.srcDirs = ["src/nativeMain/resources"]
 				dependencies {
-                	// api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
-					api "org.jetbrains.kotlinx:kotlinx-io-native_debug_macos_x64:${kotlinxIOVersion}"
+                	api "org.jetbrains.kotlinx:kotlinx-io-native:${kotlinxIOVersion}"
 				}
 			}
 			macosTest {
@@ -103,12 +100,5 @@ kotlin {
 				resources.srcDirs = ["src/nativeTest/resources"]
 			}
 		}
-	}
-}
-
-kotlin.sourceSets.all {
-	languageSettings {
-		enableLanguageFeature('InlineClasses')
-		useExperimentalAnnotation('kotlin.ExperimentalUnsignedTypes')
 	}
 }

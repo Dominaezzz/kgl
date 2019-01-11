@@ -1,0 +1,7 @@
+version: 'build #{build}'
+
+before_build:
+  - C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-glfw
+
+build_script:
+  - gradlew build

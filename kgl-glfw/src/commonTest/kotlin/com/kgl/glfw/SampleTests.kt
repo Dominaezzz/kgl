@@ -15,28 +15,33 @@
  */
 package com.kgl.glfw
 
+import kotlin.test.Ignore
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class SampleTests {
 	@Test
+	@Ignore
 	fun testMe() {
-//		assertEquals(Window.currentContext, null)
+		assertEquals(Window.currentContext, null)
 	}
 
 	@Test
+	@Ignore
 	fun testBasicWindow() {
 		val window = Window(640, 480, "Test window", null, null) {
 			clientApi = ClientApi.None
 		}
 
-//		while (!window.shouldClose) {
-//			pollEvents()
-//		}
+		while (!window.shouldClose) {
+			pollEvents()
+		}
 
 		window.close()
 	}
 
 	@Test
+	@Ignore
 	fun testPerformance() {
 		val window = Window(640, 480, "Test window", null, null) {
 			clientApi = ClientApi.None
