@@ -24,7 +24,7 @@ import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.*
 import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo
 
-actual class DescriptorPool(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class DescriptorPool(override val ptr: Long, actual val device: Device, actual val maxSets: UInt) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val descriptorPool = this
 		val device = descriptorPool.device

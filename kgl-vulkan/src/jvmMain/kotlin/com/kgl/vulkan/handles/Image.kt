@@ -20,6 +20,7 @@ import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.ImageSubresourceBuilder
 import com.kgl.vulkan.dsls.ImageViewCreateInfoBuilder
 import com.kgl.vulkan.enums.Format
+import com.kgl.vulkan.enums.ImageType
 import com.kgl.vulkan.enums.ImageViewType
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.VkHandle
@@ -31,7 +32,21 @@ import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.EXTImageDrmFormatModifier.vkGetImageDrmFormatModifierPropertiesEXT
 import org.lwjgl.vulkan.VK11.*
 
-actual class Image(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class Image(
+		override val ptr: Long,
+		actual val device: Device,
+		actual val type: ImageType,
+		actual val format: Format,
+		actual val mipLevels: UInt,
+		actual val extent: Extent3D,
+		actual val arrayLayers: UInt
+) : VkHandleJVM<Long>(), VkHandle {
+	internal var _memory: DeviceMemory? = null
+	internal var _memoryOffset: ULong = 0U
+
+	actual val memory: DeviceMemory? get() = _memory
+	actual val memoryOffset: ULong get() = _memoryOffset
+
 	actual val memoryRequirements: MemoryRequirements
 		get() {
 			val image = this
@@ -99,6 +114,8 @@ actual class Image(override val ptr: Long, actual val device: Device) : VkHandle
 			val result = vkBindImageMemory(device.toVkType(), image.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
+			_memory = memory
+			_memoryOffset = memoryOffset
 		} finally {
 			MemoryStack.stackPop()
 		}

@@ -16,7 +16,9 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
+import com.kgl.vulkan.enums.Format
 import com.kgl.vulkan.enums.SurfaceCounterEXT
+import com.kgl.vulkan.structs.Extent2D
 import com.kgl.vulkan.structs.PastPresentationTimingGOOGLE
 import com.kgl.vulkan.structs.RefreshCycleDurationGOOGLE
 import com.kgl.vulkan.utils.Acquire
@@ -25,6 +27,9 @@ import com.kgl.vulkan.utils.VkHandle
 expect class SwapchainKHR : VkHandle {
 	val surface: SurfaceKHR
 	val device: Device
+	val imageFormat: Format
+	val imageExtent: Extent2D
+	val imageArrayLayers: UInt
 
 	val images: List<Image>
 	val status: Boolean

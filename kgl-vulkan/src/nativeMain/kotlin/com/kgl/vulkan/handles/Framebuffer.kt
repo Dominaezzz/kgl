@@ -22,7 +22,15 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkFramebuffer
 import cvulkan.vkDestroyFramebuffer
 
-actual class Framebuffer(override val ptr: VkFramebuffer, actual val device: Device) : VkHandleNative<VkFramebuffer>(), VkHandle {
+actual class Framebuffer(
+		override val ptr: VkFramebuffer,
+		actual val device: Device,
+		actual val renderPass: RenderPass,
+		actual val attachments: Array<ImageView>?,
+		actual val width: UInt,
+		actual val height: UInt,
+		actual val layers: UInt
+) : VkHandleNative<VkFramebuffer>(), VkHandle {
 	override fun close() {
 		val framebuffer = this
 		val device = framebuffer.device

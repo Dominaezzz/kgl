@@ -65,9 +65,8 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		try {
 			val outputVar = VirtualStack.alloc<VkQueueVar>()
 			val outputPtr = outputVar.ptr
-			vkGetDeviceQueue(device.toVkType(), queueFamilyIndex.toVkType(), queueIndex.toVkType(),
-					outputPtr)
-			return Queue(outputVar.value!!, this)
+			vkGetDeviceQueue(device.toVkType(), queueFamilyIndex.toVkType(), queueIndex.toVkType(), outputPtr)
+			return Queue(outputVar.value!!, this, queueFamilyIndex)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -96,7 +95,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkAllocateMemory(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return DeviceMemory(outputVar.value!!, this)
+			return DeviceMemory(outputVar.value!!, this, builder.allocationSize, builder.memoryTypeIndex)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -241,7 +240,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateBuffer(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Buffer(outputVar.value!!, this)
+			return Buffer(outputVar.value!!, this, builder.size)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -259,7 +258,9 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateImage(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Image(outputVar.value!!, this)
+			return Image(outputVar.value!!, this,
+					builder.imageType!!, builder.format!!, builder.mipLevels,
+					Extent3D.from(target.pointed.extent), builder.arrayLayers)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -418,7 +419,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateDescriptorPool(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return DescriptorPool(outputVar.value!!, this)
+			return DescriptorPool(outputVar.value!!, this, maxSets)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -454,7 +455,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateCommandPool(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return CommandPool(outputVar.value!!, this)
+			return CommandPool(outputVar.value!!, this, queueFamilyIndex)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -472,7 +473,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val result = vkCreateSharedSwapchainsKHR(device.toVkType(), targets.size.toUInt(),
 					targetArray, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return List(outputCount) { SwapchainKHR(outputPtr[it]!!, null!!, device) }
+			// return List(outputCount) { SwapchainKHR(outputPtr[it]!!, null!!, device) }
 		} finally {
 			VirtualStack.pop()
 		}
@@ -495,7 +496,8 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateSwapchainKHR(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return SwapchainKHR(outputVar.value!!, surface, this)
+			return SwapchainKHR(outputVar.value!!, surface, this,
+					builder.imageFormat!!, Extent2D.from(target.pointed.imageExtent), builder.imageArrayLayers)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -513,7 +515,9 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = outputVar.ptr
 			val result = vkCreateFramebuffer(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Framebuffer(outputVar.value!!, this)
+			return Framebuffer(outputVar.value!!, this,
+					renderPass, attachments?.toTypedArray(),
+					builder.width, builder.height, builder.layers)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -759,7 +763,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputVar = VirtualStack.alloc<VkQueueVar>()
 			val outputPtr = outputVar.ptr
 			vkGetDeviceQueue2(device.toVkType(), target, outputPtr)
-			return Queue(outputVar.value!!, this)
+			return Queue(outputVar.value!!, this, builder.queueFamilyIndex)
 		} finally {
 			VirtualStack.pop()
 		}

@@ -22,6 +22,7 @@ import com.kgl.vulkan.utils.VkHandle
 
 expect class CommandPool : VkHandle {
 	val device: Device
+	val queueFamilyIndex: UInt
 
 	fun reset(flags: VkFlag<CommandPoolReset>? = null)
 

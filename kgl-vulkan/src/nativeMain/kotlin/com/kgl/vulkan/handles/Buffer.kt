@@ -28,7 +28,17 @@ import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
 
-actual class Buffer(override val ptr: VkBuffer, actual val device: Device) : VkHandleNative<VkBuffer>(), VkHandle {
+actual class Buffer(
+		override val ptr: VkBuffer,
+		actual val device: Device,
+		actual val size: ULong
+) : VkHandleNative<VkBuffer>(), VkHandle {
+	internal var _memory: DeviceMemory? = null
+	internal var _memoryOffset: ULong = 0U
+
+	actual val memory: DeviceMemory? get() = _memory
+	actual val memoryOffset: ULong get() = _memoryOffset
+
 	actual val memoryRequirements: MemoryRequirements
 		get() {
 			val buffer = this
@@ -63,6 +73,8 @@ actual class Buffer(override val ptr: VkBuffer, actual val device: Device) : VkH
 			val result = vkBindBufferMemory(device.toVkType(), buffer.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
+			_memory = memory
+			_memoryOffset = memoryOffset
 		} finally {
 			VirtualStack.pop()
 		}

@@ -17,12 +17,38 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFW.*
 
-actual object Time {
-	actual fun set(time: Double) {
-		glfwSetTime(time)
-	}
+actual object Glfw {
+	actual var time: Double
+		get() = glfwGetTime()
+		set(value) {
+			glfwSetTime(value)
+		}
 
-	actual fun get(): Double = glfwGetTime()
-	actual fun getTimerValue(): ULong = glfwGetTimerValue().toULong()
-	actual fun getTimerFrequency(): ULong = glfwGetTimerFrequency().toULong()
+	actual val timerValue: ULong get() = glfwGetTimerValue().toULong()
+	actual val timerFrequency: ULong get() = glfwGetTimerFrequency().toULong()
+
+	actual fun init(): Boolean = glfwInit()
+	actual fun terminate() {
+		glfwTerminate()
+	}
+}
+
+actual fun pollEvents() {
+	glfwPollEvents()
+}
+
+actual fun waitEvents() {
+	glfwWaitEvents()
+}
+
+actual fun waitEvents(timeout: Double) {
+	glfwWaitEventsTimeout(timeout)
+}
+
+actual fun postEmptyEvent() {
+	glfwPostEmptyEvent()
+}
+
+actual fun setSwapInterval(interval: Int) {
+	glfwSwapInterval(interval)
 }

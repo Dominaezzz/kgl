@@ -17,6 +17,22 @@ package com.kgl.glfw
 
 import cglfw.*
 
+actual object Glfw {
+	actual var time: Double
+		get() = glfwGetTime()
+		set(value) {
+			glfwSetTime(value)
+		}
+
+	actual val timerValue: ULong get() = glfwGetTimerValue()
+	actual val timerFrequency: ULong get() = glfwGetTimerFrequency()
+
+	actual fun init(): Boolean = glfwInit() == GLFW_TRUE
+	actual fun terminate() {
+		glfwTerminate()
+	}
+}
+
 actual fun pollEvents() {
 	glfwPollEvents()
 }

@@ -24,6 +24,10 @@ import com.kgl.vulkan.utils.VkHandle
 
 expect class Buffer : VkHandle {
 	val device: Device
+	val size: ULong
+
+	val memory: DeviceMemory?
+	val memoryOffset: ULong
 
 	val memoryRequirements: MemoryRequirements
 

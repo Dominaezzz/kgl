@@ -24,7 +24,7 @@ import org.lwjgl.vulkan.VK11.*
 import org.lwjgl.vulkan.VkCommandBuffer
 import org.lwjgl.vulkan.VkCommandBufferAllocateInfo
 
-actual class CommandPool(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class CommandPool(override val ptr: Long, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val commandPool = this
 		val device = commandPool.device

@@ -19,5 +19,10 @@ import com.kgl.vulkan.utils.VkHandle
 
 expect class Framebuffer : VkHandle {
 	val device: Device
+	val renderPass: RenderPass
+	val attachments: Array<ImageView>?
+	val width: UInt
+	val height: UInt
+	val layers: UInt
 }
 

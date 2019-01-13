@@ -20,13 +20,28 @@ import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.ImageSubresourceBuilder
 import com.kgl.vulkan.dsls.ImageViewCreateInfoBuilder
 import com.kgl.vulkan.enums.Format
+import com.kgl.vulkan.enums.ImageType
 import com.kgl.vulkan.enums.ImageViewType
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Image(override val ptr: VkImage, actual val device: Device) : VkHandleNative<VkImage>(), VkHandle {
+actual class Image(
+		override val ptr: VkImage,
+		actual val device: Device,
+		actual val type: ImageType,
+		actual val format: Format,
+		actual val mipLevels: UInt,
+		actual val extent: Extent3D,
+		actual val arrayLayers: UInt
+) : VkHandleNative<VkImage>(), VkHandle {
+	internal var _memory: DeviceMemory? = null
+	internal var _memoryOffset: ULong = 0U
+
+	actual val memory: DeviceMemory? get() = _memory
+	actual val memoryOffset: ULong get() = _memoryOffset
+
 	actual val memoryRequirements: MemoryRequirements
 		get() {
 			val image = this
@@ -100,6 +115,8 @@ actual class Image(override val ptr: VkImage, actual val device: Device) : VkHan
 			val result = vkBindImageMemory(device.toVkType(), image.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
+			_memory = memory
+			_memoryOffset = memoryOffset
 		} finally {
 			VirtualStack.pop()
 		}

@@ -19,6 +19,7 @@ import com.kgl.core.Flag
 import kotlinx.io.core.Closeable
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 
@@ -115,12 +116,14 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		glfwSetWindowAspectRatio(ptr, number, denom)
 	}
 
-	actual fun setIcon(images: Array<Image>) {
-		glfwSetWindowIcon(ptr, TODO())
-	}
-
-	actual fun setIcon(images: Collection<Image>) {
-		glfwSetWindowIcon(ptr, TODO())
+	actual fun setIcon(images: Array<Image>): Unit = MemoryStack.stackPush().use { stack ->
+		val imageArray = GLFWImage.callocStack(images.size)
+		for (image in images) {
+			image.pixels.readDirect {
+				imageArray[0].set(image.width, image.height, it)
+			}
+		}
+		glfwSetWindowIcon(ptr, imageArray)
 	}
 
 	actual fun maximize() {

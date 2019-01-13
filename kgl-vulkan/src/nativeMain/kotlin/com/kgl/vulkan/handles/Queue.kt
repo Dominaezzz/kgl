@@ -25,7 +25,7 @@ import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Queue(override val ptr: VkQueue, actual val device: Device) : VkHandleNative<VkQueue>(), VkHandle {
+actual class Queue(override val ptr: VkQueue, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkQueue>(), VkHandle {
 	actual val checkpointDataNV: List<CheckpointDataNV>
 		get() {
 			val queue = this

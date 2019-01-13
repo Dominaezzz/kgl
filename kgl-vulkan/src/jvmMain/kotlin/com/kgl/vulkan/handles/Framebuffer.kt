@@ -21,7 +21,15 @@ import com.kgl.vulkan.utils.toVkType
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.vkDestroyFramebuffer
 
-actual class Framebuffer(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class Framebuffer(
+		override val ptr: Long,
+		actual val device: Device,
+		actual val renderPass: RenderPass,
+		actual val attachments: Array<ImageView>?,
+		actual val width: UInt,
+		actual val height: UInt,
+		actual val layers: UInt
+) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val framebuffer = this
 		val device = framebuffer.device

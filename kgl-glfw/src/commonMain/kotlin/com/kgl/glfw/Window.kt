@@ -35,7 +35,6 @@ expect class Window : Closeable {
 	fun setSizeLimits(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int)
 	fun setAspectRatio(number: Int, denom: Int)
 	fun setIcon(images: Array<Image>)
-	fun setIcon(images: Collection<Image>)
 	fun maximize()
 
 	fun setCursor(cursor: Cursor)

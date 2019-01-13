@@ -26,7 +26,11 @@ import org.lwjgl.vulkan.KHRExternalMemoryFd.vkGetMemoryFdKHR
 import org.lwjgl.vulkan.VK11.*
 import org.lwjgl.vulkan.VkMemoryGetFdInfoKHR
 
-actual class DeviceMemory(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class DeviceMemory(override val ptr: Long,
+                          actual val device: Device,
+                          actual val size: ULong,
+                          actual val memoryTypeIndex: UInt
+) : VkHandleJVM<Long>(), VkHandle {
 	actual val commitment: ULong
 		get() {
 			val memory = this

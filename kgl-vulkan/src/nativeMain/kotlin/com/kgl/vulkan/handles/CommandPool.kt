@@ -22,7 +22,7 @@ import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class CommandPool(override val ptr: VkCommandPool, actual val device: Device) : VkHandleNative<VkCommandPool>(), VkHandle {
+actual class CommandPool(override val ptr: VkCommandPool, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkCommandPool>(), VkHandle {
 	override fun close() {
 		val commandPool = this
 		val device = commandPool.device

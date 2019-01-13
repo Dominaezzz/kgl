@@ -20,7 +20,7 @@ import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val device: Device) : VkHandleNative<VkDescriptorPool>(), VkHandle {
+actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val device: Device, actual val maxSets: UInt) : VkHandleNative<VkDescriptorPool>(), VkHandle {
 	override fun close() {
 		val descriptorPool = this
 		val device = descriptorPool.device

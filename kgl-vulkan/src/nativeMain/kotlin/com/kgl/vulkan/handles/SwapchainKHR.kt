@@ -16,15 +16,22 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
+import com.kgl.vulkan.enums.Format
+import com.kgl.vulkan.enums.ImageType
 import com.kgl.vulkan.enums.SurfaceCounterEXT
-import com.kgl.vulkan.structs.PastPresentationTimingGOOGLE
-import com.kgl.vulkan.structs.RefreshCycleDurationGOOGLE
-import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class SwapchainKHR(override val ptr: VkSwapchainKHR, actual val surface: SurfaceKHR, actual val device: Device) : VkHandleNative<VkSwapchainKHR>(), VkHandle {
+actual class SwapchainKHR(
+		override val ptr: VkSwapchainKHR,
+		actual val surface: SurfaceKHR,
+		actual val device: Device,
+		actual val imageFormat: Format,
+		actual val imageExtent: Extent2D,
+		actual val imageArrayLayers: UInt
+) : VkHandleNative<VkSwapchainKHR>(), VkHandle {
 	override fun close() {
 		VirtualStack.push()
 		try {
@@ -55,7 +62,8 @@ actual class SwapchainKHR(override val ptr: VkSwapchainKHR, actual val surface: 
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result1)
 				}
-				return List(outputCountVar.value.toInt()) { Image(outputPtr[it]!!, device) }
+				return List(outputCountVar.value.toInt()) { Image(outputPtr[it]!!, device, ImageType.`2D`, imageFormat, 1U,
+						Extent3D(imageExtent.width, imageExtent.height, 1U), imageArrayLayers) }
 			} finally {
 				VirtualStack.pop()
 			}

@@ -30,7 +30,7 @@ import org.lwjgl.vulkan.KHRSwapchain.vkQueuePresentKHR
 import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints.vkGetQueueCheckpointDataNV
 import org.lwjgl.vulkan.VK11.*
 
-actual class Queue(override val ptr: VkQueue, actual val device: Device) : VkHandleJVM<VkQueue>(), VkHandle {
+actual class Queue(override val ptr: VkQueue, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleJVM<VkQueue>(), VkHandle {
 	actual val checkpointDataNV: List<CheckpointDataNV>
 		get() {
 			val queue = this

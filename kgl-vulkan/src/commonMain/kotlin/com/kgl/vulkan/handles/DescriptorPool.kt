@@ -19,6 +19,7 @@ import com.kgl.vulkan.utils.VkHandle
 
 expect class DescriptorPool : VkHandle {
 	val device: Device
+	val maxSets: UInt
 
 	fun reset()
 

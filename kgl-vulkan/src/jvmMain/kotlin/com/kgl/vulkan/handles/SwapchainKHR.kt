@@ -16,10 +16,10 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
+import com.kgl.vulkan.enums.Format
+import com.kgl.vulkan.enums.ImageType
 import com.kgl.vulkan.enums.SurfaceCounterEXT
-import com.kgl.vulkan.structs.PastPresentationTimingGOOGLE
-import com.kgl.vulkan.structs.RefreshCycleDurationGOOGLE
-import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.*
@@ -28,7 +28,14 @@ import org.lwjgl.vulkan.GOOGLEDisplayTiming.vkGetRefreshCycleDurationGOOGLE
 import org.lwjgl.vulkan.KHRSharedPresentableImage.vkGetSwapchainStatusKHR
 import org.lwjgl.vulkan.KHRSwapchain.*
 
-actual class SwapchainKHR(override val ptr: Long, actual val surface: SurfaceKHR, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class SwapchainKHR(
+		override val ptr: Long,
+		actual val surface: SurfaceKHR,
+		actual val device: Device,
+		actual val imageFormat: Format,
+		actual val imageExtent: Extent2D,
+		actual val imageArrayLayers: UInt
+) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		MemoryStack.stackPush()
 		try {
@@ -58,7 +65,8 @@ actual class SwapchainKHR(override val ptr: Long, actual val surface: SurfaceKHR
 					VK11.VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result1)
 				}
-				return List(outputCountPtr[0]) { Image(outputPtr[it], device) }
+				return List(outputCountPtr[0]) { Image(outputPtr[it], device, ImageType.`2D`, imageFormat, 1U,
+						Extent3D(imageExtent.width, imageExtent.height, 1U), imageArrayLayers) }
 			} finally {
 				MemoryStack.stackPop()
 			}

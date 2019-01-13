@@ -21,6 +21,8 @@ import kotlinx.io.core.IoBuffer
 
 expect class DeviceMemory : VkHandle {
 	val device: Device
+	val size: ULong
+	val memoryTypeIndex: UInt
 
 	val commitment: ULong
 

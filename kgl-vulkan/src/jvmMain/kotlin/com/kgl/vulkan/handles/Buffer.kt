@@ -32,7 +32,17 @@ import org.lwjgl.vulkan.VkBufferViewCreateInfo
 import org.lwjgl.vulkan.VkMemoryRequirements
 import org.lwjgl.vulkan.VkMemoryRequirements2
 
-actual class Buffer(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class Buffer(
+		override val ptr: Long,
+		actual val device: Device,
+		actual val size: ULong
+) : VkHandleJVM<Long>(), VkHandle {
+	internal var _memory: DeviceMemory? = null
+	internal var _memoryOffset: ULong = 0U
+
+	actual val memory: DeviceMemory? get() = _memory
+	actual val memoryOffset: ULong get() = _memoryOffset
+
 	actual val memoryRequirements: MemoryRequirements
 		get() {
 			val buffer = this
@@ -66,6 +76,8 @@ actual class Buffer(override val ptr: Long, actual val device: Device) : VkHandl
 			val result = vkBindBufferMemory(device.toVkType(), buffer.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
+			_memory = memory
+			_memoryOffset = memoryOffset
 		} finally {
 			MemoryStack.stackPop()
 		}

@@ -24,6 +24,7 @@ import com.kgl.vulkan.utils.VkHandle
 
 expect class Queue : VkHandle {
 	val device: Device
+	val queueFamilyIndex: UInt
 
 	val checkpointDataNV: List<CheckpointDataNV>
 

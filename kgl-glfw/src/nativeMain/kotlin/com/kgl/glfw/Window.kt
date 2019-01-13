@@ -124,13 +124,16 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	}
 
 	actual fun setIcon(images: Array<Image>) {
-		@Suppress("UNREACHABLE_CODE")
-		glfwSetWindowIcon(ptr, images.size, TODO())
-	}
-
-	actual fun setIcon(images: Collection<Image>) {
-		@Suppress("UNREACHABLE_CODE")
-		glfwSetWindowIcon(ptr, images.size, TODO())
+		glfwSetWindowIcon(ptr, images.size, createValues(images.size) { index ->
+			val image = images[index]
+			image.pixels.readDirect {
+				pixels = it.reinterpret()
+				4 * image.width * image.height
+			}
+			pixels
+			width = image.width
+			height = image.height
+		})
 	}
 
 	actual fun maximize() {

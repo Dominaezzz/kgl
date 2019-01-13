@@ -21,7 +21,12 @@ import cvulkan.*
 import kotlinx.cinterop.*
 import kotlinx.io.core.IoBuffer
 
-actual class DeviceMemory(override val ptr: VkDeviceMemory, actual val device: Device) : VkHandleNative<VkDeviceMemory>(), VkHandle {
+actual class DeviceMemory(
+		override val ptr: VkDeviceMemory,
+		actual val device: Device,
+		actual val size: ULong,
+		actual val memoryTypeIndex: UInt
+) : VkHandleNative<VkDeviceMemory>(), VkHandle {
 	actual val commitment: ULong
 		get() {
 			val memory = this

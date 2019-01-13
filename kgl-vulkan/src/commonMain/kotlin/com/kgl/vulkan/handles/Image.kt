@@ -20,12 +20,21 @@ import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.ImageSubresourceBuilder
 import com.kgl.vulkan.dsls.ImageViewCreateInfoBuilder
 import com.kgl.vulkan.enums.Format
+import com.kgl.vulkan.enums.ImageType
 import com.kgl.vulkan.enums.ImageViewType
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.VkHandle
 
 expect class Image : VkHandle {
 	val device: Device
+	val type: ImageType
+	val format: Format
+	val mipLevels: UInt
+	val extent: Extent3D
+	val arrayLayers: UInt
+
+	val memory: DeviceMemory?
+	val memoryOffset: ULong
 
 	val memoryRequirements: MemoryRequirements
 

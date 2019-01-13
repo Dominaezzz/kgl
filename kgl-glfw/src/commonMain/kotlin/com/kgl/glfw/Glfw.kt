@@ -15,24 +15,17 @@
  */
 package com.kgl.glfw
 
-import org.lwjgl.glfw.GLFW.*
+expect object Glfw {
+	var time: Double
+	val timerValue: ULong
+	val timerFrequency: ULong
 
-actual fun pollEvents() {
-	glfwPollEvents()
+	fun init(): Boolean
+	fun terminate()
 }
 
-actual fun waitEvents() {
-	glfwWaitEvents()
-}
-
-actual fun waitEvents(timeout: Double) {
-	glfwWaitEventsTimeout(timeout)
-}
-
-actual fun postEmptyEvent() {
-	glfwPostEmptyEvent()
-}
-
-actual fun setSwapInterval(interval: Int) {
-	glfwSwapInterval(interval)
-}
+expect fun pollEvents()
+expect fun waitEvents()
+expect fun waitEvents(timeout: Double)
+expect fun postEmptyEvent()
+expect fun setSwapInterval(interval: Int)
