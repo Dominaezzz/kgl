@@ -38,4 +38,3 @@ expect val Joystick.deviceName: String?
 expect val Joystick.isPresent: Boolean
 expect val Joystick.axes: List<Float>?
 expect val Joystick.buttons: List<Action>?
-expect fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit)

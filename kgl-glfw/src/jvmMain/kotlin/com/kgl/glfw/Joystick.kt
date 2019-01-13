@@ -59,7 +59,3 @@ actual val Joystick.buttons: List<Action>?
 			}
 		}
 	}
-
-actual fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit) {
-	TODO()
-}

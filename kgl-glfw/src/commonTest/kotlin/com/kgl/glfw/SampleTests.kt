@@ -23,7 +23,7 @@ class SampleTests {
 	@Test
 	@Ignore
 	fun testMe() {
-		assertEquals(Window.currentContext, null)
+		assertEquals(Glfw.currentContext, null)
 	}
 
 	@Test

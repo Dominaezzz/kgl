@@ -16,6 +16,7 @@
 package com.kgl.glfw
 
 import cglfw.*
+import cnames.structs.GLFWmonitor
 import kotlinx.cinterop.*
 
 actual class Monitor(val ptr: CPointer<GLFWmonitor>) {
@@ -59,22 +60,5 @@ actual class Monitor(val ptr: CPointer<GLFWmonitor>) {
 
 	actual fun setGamma(gamma: Float) {
 		glfwSetGamma(ptr, gamma)
-	}
-
-	actual companion object {
-		actual val primary: Monitor? get() = glfwGetPrimaryMonitor()?.let { Monitor(it) }
-
-		actual fun getMonitors(): List<Monitor> = memScoped {
-			val count = alloc<IntVar>()
-
-			object : AbstractList<Monitor>() {
-				val monitors: CPointer<CPointerVar<GLFWmonitor>> = glfwGetMonitors(count.ptr)!!
-
-				override val size: Int = count.value
-				override fun get(index: Int) = Monitor(monitors[index]!!)
-			}
-		}
-
-		actual fun setCallback(callback: (Monitor, Boolean) -> Unit) {}
 	}
 }

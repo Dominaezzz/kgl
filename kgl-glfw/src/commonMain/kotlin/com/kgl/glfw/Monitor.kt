@@ -23,10 +23,4 @@ expect class Monitor {
 	val videoModes: List<VideoMode>
 	var gammaRamp: GammaRamp
 	fun setGamma(gamma: Float)
-
-	companion object {
-		val primary: Monitor?
-		fun getMonitors(): List<Monitor>
-		fun setCallback(callback: (Monitor, Boolean) -> Unit)
-	}
 }

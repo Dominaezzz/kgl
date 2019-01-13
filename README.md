@@ -21,7 +21,7 @@ val window = Window(1080, 720, "Sample!") {
 }
 
 val (width, height) = window.size
-val mode = Monitor.primary!!.videoMode
+val mode = Glfw.primaryMonitor!!.videoMode
 window.position = ((mode.width - width) / 2) to ((mode.height - height) / 2)
 
 val instance = Instance.create(layers, extensions) {

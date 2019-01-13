@@ -140,8 +140,8 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 		glfwMaximizeWindow(ptr)
 	}
 
-	actual fun setCursor(cursor: Cursor) {
-		glfwSetCursor(ptr, cursor.ptr)
+	actual fun setCursor(cursor: Cursor?) {
+		glfwSetCursor(ptr, cursor?.ptr)
 	}
 
 	actual fun getKey(key: KeyboardKey): Action = Action.from(glfwGetKey(ptr, key.value))
@@ -425,29 +425,6 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 
 	@ThreadLocal
 	actual companion object {
-		actual var currentContext: Window?
-			get() = glfwGetCurrentContext()?.asStableRef<Window>()?.get()
-			set(value) {
-				glfwMakeContextCurrent(value?.ptr)
-			}
-
-		private var errorCallback: ((Int, String) -> Unit)? = null
-
-		actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
-			val wasNotPreviouslySet = errorCallback == null
-			errorCallback = callback
-
-			if (callback != null) {
-				if (wasNotPreviouslySet) {
-					glfwSetErrorCallback(staticCFunction { error, description ->
-						Window.errorCallback?.invoke(error, description!!.toKString())
-					})
-				}
-			} else {
-				glfwSetErrorCallback(null)
-			}
-		}
-
 		actual inline operator fun invoke(
 				width: Int,
 				height: Int,

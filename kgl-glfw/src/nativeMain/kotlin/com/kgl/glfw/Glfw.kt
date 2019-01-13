@@ -16,7 +16,10 @@
 package com.kgl.glfw
 
 import cglfw.*
+import cnames.structs.GLFWmonitor
+import kotlinx.cinterop.*
 
+@ThreadLocal
 actual object Glfw {
 	actual var time: Double
 		get() = glfwGetTime()
@@ -27,9 +30,54 @@ actual object Glfw {
 	actual val timerValue: ULong get() = glfwGetTimerValue()
 	actual val timerFrequency: ULong get() = glfwGetTimerFrequency()
 
+	actual var currentContext: Window?
+		get() = glfwGetCurrentContext()?.asStableRef<Window>()?.get()
+		set(value) {
+			glfwMakeContextCurrent(value?.ptr)
+		}
+
+	actual val primaryMonitor: Monitor? get() = glfwGetPrimaryMonitor()?.let { Monitor(it) }
+
+	actual val monitors: List<Monitor>
+		get() = memScoped {
+			val count = alloc<IntVar>()
+
+			object : AbstractList<Monitor>() {
+				val monitors: CPointer<CPointerVar<GLFWmonitor>> = glfwGetMonitors(count.ptr)!!
+
+				override val size: Int = count.value
+				override fun get(index: Int) = Monitor(monitors[index]!!)
+			}
+		}
+
 	actual fun init(): Boolean = glfwInit() == GLFW_TRUE
 	actual fun terminate() {
 		glfwTerminate()
+	}
+
+	private var errorCallback: ((Int, String) -> Unit)? = null
+
+	actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
+		val wasNotPreviouslySet = errorCallback == null
+		errorCallback = callback
+
+		if (callback != null) {
+			if (wasNotPreviouslySet) {
+				glfwSetErrorCallback(staticCFunction { error, description ->
+					Glfw.errorCallback?.invoke(error, description!!.toKString())
+				})
+			}
+		} else {
+			glfwSetErrorCallback(null)
+		}
+	}
+
+	actual fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit) {
+		TODO()
+	}
+
+	actual fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit) {
+		TODO()
 	}
 }
 

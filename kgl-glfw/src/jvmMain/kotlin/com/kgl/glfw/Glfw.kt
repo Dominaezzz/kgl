@@ -15,7 +15,9 @@
  */
 package com.kgl.glfw
 
+import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.system.MemoryUtil
 
 actual object Glfw {
 	actual var time: Double
@@ -27,9 +29,45 @@ actual object Glfw {
 	actual val timerValue: ULong get() = glfwGetTimerValue().toULong()
 	actual val timerFrequency: ULong get() = glfwGetTimerFrequency().toULong()
 
+	actual var currentContext: Window?
+		get() = TODO("Getting current context is not yet supported on JVM") // glfwGetCurrentContext()
+		set(value) {
+			glfwMakeContextCurrent(value?.ptr ?: 0L)
+		}
+
+	actual val primaryMonitor: Monitor? get() = glfwGetPrimaryMonitor().takeIf { it != 0L }?.let { Monitor(it) }
+
+	actual val monitors: List<Monitor>
+		get() {
+			return object : AbstractList<Monitor>() {
+				val monitors: PointerBuffer = glfwGetMonitors()!!
+
+				override fun get(index: Int) = Monitor(monitors[index])
+				override val size: Int = monitors.capacity()
+			}
+		}
+
 	actual fun init(): Boolean = glfwInit()
 	actual fun terminate() {
 		glfwTerminate()
+	}
+
+	actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
+		if (callback != null) {
+			glfwSetErrorCallback { error, description ->
+				callback(error, MemoryUtil.memUTF8(description))
+			}
+		} else {
+			glfwSetErrorCallback(null)
+		}?.free()
+	}
+
+	actual fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit) {
+		TODO()
+	}
+
+	actual fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit) {
+		TODO()
 	}
 }
 

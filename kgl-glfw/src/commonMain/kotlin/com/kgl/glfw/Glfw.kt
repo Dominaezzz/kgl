@@ -20,8 +20,16 @@ expect object Glfw {
 	val timerValue: ULong
 	val timerFrequency: ULong
 
+	var currentContext: Window?
+	val primaryMonitor: Monitor?
+	val monitors: List<Monitor>
+
 	fun init(): Boolean
 	fun terminate()
+
+	fun setErrorCallback(callback: ((Int, String) -> Unit)? = null)
+	fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit)
+	fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit)
 }
 
 expect fun pollEvents()

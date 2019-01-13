@@ -15,7 +15,6 @@
  */
 package com.kgl.glfw
 
-import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWVidMode
 import org.lwjgl.system.MemoryStack
@@ -54,20 +53,5 @@ actual class Monitor(val ptr: Long) {
 
 	actual fun setGamma(gamma: Float) {
 		glfwSetGamma(ptr, gamma)
-	}
-
-	actual companion object {
-		actual val primary: Monitor? get() = glfwGetPrimaryMonitor().takeIf { it != 0L }?.let { Monitor(it) }
-
-		actual fun getMonitors(): List<Monitor> {
-			return object : AbstractList<Monitor>() {
-				val monitors: PointerBuffer = glfwGetMonitors()!!
-
-				override fun get(index: Int) = Monitor(monitors[index])
-				override val size: Int = monitors.capacity()
-			}
-		}
-
-		actual fun setCallback(callback: (Monitor, Boolean) -> Unit) {}
 	}
 }

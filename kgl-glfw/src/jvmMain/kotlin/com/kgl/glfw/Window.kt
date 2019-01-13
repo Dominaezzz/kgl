@@ -116,22 +116,27 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		glfwSetWindowAspectRatio(ptr, number, denom)
 	}
 
-	actual fun setIcon(images: Array<Image>): Unit = MemoryStack.stackPush().use { stack ->
-		val imageArray = GLFWImage.callocStack(images.size)
-		for (image in images) {
-			image.pixels.readDirect {
-				imageArray[0].set(image.width, image.height, it)
+	actual fun setIcon(images: Array<Image>) {
+		MemoryStack.stackPush()
+		try {
+			val imageArray = GLFWImage.callocStack(images.size)
+			images.forEachIndexed { index, image ->
+				image.pixels.readDirect {
+					imageArray[index].set(image.width, image.height, it)
+				}
 			}
+			glfwSetWindowIcon(ptr, imageArray)
+		} finally {
+			MemoryStack.stackPop()
 		}
-		glfwSetWindowIcon(ptr, imageArray)
 	}
 
 	actual fun maximize() {
 		glfwMaximizeWindow(ptr)
 	}
 
-	actual fun setCursor(cursor: Cursor) {
-		glfwSetCursor(ptr, cursor.ptr)
+	actual fun setCursor(cursor: Cursor?) {
+		glfwSetCursor(ptr, cursor?.ptr ?: 0)
 	}
 
 	actual fun getKey(key: KeyboardKey): Action = Action.from(glfwGetKey(ptr, key.value))
@@ -303,22 +308,6 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 	}
 
 	actual companion object {
-		actual var currentContext: Window?
-			get() = TODO("Getting current context is not yet supported on JVM") // glfwGetCurrentContext()
-			set(value) {
-				glfwMakeContextCurrent(value?.ptr ?: 0L)
-			}
-
-		actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
-			if (callback != null) {
-				glfwSetErrorCallback { error, description ->
-					callback(error, MemoryUtil.memUTF8(description))
-				}
-			} else {
-				glfwSetErrorCallback(null)
-			}?.free()
-		}
-
 		actual inline operator fun invoke(
 				width: Int,
 				height: Int,

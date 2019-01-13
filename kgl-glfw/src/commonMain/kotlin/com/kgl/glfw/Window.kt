@@ -37,7 +37,7 @@ expect class Window : Closeable {
 	fun setIcon(images: Array<Image>)
 	fun maximize()
 
-	fun setCursor(cursor: Cursor)
+	fun setCursor(cursor: Cursor?)
 	fun getKey(key: KeyboardKey): Action
 	fun getKeyName(key: KeyboardKey): String?
 	fun getKeyName(scancode: Int): String?
@@ -60,10 +60,6 @@ expect class Window : Closeable {
 	fun setCharModsCallback(callback: ((Window, UInt, Flag<Mod>) -> Unit)?)
 
 	companion object {
-		var currentContext: Window?
-
-		fun setErrorCallback(callback: ((Int, String) -> Unit)? = null)
-
 		inline operator fun invoke(
 				width: Int,
 				height: Int,
