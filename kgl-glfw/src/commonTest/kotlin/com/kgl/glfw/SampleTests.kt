@@ -47,14 +47,14 @@ class SampleTests {
 			clientApi = ClientApi.None
 		}
 
-		val start = Time.get()
+		val start = Glfw.time
 
 		repeat(10000) {
 			window.shouldClose
 			pollEvents()
 		}
 
-		val end = Time.get()
+		val end = Glfw.time
 
 		println("Total ${end - start}")
 		println("Per: ${(end - start) / 10000}")
