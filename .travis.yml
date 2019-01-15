@@ -45,3 +45,10 @@ before_install:
 
 script:
   - ./gradlew build
+
+after_success:
+  - |
+    if [[ "x${TRAVIS_TAG}" != "x" ]]
+    then
+      ./gradlew bintrayUpload
+    fi
