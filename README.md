@@ -9,6 +9,8 @@ Kotlin Multiplatform frameworks for graphics.
 |Linux/MacOS|[![Build Status](https://travis-ci.com/Dominaezzz/kgl.svg?branch=master)](https://travis-ci.com/Dominaezzz/kgl)|
 |Windows|[![Build status](https://ci.appveyor.com/api/projects/status/github/Dominaezzz/kgl?svg=true)](https://ci.appveyor.com/project/Dominaezzz/kgl)|
 
+[ ![Download](https://api.bintray.com/packages/dominaezzz/kotlin-native/kgl/images/download.svg) ](https://bintray.com/dominaezzz/kotlin-native/kgl/0.1.0/link)
+
 KGL uses LWJGL for the JVM target and the respective native libraries on the native targets.
 It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
 
