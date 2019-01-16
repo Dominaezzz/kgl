@@ -28,7 +28,7 @@ publishing {
 		// apply changes to pom.xml files, see pom.gradle
 		pom.withXml(configureMavenCentralMetadata)
 
-		if (publication.name == 'metadata') {
+		if (publication.name == 'kotlinMultiplatform') {
 			// for our root metadata publication, set artifactId with a package and project name
 			publication.artifactId = "$project.name"
 		} else {
