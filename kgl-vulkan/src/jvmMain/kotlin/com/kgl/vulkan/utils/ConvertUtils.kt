@@ -90,10 +90,9 @@ internal inline fun Array<String>?.toVkType(): PointerBuffer? = this?.toVkType()
 internal inline fun Array<String>.toVkType(): PointerBuffer {
 	val stack = MemoryStack.stackGet()
 	return stack.mallocPointer(size).also {
-		forEach { item ->
-			it.put(stack.UTF8(item))
+		forEachIndexed { index, item ->
+			it.put(index, stack.UTF8(item))
 		}
-		it.flip()
 	}
 }
 
@@ -103,10 +102,9 @@ internal inline fun Collection<String>?.toVkType(): PointerBuffer? = this?.toVkT
 internal inline fun Collection<String>.toVkType(): PointerBuffer {
 	val stack = MemoryStack.stackGet()
 	return stack.mallocPointer(size).also {
-		forEach { item ->
-			it.put(stack.UTF8(item))
+		forEachIndexed { index, item ->
+			it.put(index, stack.UTF8(item))
 		}
-		it.flip()
 	}
 }
 
@@ -122,10 +120,9 @@ internal inline fun Collection<ClearValue>.toVkType(): VkClearValue.Buffer {
 internal inline fun Collection<VkEnum<*>>.toVkType(): IntBuffer {
 	val stack = MemoryStack.stackGet()
 	return stack.mallocInt(size).also {
-		forEach { item ->
-			it.put(item.value)
+		forEachIndexed { index, item ->
+			it.put(index, item.value)
 		}
-		it.flip()
 	}
 }
 
@@ -133,10 +130,9 @@ internal inline fun Collection<VkEnum<*>>.toVkType(): IntBuffer {
 internal inline fun Collection<VkFlag<*>>.toVkType(): IntBuffer {
 	val stack = MemoryStack.stackGet()
 	return stack.mallocInt(size).also {
-		forEach { item ->
-			it.put(item.value)
+		forEachIndexed { index, item ->
+			it.put(index, item.value)
 		}
-		it.flip()
 	}
 }
 
@@ -157,23 +153,20 @@ internal inline fun IoBuffer.toVkType(): ByteBuffer {
 @JvmName("toNativeType__")
 internal inline fun <reified T : Pointer> Collection<VkHandleJVM<T>>.toVkType(): PointerBuffer {
 	return MemoryStack.stackGet().mallocPointer(size).also {
-		forEach { item -> it.put(item.ptr) }
-		it.flip()
+		forEachIndexed { index, item -> it.put(index, item.ptr) }
 	}
 }
 
 @JvmName("toNativeType__")
 internal inline fun Collection<VkHandleJVM<Long>>.toVkType(): LongBuffer {
 	return MemoryStack.stackGet().mallocLong(size).also {
-		forEach { item -> it.put(item.ptr) }
-		it.flip()
+		forEachIndexed { index, item -> it.put(index, item.ptr) }
 	}
 }
 
 internal inline fun <reified T : Pointer> Array<out VkHandleJVM<T>>.toVkType(): PointerBuffer {
 	return MemoryStack.stackGet().mallocPointer(size).also {
-		forEach { item -> it.put(item.ptr) }
-		it.flip()
+		forEachIndexed { index, item -> it.put(index, item.ptr) }
 	}
 }
 
