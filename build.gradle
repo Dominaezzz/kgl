@@ -35,7 +35,14 @@ subprojects {
 	apply plugin: "maven-publish"
 
 	group = "com.kgl"
-	version = "0.1.4-dev-1"
+
+	def stdout = new ByteArrayOutputStream()
+	exec {
+		commandLine 'git', 'describe', '--tags'
+		standardOutput = stdout
+	}
+
+	version = stdout.toString().trim()
 
 	repositories {
 		mavenCentral()
