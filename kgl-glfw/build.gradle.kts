@@ -9,19 +9,27 @@ plugins {
 	`maven-publish`
 }
 
-val glfwVersion = "3.2.1"
+val glfwVersion = "3.3"
 val downloadsDir = buildDir.resolve("downloads")
-val glfwDir = downloadsDir.resolve("glfw.bin")
+val glfwWin64Dir = downloadsDir.resolve("glfw.bin.WIN64")
+val glfwMacosDir = downloadsDir.resolve("glfw.bin.MACOS")
 
-val downloadBinaries by tasks.registering(Download::class) {
+val downloadWin64Binaries by tasks.registering(Download::class) {
 	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.WIN64.zip")
-	dest(downloadsDir.resolve("glfw.bin.zip"))
+	dest(downloadsDir.resolve("glfw.bin.WIN64.zip"))
 
 	overwrite(false)
 }
 
-val unzipBinaries by tasks.registering(Copy::class) {
-	from(downloadBinaries.map { zipTree(it.dest) }) {
+val downloadMacOSBinaries by tasks.registering(Download::class) {
+	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.MACOS.zip")
+	dest(downloadsDir.resolve("glfw.bin.MACOS.zip"))
+
+	overwrite(false)
+}
+
+val unzipWin64Binaries by tasks.registering(Copy::class) {
+	from(downloadWin64Binaries.map { zipTree(it.dest) }) {
 		eachFile {
 			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
 		}
@@ -29,7 +37,19 @@ val unzipBinaries by tasks.registering(Copy::class) {
 
 		includeEmptyDirs = false
 	}
-	into(glfwDir)
+	into(glfwWin64Dir)
+}
+
+val unzipMacOSBinaries by tasks.registering(Copy::class) {
+	from(downloadMacOSBinaries.map { zipTree(it.dest) }) {
+		eachFile {
+			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+		}
+		include("glfw-*/include/**", "glfw-*/lib-macos/**")
+
+		includeEmptyDirs = false
+	}
+	into(glfwMacosDir)
 }
 
 kotlin {
@@ -71,9 +91,21 @@ kotlin {
 	val vulkanUnzipDocs = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs")
 	val vulkanHeaderDir = vulkanUnzipDocs.map { it.destinationDir.resolve("include") }
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64 {
+		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
+				"-include-binary", glfwWin64Dir.resolve("lib-mingw-w64/libglfw3.a").absolutePath
+		)
+	}
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64 {
+		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
+				"-include-binary", file("/usr/local/lib/libglfw3.a").absolutePath
+		)
+	}
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
+		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
+				"-include-binary", glfwMacosDir.resolve("lib-macos/libglfw3.a").absolutePath
+		)
+	}
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
@@ -105,12 +137,19 @@ kotlin {
 		mingwX64 {
 			compilations["main"].cinterops["cglfw"].apply {
 				tasks.named(interopProcessingTaskName) {
-					dependsOn(unzipBinaries)
+					dependsOn(unzipWin64Binaries)
 				}
-				includeDirs(unzipBinaries.map { it.destinationDir.resolve("include") })
-
-				// This doesn't seem to work. https://github.com/JetBrains/kotlin-native/issues/2314
-				// extraOpts("-include-binary", glfwDir.resolve("lib-mingw-w64/libglfw3.a").absolutePath)
+				includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
+			}
+		}
+	}
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) {
+		macosX64 {
+			compilations["main"].cinterops["cglfw"].apply {
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(unzipMacOSBinaries)
+				}
+				includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
 			}
 		}
 	}

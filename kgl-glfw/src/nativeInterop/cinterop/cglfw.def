@@ -2,9 +2,6 @@ package = cglfw
 headers = GLFW/glfw3.h
 headerFilter = GLFW/glfw3.h
 
-staticLibraries.mingw = libglfw3.a
-libraryPaths.mingw = build/downloads/glfw.bin/lib-mingw-w64 kgl-glfw/build/downloads/glfw.bin/lib-mingw-w64
-
 depends.osx = posix
 depends.mingw = posix windows
 depends.linux = posix
@@ -13,6 +10,6 @@ compilerOpts = -DGLFW_INCLUDE_VULKAN
 compilerOpts.linux = -I/usr/include -I/usr/local/include
 compilerOpts.osx = -I/usr/local/include
 
-linkerOpts.osx = -L/usr/local/lib -lglfw
+linkerOpts.osx = -framework Cocoa -framework OpenGL -framework IOKit -framework CoreVideo
 linkerOpts.mingw = -lgdi32
-linkerOpts.linux = -L/usr/lib64 -L/usr/local/lib -L/usr/lib/x86_64-linux-gnu -lglfw3 -ldl -lm -lGL -lGLU -lX11
+linkerOpts.linux = -L/usr/lib64 -L/usr/local/lib -L/usr/lib/x86_64-linux-gnu -ldl -lm -lGL -lGLU -lX11

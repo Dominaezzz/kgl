@@ -10,12 +10,9 @@ jobs:
       matrix:
         os: [ubuntu-16.04, macos-latest, windows-latest]
     steps:
-      - name: 'Install GLFW dependencies'
-        run: sudo apt install libvulkan-dev doxygen xorg-dev libglu1-mesa-dev
-        if: matrix.os == 'ubuntu-16.04'
-
       - name: 'Build GLFW from source'
         run: |
+          sudo apt install libvulkan-dev doxygen xorg-dev libglu1-mesa-dev
           git clone https://github.com/glfw/glfw.git
           cd glfw
           cmake .
@@ -23,10 +20,6 @@ jobs:
           sudo make install
           cd ..
         if: matrix.os == 'ubuntu-16.04'
-
-      - name: 'Install GLFW'
-        run: brew install glfw --HEAD
-        if: matrix.os == 'macos-latest'
 
       - uses: actions/setup-ruby@v1
         with:
