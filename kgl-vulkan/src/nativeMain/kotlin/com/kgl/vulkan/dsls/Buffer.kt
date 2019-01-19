@@ -49,11 +49,15 @@ actual class BufferCreateInfoBuilder(internal val target: VkBufferCreateInfo) {
 			target.sharingMode = value.toVkType()
 		}
 
-	internal fun init(queueFamilyIndices: UIntArray) {
+	internal fun init(queueFamilyIndices: UIntArray?) {
 		target.sType = cvulkan.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO
 		target.pNext = null
-		target.pQueueFamilyIndices = queueFamilyIndices.toVkType()
-		target.queueFamilyIndexCount = queueFamilyIndices.size.toUInt()
+		if (queueFamilyIndices != null) {
+			target.pQueueFamilyIndices = queueFamilyIndices.toVkType()
+			target.queueFamilyIndexCount = queueFamilyIndices.size.toUInt()
+		} else {
+			target.queueFamilyIndexCount = 0U
+		}
 	}
 }
 

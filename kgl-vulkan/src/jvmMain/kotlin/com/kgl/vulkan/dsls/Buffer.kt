@@ -50,10 +50,10 @@ actual class BufferCreateInfoBuilder(internal val target: VkBufferCreateInfo) {
 			target.sharingMode(value.toVkType())
 		}
 
-	internal fun init(queueFamilyIndices: UIntArray) {
+	internal fun init(queueFamilyIndices: UIntArray?) {
 		target.sType(VK11.VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO)
 		target.pNext(0)
-		target.pQueueFamilyIndices(queueFamilyIndices.toVkType())
+		target.pQueueFamilyIndices(queueFamilyIndices?.toVkType())
 	}
 }
 

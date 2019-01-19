@@ -230,16 +230,12 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun bindVertexBuffers(
-			firstBinding: UInt,
-			buffers: Collection<Buffer>,
-			offsets: ULongArray
-	) {
+	actual fun bindVertexBuffers(firstBinding: UInt, buffers: Collection<Pair<Buffer, ULong>>) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			vkCmdBindVertexBuffers(commandBuffer.toVkType(), firstBinding.toVkType(),
-					buffers.toVkType(), offsets.toVkType())
+					buffers.map { it.first }.toVkType(), buffers.map { it.second.toLong() }.toLongArray().toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}

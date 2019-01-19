@@ -54,9 +54,9 @@ expect class Device : VkHandle {
 
 	fun createQueryPool(block: QueryPoolCreateInfoBuilder.() -> Unit = {}): QueryPool
 
-	fun createBuffer(queueFamilyIndices: UIntArray, block: BufferCreateInfoBuilder.() -> Unit = {}): Buffer
+	fun createBuffer(queueFamilyIndices: UIntArray? = null, block: BufferCreateInfoBuilder.() -> Unit = {}): Buffer
 
-	fun createImage(queueFamilyIndices: UIntArray, block: ImageCreateInfoBuilder.() -> Unit): Image
+	fun createImage(queueFamilyIndices: UIntArray? = null, block: ImageCreateInfoBuilder.() -> Unit): Image
 
 	fun createShaderModule(code: UByteArray, block: ShaderModuleCreateInfoBuilder.() -> Unit = {}): ShaderModule
 

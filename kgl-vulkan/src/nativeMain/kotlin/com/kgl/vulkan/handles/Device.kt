@@ -228,7 +228,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createBuffer(queueFamilyIndices: UIntArray, block: BufferCreateInfoBuilder.() -> Unit): Buffer {
+	actual fun createBuffer(queueFamilyIndices: UIntArray?, block: BufferCreateInfoBuilder.() -> Unit): Buffer {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -246,7 +246,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createImage(queueFamilyIndices: UIntArray, block: ImageCreateInfoBuilder.() -> Unit): Image {
+	actual fun createImage(queueFamilyIndices: UIntArray?, block: ImageCreateInfoBuilder.() -> Unit): Image {
 		val device = this
 		VirtualStack.push()
 		try {

@@ -61,7 +61,7 @@ expect class CommandBuffer : VkHandle {
 
 	fun bindIndexBuffer(buffer: Buffer, offset: ULong, indexType: IndexType)
 
-	fun bindVertexBuffers(firstBinding: UInt, buffers: Collection<Buffer>, offsets: ULongArray)
+	fun bindVertexBuffers(firstBinding: UInt, buffers: Collection<Pair<Buffer, ULong>>)
 
 	fun draw(vertexCount: UInt, instanceCount: UInt, firstVertex: UInt, firstInstance: UInt)
 
