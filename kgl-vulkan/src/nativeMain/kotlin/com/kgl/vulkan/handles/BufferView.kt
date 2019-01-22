@@ -23,12 +23,14 @@ import cvulkan.VkBufferView
 import cvulkan.vkDestroyBufferView
 
 actual class BufferView(override val ptr: VkBufferView, actual val buffer: Buffer) : VkHandleNative<VkBufferView>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val bufferView = this
 		val device = bufferView.buffer.device
 		VirtualStack.push()
 		try {
-			vkDestroyBufferView(device.toVkType(), bufferView.toVkType(), null)
+			dispatchTable.vkDestroyBufferView!!(device.toVkType(), bufferView.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

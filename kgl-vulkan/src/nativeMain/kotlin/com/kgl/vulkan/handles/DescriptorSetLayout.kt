@@ -22,14 +22,17 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
+import kotlinx.cinterop.invoke
 
 actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual val device: Device) : VkHandleNative<VkDescriptorSetLayout>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val descriptorSetLayout = this
 		val device = descriptorSetLayout.device
 		VirtualStack.push()
 		try {
-			vkDestroyDescriptorSetLayout(device.toVkType(), descriptorSetLayout.toVkType(), null)
+			dispatchTable.vkDestroyDescriptorSetLayout(device.toVkType(), descriptorSetLayout.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -46,7 +49,7 @@ actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDescriptorUpdateTemplateVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateDescriptorUpdateTemplate(device.toVkType(), target, null,
+			val result = dispatchTable.vkCreateDescriptorUpdateTemplate!!(device.toVkType(), target, null,
 					outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DescriptorUpdateTemplate(outputVar.value!!, this.device)

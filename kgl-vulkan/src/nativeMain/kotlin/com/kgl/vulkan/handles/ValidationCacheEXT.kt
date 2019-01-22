@@ -18,17 +18,17 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_SUCCESS
 import cvulkan.VkValidationCacheEXT
-import cvulkan.vkDestroyValidationCacheEXT
-import cvulkan.vkMergeValidationCachesEXT
 import kotlinx.io.core.IoBuffer
 
 actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val validationCache = this
 		val device = validationCache.device
 		VirtualStack.push()
 		try {
-			vkDestroyValidationCacheEXT(device.toVkType(), validationCache.toVkType(), null)
+			dispatchTable.vkDestroyValidationCacheEXT!!(device.toVkType(), validationCache.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -40,7 +40,7 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		val device = validationCache.device
 		VirtualStack.push()
 		try {
-//            val result = vkGetValidationCacheDataEXT(device.toVkType(), validationCache.toVkType(),
+//            val result = dispatchTable.vkGetValidationCacheDataEXT!!(device.toVkType(), validationCache.toVkType(),
 //                    data?.readRemaining?.toULong() ?: 0U, data.toVkType())
 //            when (result) {
 //                VK_SUCCESS -> Unit
@@ -57,7 +57,7 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		val device = dstCache.device
 		VirtualStack.push()
 		try {
-			val result = vkMergeValidationCachesEXT(device.toVkType(), dstCache.toVkType(),
+			val result = dispatchTable.vkMergeValidationCachesEXT!!(device.toVkType(), dstCache.toVkType(),
 					srcCaches.size.toUInt(), srcCaches.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {

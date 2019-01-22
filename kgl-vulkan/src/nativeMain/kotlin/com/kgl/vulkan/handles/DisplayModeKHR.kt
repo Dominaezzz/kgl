@@ -30,6 +30,8 @@ actual class DisplayModeKHR(
 		actual val physicalDevice: PhysicalDevice,
 		actual val display: DisplayKHR
 ) : VkHandleNative<VkDisplayModeKHR>(), VkHandle {
+	internal val dispatchTable = physicalDevice.dispatchTable
+
 	override fun close() {
 		TODO()
 	}
@@ -41,7 +43,7 @@ actual class DisplayModeKHR(
 		try {
 			val outputVar = VirtualStack.alloc<VkDisplayPlaneCapabilitiesKHR>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetDisplayPlaneCapabilitiesKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetDisplayPlaneCapabilitiesKHR!!(physicalDevice.toVkType(),
 					mode.toVkType(), planeIndex.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilitiesKHR.from(outputVar)
@@ -61,7 +63,7 @@ actual class DisplayModeKHR(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDisplayPlaneCapabilities2KHR>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetDisplayPlaneCapabilities2KHR(physicalDevice.toVkType(), target,
+			val result = dispatchTable.vkGetDisplayPlaneCapabilities2KHR!!(physicalDevice.toVkType(), target,
 					outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilities2KHR.from(outputVar)

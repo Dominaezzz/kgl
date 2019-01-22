@@ -20,15 +20,17 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkPipelineLayout
-import cvulkan.vkDestroyPipelineLayout
+import kotlinx.cinterop.invoke
 
 actual class PipelineLayout(override val ptr: VkPipelineLayout, actual val device: Device) : VkHandleNative<VkPipelineLayout>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val pipelineLayout = this
 		val device = pipelineLayout.device
 		VirtualStack.push()
 		try {
-			vkDestroyPipelineLayout(device.toVkType(), pipelineLayout.toVkType(), null)
+			dispatchTable.vkDestroyPipelineLayout(device.toVkType(), pipelineLayout.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

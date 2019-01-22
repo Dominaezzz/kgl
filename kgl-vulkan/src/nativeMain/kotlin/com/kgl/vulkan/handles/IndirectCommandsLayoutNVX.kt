@@ -23,13 +23,14 @@ import cvulkan.VkIndirectCommandsLayoutNVX
 import cvulkan.vkDestroyIndirectCommandsLayoutNVX
 
 actual class IndirectCommandsLayoutNVX(override val ptr: VkIndirectCommandsLayoutNVX, actual val device: Device) : VkHandleNative<VkIndirectCommandsLayoutNVX>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val indirectCommandsLayout = this
 		val device = indirectCommandsLayout.device
 		VirtualStack.push()
 		try {
-			vkDestroyIndirectCommandsLayoutNVX(device.toVkType(), indirectCommandsLayout.toVkType(),
-					null)
+			dispatchTable.vkDestroyIndirectCommandsLayoutNVX!!(device.toVkType(), indirectCommandsLayout.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

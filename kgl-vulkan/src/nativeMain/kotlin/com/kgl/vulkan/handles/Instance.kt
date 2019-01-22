@@ -26,6 +26,15 @@ import cvulkan.*
 import kotlinx.cinterop.*
 
 actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>(), VkHandle {
+	internal val dispatchTable = InstanceDispatchTable {
+		VirtualStack.push()
+		try {
+			globalDispatchTable.vkGetInstanceProcAddr(ptr, it.toVkType())
+		} finally {
+			VirtualStack.pop()
+		}
+	}
+	
 	actual val physicalDevices: List<PhysicalDevice>
 		get() {
 			val instance = this
@@ -33,7 +42,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkEnumeratePhysicalDevices(instance.toVkType(), outputCountPtr, null)
+				val result = dispatchTable.vkEnumeratePhysicalDevices(instance.toVkType(), outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -41,7 +50,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkPhysicalDeviceVar>(outputCountVar.value.toInt())
-				val result1 = vkEnumeratePhysicalDevices(instance.toVkType(), outputCountPtr,
+				val result1 = dispatchTable.vkEnumeratePhysicalDevices(instance.toVkType(), outputCountPtr,
 						outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -61,7 +70,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkEnumeratePhysicalDeviceGroups(instance.toVkType(), outputCountPtr,
+				val result = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(instance.toVkType(), outputCountPtr,
 						null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -70,7 +79,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkPhysicalDeviceGroupProperties>(outputCountVar.value.toInt())
-				val result1 = vkEnumeratePhysicalDeviceGroups(instance.toVkType(), outputCountPtr,
+				val result1 = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(instance.toVkType(), outputCountPtr,
 						outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -89,7 +98,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		val instance = this
 		VirtualStack.push()
 		try {
-			vkDestroyInstance(instance.toVkType(), null)
+			dispatchTable.vkDestroyInstance(instance.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -99,7 +108,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		val instance = this
 		VirtualStack.push()
 		try {
-			vkGetInstanceProcAddr(instance.toVkType(), name)
+			globalDispatchTable.vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -115,7 +124,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkSurfaceKHRVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateDisplayPlaneSurfaceKHR(instance.toVkType(), target, null, outputPtr)
+			val result = dispatchTable.vkCreateDisplayPlaneSurfaceKHR!!(instance.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceKHR(outputVar.value!!, this)
 		} finally {
@@ -138,7 +147,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			val stablePtr = target.pUserData!!.asStableRef<Any>()
 
 			val outputVar = VirtualStack.alloc<VkDebugUtilsMessengerEXTVar>()
-			val result = vkCreateDebugUtilsMessengerEXT(ptr, target.ptr, null, outputVar.ptr)
+			val result = dispatchTable.vkCreateDebugUtilsMessengerEXT!!(ptr, target.ptr, null, outputVar.ptr)
 			if (result != VK_SUCCESS) {
 				stablePtr.dispose()
 				handleVkResult(result)
@@ -163,7 +172,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			val stablePtr = target.pUserData!!.asStableRef<Any>()
 
 			val outputVar = VirtualStack.alloc<VkDebugReportCallbackEXTVar>()
-			val result = vkCreateDebugReportCallbackEXT(ptr, target.ptr, null, outputVar.ptr)
+			val result = dispatchTable.vkCreateDebugReportCallbackEXT!!(ptr, target.ptr, null, outputVar.ptr)
 			if (result != VK_SUCCESS) {
 				stablePtr.dispose()
 				handleVkResult(result)
@@ -186,9 +195,9 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		val instance = this
 		VirtualStack.push()
 		try {
-			vkDebugReportMessageEXT(instance.toVkType(), flags.toVkType(), objectType.toVkType(),
+			dispatchTable.vkDebugReportMessageEXT!!(instance.toVkType(), flags.toVkType(), objectType.toVkType(),
 					`object`.toVkType(), location.toVkType(), messageCode.toVkType(),
-					layerPrefix, message)
+					layerPrefix.toVkType(), message.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -206,7 +215,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			val builder = DebugUtilsMessengerCallbackDataEXTBuilder(target.pointed)
 			builder.init()
 			builder.apply(block)
-			vkSubmitDebugUtilsMessageEXT(instance.toVkType(), messageSeverity.toVkType(),
+			dispatchTable.vkSubmitDebugUtilsMessageEXT!!(instance.toVkType(), messageSeverity.toVkType(),
 					messageTypes.toVkType(), target)
 		} finally {
 			VirtualStack.pop()
@@ -214,13 +223,22 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 	}
 
 	actual companion object {
+		private val globalDispatchTable = GlobalDispatchTable {
+			VirtualStack.push()
+			try {
+				Loader.vkGetInstanceProcAddr(null, it.toVkType())
+			} finally {
+				VirtualStack.pop()
+			}
+		}
+
 		actual val version: VkVersion
 			get() {
 				VirtualStack.push()
 				try {
 					val outputVar = VirtualStack.alloc<UIntVar>()
 					val outputPtr = outputVar.ptr
-					val result = vkEnumerateInstanceVersion(outputPtr)
+					val result = globalDispatchTable.vkEnumerateInstanceVersion!!(outputPtr)
 					if (result != VK_SUCCESS) handleVkResult(result)
 					return VkVersion(outputVar.value)
 				} finally {
@@ -234,7 +252,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				try {
 					val outputCountVar = VirtualStack.alloc<UIntVar>()
 					val outputCountPtr = outputCountVar.ptr
-					val result = vkEnumerateInstanceLayerProperties(outputCountPtr, null)
+					val result = globalDispatchTable.vkEnumerateInstanceLayerProperties(outputCountPtr, null)
 					when (result) {
 						VK_SUCCESS -> Unit
 						VK_INCOMPLETE -> Unit
@@ -242,7 +260,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 					}
 					val outputPtr =
 							VirtualStack.allocArray<VkLayerProperties>(outputCountVar.value.toInt())
-					val result1 = vkEnumerateInstanceLayerProperties(outputCountPtr, outputPtr)
+					val result1 = globalDispatchTable.vkEnumerateInstanceLayerProperties(outputCountPtr, outputPtr)
 					when (result1) {
 						VK_SUCCESS -> Unit
 						VK_INCOMPLETE -> Unit
@@ -259,7 +277,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkEnumerateInstanceExtensionProperties(layerName, outputCountPtr, null)
+				val result = globalDispatchTable.vkEnumerateInstanceExtensionProperties(layerName?.toVkType(), outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -267,7 +285,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkExtensionProperties>(outputCountVar.value.toInt())
-				val result1 = vkEnumerateInstanceExtensionProperties(layerName, outputCountPtr, outputPtr)
+				val result1 = globalDispatchTable.vkEnumerateInstanceExtensionProperties(layerName?.toVkType(), outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -292,7 +310,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				builder.apply(block)
 				val outputVar = VirtualStack.alloc<VkInstanceVar>()
 				val outputPtr = outputVar.ptr
-				val result = vkCreateInstance(target, null, outputPtr)
+				val result = globalDispatchTable.vkCreateInstance(target, null, outputPtr)
 				if (result != VK_SUCCESS) handleVkResult(result)
 				return Instance(outputVar.value!!)
 			} finally {

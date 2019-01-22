@@ -20,14 +20,17 @@ import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.io.core.IoBuffer
+import kotlinx.cinterop.invoke
 
 actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val pipeline = this
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-			vkDestroyPipeline(device.toVkType(), pipeline.toVkType(), null)
+			dispatchTable.vkDestroyPipeline(device.toVkType(), pipeline.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -43,7 +46,7 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-//			val result = vkGetShaderInfoAMD(device.toVkType(), pipeline.toVkType(),
+//			val result = dispatchTable.vkGetShaderInfoAMD!!(device.toVkType(), pipeline.toVkType(),
 //					shaderStage.toVkType(), infoType.toVkType(), info?.writeRemaining?.toULong() ?:
 //			0U, info.toVkType())
 //			when (result) {
@@ -61,7 +64,7 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-			val result = vkCompileDeferredNV(device.toVkType(), pipeline.toVkType(),
+			val result = dispatchTable.vkCompileDeferredNV!!(device.toVkType(), pipeline.toVkType(),
 					shader.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -75,7 +78,7 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		VirtualStack.push()
 		try {
 			data.writeDirect {
-				val result = vkGetRayTracingShaderGroupHandlesNV(device.toVkType(), pipeline.toVkType(),
+				val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(device.toVkType(), pipeline.toVkType(),
 						firstGroup.toVkType(), groupCount.toVkType(), data.writeRemaining.toULong(), it)
 				if (result != VK_SUCCESS) handleVkResult(result)
 				data.writeRemaining

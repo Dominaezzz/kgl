@@ -20,15 +20,17 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkImageView
-import cvulkan.vkDestroyImageView
+import kotlinx.cinterop.invoke
 
 actual class ImageView(override val ptr: VkImageView, actual val image: Image) : VkHandleNative<VkImageView>(), VkHandle {
+	internal val dispatchTable = image.dispatchTable
+
 	override fun close() {
 		val imageView = this
 		val device = imageView.image.device
 		VirtualStack.push()
 		try {
-			vkDestroyImageView(device.toVkType(), imageView.toVkType(), null)
+			dispatchTable.vkDestroyImageView(device.toVkType(), imageView.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

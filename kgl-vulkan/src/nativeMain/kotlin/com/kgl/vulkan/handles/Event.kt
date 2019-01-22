@@ -16,15 +16,21 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_EVENT_RESET
+import cvulkan.VK_EVENT_SET
+import cvulkan.VK_SUCCESS
+import cvulkan.VkEvent
+import kotlinx.cinterop.invoke
 
 actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHandleNative<VkEvent>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val event = this
 		val device = event.device
 		VirtualStack.push()
 		try {
-			vkDestroyEvent(device.toVkType(), event.toVkType(), null)
+			dispatchTable.vkDestroyEvent(device.toVkType(), event.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -36,7 +42,7 @@ actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHan
 			val device = event.device
 			VirtualStack.push()
 			try {
-				val result = vkGetEventStatus(device.toVkType(), event.toVkType())
+				val result = dispatchTable.vkGetEventStatus(device.toVkType(), event.toVkType())
 				return when (result) {
 					VK_EVENT_SET -> true
 					VK_EVENT_RESET -> false
@@ -52,7 +58,7 @@ actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHan
 		val device = event.device
 		VirtualStack.push()
 		try {
-			val result = vkSetEvent(device.toVkType(), event.toVkType())
+			val result = dispatchTable.vkSetEvent(device.toVkType(), event.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -64,7 +70,7 @@ actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHan
 		val device = event.device
 		VirtualStack.push()
 		try {
-			val result = vkResetEvent(device.toVkType(), event.toVkType())
+			val result = dispatchTable.vkResetEvent(device.toVkType(), event.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()

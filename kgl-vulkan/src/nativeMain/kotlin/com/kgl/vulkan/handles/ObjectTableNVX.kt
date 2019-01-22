@@ -20,16 +20,17 @@ import com.kgl.vulkan.enums.ObjectEntryTypeNVX
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_SUCCESS
 import cvulkan.VkObjectTableNVX
-import cvulkan.vkDestroyObjectTableNVX
-import cvulkan.vkUnregisterObjectsNVX
+import kotlinx.cinterop.invoke
 
 actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val device: Device) : VkHandleNative<VkObjectTableNVX>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val objectTable = this
 		val device = objectTable.device
 		VirtualStack.push()
 		try {
-			vkDestroyObjectTableNVX(device.toVkType(), objectTable.toVkType(), null)
+			dispatchTable.vkDestroyObjectTableNVX!!(device.toVkType(), objectTable.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -43,7 +44,7 @@ actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val devic
 		try {
 			val targets = RegisterObjectsNVXBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray()
-//			val result = vkRegisterObjectsNVX(device.toVkType(), objectTable.toVkType(),
+//			val result = dispatchTable.vkRegisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
 //					targets.size.toUInt(), targetArray, objectIndices.toVkType())
 //			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -56,7 +57,7 @@ actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val devic
 		val device = objectTable.device
 		VirtualStack.push()
 		try {
-			val result = vkUnregisterObjectsNVX(device.toVkType(), objectTable.toVkType(),
+			val result = dispatchTable.vkUnregisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
 					objectEntryTypes.size.toUInt(), objectEntryTypes.toVkType(),
 					objectIndices.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)

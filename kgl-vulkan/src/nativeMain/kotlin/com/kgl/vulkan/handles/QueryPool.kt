@@ -17,16 +17,21 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_NOT_READY
+import cvulkan.VK_SUCCESS
+import cvulkan.VkQueryPool
+import kotlinx.cinterop.invoke
 import kotlinx.io.core.IoBuffer
 
 actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val queryPool = this
 		val device = queryPool.device
 		VirtualStack.push()
 		try {
-			vkDestroyQueryPool(device.toVkType(), queryPool.toVkType(), null)
+			dispatchTable.vkDestroyQueryPool(device.toVkType(), queryPool.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -45,7 +50,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		try {
 			TODO()
 			data.writeDirect {
-				val result = vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
+				val result = dispatchTable.vkGetQueryPoolResults!!(device.toVkType(), queryPool.toVkType(),
 						firstQuery.toVkType(), queryCount.toVkType(),
 						data.writeRemaining.toULong(), it,
 						stride.toVkType(), flags.toVkType())

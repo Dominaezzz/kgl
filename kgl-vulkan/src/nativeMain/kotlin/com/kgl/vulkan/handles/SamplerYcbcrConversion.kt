@@ -20,15 +20,17 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkSamplerYcbcrConversion
-import cvulkan.vkDestroySamplerYcbcrConversion
+import kotlinx.cinterop.invoke
 
 actual class SamplerYcbcrConversion(override val ptr: VkSamplerYcbcrConversion, actual val device: Device) : VkHandleNative<VkSamplerYcbcrConversion>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val ycbcrConversion = this
 		val device = ycbcrConversion.device
 		VirtualStack.push()
 		try {
-			vkDestroySamplerYcbcrConversion(device.toVkType(), ycbcrConversion.toVkType(), null)
+			dispatchTable.vkDestroySamplerYcbcrConversion!!(device.toVkType(), ycbcrConversion.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

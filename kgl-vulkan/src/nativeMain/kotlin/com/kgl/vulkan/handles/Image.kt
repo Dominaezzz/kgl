@@ -36,6 +36,8 @@ actual class Image(
 		actual val extent: Extent3D,
 		actual val arrayLayers: UInt
 ) : VkHandleNative<VkImage>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	internal var _memory: DeviceMemory? = null
 	internal var _memoryOffset: ULong = 0U
 
@@ -50,7 +52,7 @@ actual class Image(
 			try {
 				val outputVar = VirtualStack.alloc<VkMemoryRequirements>()
 				val outputPtr = outputVar.ptr
-				vkGetImageMemoryRequirements(device.toVkType(), image.toVkType(), outputPtr)
+				dispatchTable.vkGetImageMemoryRequirements(device.toVkType(), image.toVkType(), outputPtr)
 				return MemoryRequirements.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -65,11 +67,11 @@ actual class Image(
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
+				dispatchTable.vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
 						outputCountPtr, null)
 				val outputPtr =
 						VirtualStack.allocArray<VkSparseImageMemoryRequirements>(outputCountVar.value.toInt())
-				vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
+				dispatchTable.vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
 						outputCountPtr, outputPtr)
 				return List(outputCountVar.value.toInt()) {
 					SparseImageMemoryRequirements.from(outputPtr[it])
@@ -87,7 +89,7 @@ actual class Image(
 			try {
 				val outputVar = VirtualStack.alloc<VkImageDrmFormatModifierPropertiesEXT>()
 				val outputPtr = outputVar.ptr
-				val result = vkGetImageDrmFormatModifierPropertiesEXT(device.toVkType(),
+				val result = dispatchTable.vkGetImageDrmFormatModifierPropertiesEXT!!(device.toVkType(),
 						image.toVkType(), outputPtr)
 				if (result != VK_SUCCESS) handleVkResult(result)
 				return ImageDrmFormatModifierPropertiesEXT.from(outputVar)
@@ -101,7 +103,7 @@ actual class Image(
 		val device = image.device
 		VirtualStack.push()
 		try {
-			vkDestroyImage(device.toVkType(), image.toVkType(), null)
+			dispatchTable.vkDestroyImage(device.toVkType(), image.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -112,7 +114,7 @@ actual class Image(
 		val device = image.device
 		VirtualStack.push()
 		try {
-			val result = vkBindImageMemory(device.toVkType(), image.toVkType(), memory.toVkType(),
+			val result = dispatchTable.vkBindImageMemory(device.toVkType(), image.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 			_memory = memory
@@ -133,7 +135,7 @@ actual class Image(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkSubresourceLayout>()
 			val outputPtr = outputVar.ptr
-			vkGetImageSubresourceLayout(device.toVkType(), image.toVkType(), target, outputPtr)
+			dispatchTable.vkGetImageSubresourceLayout(device.toVkType(), image.toVkType(), target, outputPtr)
 			return SubresourceLayout.from(outputVar)
 		} finally {
 			VirtualStack.pop()
@@ -155,7 +157,7 @@ actual class Image(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkImageViewVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateImageView(device.toVkType(), target, null, outputPtr)
+			val result = dispatchTable.vkCreateImageView(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return ImageView(outputVar.value!!, this)
 		} finally {
@@ -174,7 +176,7 @@ actual class Image(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkMemoryRequirements2>()
 			val outputPtr = outputVar.ptr
-			vkGetImageMemoryRequirements2(device.toVkType(), target, outputPtr)
+			dispatchTable.vkGetImageMemoryRequirements2!!(device.toVkType(), target, outputPtr)
 			return MemoryRequirements2.from(outputVar)
 		} finally {
 			VirtualStack.pop()
@@ -192,10 +194,10 @@ actual class Image(
 			builder.apply(block)
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			vkGetImageSparseMemoryRequirements2(device.toVkType(), target, outputCountPtr, null)
+			dispatchTable.vkGetImageSparseMemoryRequirements2!!(device.toVkType(), target, outputCountPtr, null)
 			val outputPtr =
 					VirtualStack.allocArray<VkSparseImageMemoryRequirements2>(outputCountVar.value.toInt())
-			vkGetImageSparseMemoryRequirements2(device.toVkType(), target, outputCountPtr,
+			dispatchTable.vkGetImageSparseMemoryRequirements2!!(device.toVkType(), target, outputCountPtr,
 					outputPtr)
 			return List(outputCountVar.value.toInt()) { SparseImageMemoryRequirements2.from(outputPtr[it]) }
 		} finally {

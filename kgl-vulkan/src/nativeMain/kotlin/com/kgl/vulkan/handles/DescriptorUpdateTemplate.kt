@@ -23,12 +23,14 @@ import cvulkan.VkDescriptorUpdateTemplate
 import cvulkan.vkDestroyDescriptorUpdateTemplate
 
 actual class DescriptorUpdateTemplate(override val ptr: VkDescriptorUpdateTemplate, actual val device: Device) : VkHandleNative<VkDescriptorUpdateTemplate>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val descriptorUpdateTemplate = this
 		val device = descriptorUpdateTemplate.device
 		VirtualStack.push()
 		try {
-			vkDestroyDescriptorUpdateTemplate(device.toVkType(),
+			dispatchTable.vkDestroyDescriptorUpdateTemplate!!(device.toVkType(),
 					descriptorUpdateTemplate.toVkType(), null)
 		} finally {
 			VirtualStack.pop()

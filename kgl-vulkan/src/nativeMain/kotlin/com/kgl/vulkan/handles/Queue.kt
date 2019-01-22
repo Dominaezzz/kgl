@@ -26,6 +26,8 @@ import cvulkan.*
 import kotlinx.cinterop.*
 
 actual class Queue(override val ptr: VkQueue, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkQueue>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	actual val checkpointDataNV: List<CheckpointDataNV>
 		get() {
 			val queue = this
@@ -33,10 +35,10 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				vkGetQueueCheckpointDataNV(queue.toVkType(), outputCountPtr, null)
+				dispatchTable.vkGetQueueCheckpointDataNV!!(queue.toVkType(), outputCountPtr, null)
 				val outputPtr =
 						VirtualStack.allocArray<VkCheckpointDataNV>(outputCountVar.value.toInt())
-				vkGetQueueCheckpointDataNV(queue.toVkType(), outputCountPtr, outputPtr)
+				dispatchTable.vkGetQueueCheckpointDataNV!!(queue.toVkType(), outputCountPtr, outputPtr)
 				return List(outputCountVar.value.toInt()) { CheckpointDataNV.from(outputPtr[it]) }
 			} finally {
 				VirtualStack.pop()
@@ -53,7 +55,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		try {
 			val targets = QueueSubmitBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray()
-			val result = vkQueueSubmit(queue.toVkType(), targets.size.toUInt(), targetArray,
+			val result = dispatchTable.vkQueueSubmit(queue.toVkType(), targets.size.toUInt(), targetArray,
 					fence.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -69,7 +71,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 			val builder = PresentInfoKHRBuilder(target)
 			builder.init(swapchains, waitSemaphores)
 			builder.apply(block)
-			val result = vkQueuePresentKHR(queue.toVkType(), target.ptr)
+			val result = dispatchTable.vkQueuePresentKHR!!(queue.toVkType(), target.ptr)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_SUBOPTIMAL_KHR -> false
@@ -84,7 +86,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		val queue = this
 		VirtualStack.push()
 		try {
-			val result = vkQueueWaitIdle(queue.toVkType())
+			val result = dispatchTable.vkQueueWaitIdle(queue.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -97,7 +99,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		try {
 			val targets = QueueBindSparseBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray()
-			val result = vkQueueBindSparse(queue.toVkType(), targets.size.toUInt(), targetArray,
+			val result = dispatchTable.vkQueueBindSparse(queue.toVkType(), targets.size.toUInt(), targetArray,
 					fence.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -113,7 +115,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 			val builder = DebugUtilsLabelEXTBuilder(target.pointed)
 			builder.init()
 			builder.apply(block)
-			vkQueueBeginDebugUtilsLabelEXT(queue.toVkType(), target)
+			dispatchTable.vkQueueBeginDebugUtilsLabelEXT!!(queue.toVkType(), target)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -123,7 +125,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		val queue = this
 		VirtualStack.push()
 		try {
-			vkQueueEndDebugUtilsLabelEXT(queue.toVkType())
+			dispatchTable.vkQueueEndDebugUtilsLabelEXT!!(queue.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -137,7 +139,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 			val builder = DebugUtilsLabelEXTBuilder(target.pointed)
 			builder.init()
 			builder.apply(block)
-			vkQueueInsertDebugUtilsLabelEXT(queue.toVkType(), target)
+			dispatchTable.vkQueueInsertDebugUtilsLabelEXT!!(queue.toVkType(), target)
 		} finally {
 			VirtualStack.pop()
 		}

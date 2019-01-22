@@ -20,7 +20,7 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkFramebuffer
-import cvulkan.vkDestroyFramebuffer
+import kotlinx.cinterop.invoke
 
 actual class Framebuffer(
 		override val ptr: VkFramebuffer,
@@ -31,12 +31,14 @@ actual class Framebuffer(
 		actual val height: UInt,
 		actual val layers: UInt
 ) : VkHandleNative<VkFramebuffer>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val framebuffer = this
 		val device = framebuffer.device
 		VirtualStack.push()
 		try {
-			vkDestroyFramebuffer(device.toVkType(), framebuffer.toVkType(), null)
+			dispatchTable.vkDestroyFramebuffer(device.toVkType(), framebuffer.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

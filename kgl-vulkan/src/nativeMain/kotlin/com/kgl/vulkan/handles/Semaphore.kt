@@ -18,16 +18,21 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.dsls.ImportSemaphoreFdInfoKHRBuilder
 import com.kgl.vulkan.dsls.SemaphoreGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_SUCCESS
+import cvulkan.VkImportSemaphoreFdInfoKHR
+import cvulkan.VkSemaphore
+import cvulkan.VkSemaphoreGetFdInfoKHR
 import kotlinx.cinterop.*
 
 actual class Semaphore(override val ptr: VkSemaphore, actual val device: Device) : VkHandleNative<VkSemaphore>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val semaphore = this
 		val device = semaphore.device
 		VirtualStack.push()
 		try {
-			vkDestroySemaphore(device.toVkType(), semaphore.toVkType(), null)
+			dispatchTable.vkDestroySemaphore(device.toVkType(), semaphore.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -44,7 +49,7 @@ actual class Semaphore(override val ptr: VkSemaphore, actual val device: Device)
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<IntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetSemaphoreFdKHR(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkGetSemaphoreFdKHR!!(device.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputVar.value
 		} finally {
@@ -61,7 +66,7 @@ actual class Semaphore(override val ptr: VkSemaphore, actual val device: Device)
 			val builder = ImportSemaphoreFdInfoKHRBuilder(target.pointed)
 			builder.init(semaphore)
 			builder.apply(block)
-			val result = vkImportSemaphoreFdKHR(device.toVkType(), target)
+			val result = dispatchTable.vkImportSemaphoreFdKHR!!(device.toVkType(), target)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()

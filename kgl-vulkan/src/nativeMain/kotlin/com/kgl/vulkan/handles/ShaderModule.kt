@@ -20,15 +20,17 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkShaderModule
-import cvulkan.vkDestroyShaderModule
+import kotlinx.cinterop.invoke
 
 actual class ShaderModule(override val ptr: VkShaderModule, actual val device: Device) : VkHandleNative<VkShaderModule>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val shaderModule = this
 		val device = shaderModule.device
 		VirtualStack.push()
 		try {
-			vkDestroyShaderModule(device.toVkType(), shaderModule.toVkType(), null)
+			dispatchTable.vkDestroyShaderModule(device.toVkType(), shaderModule.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

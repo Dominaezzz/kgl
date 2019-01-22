@@ -23,16 +23,15 @@ import com.kgl.vulkan.structs.MemoryRequirements2
 import com.kgl.vulkan.structs.from
 import com.kgl.vulkan.utils.*
 import cvulkan.*
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.value
+import kotlinx.cinterop.*
 
 actual class Buffer(
 		override val ptr: VkBuffer,
 		actual val device: Device,
 		actual val size: ULong
 ) : VkHandleNative<VkBuffer>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	internal var _memory: DeviceMemory? = null
 	internal var _memoryOffset: ULong = 0U
 
@@ -47,7 +46,7 @@ actual class Buffer(
 			try {
 				val outputVar = VirtualStack.alloc<VkMemoryRequirements>()
 				val outputPtr = outputVar.ptr
-				vkGetBufferMemoryRequirements(device.toVkType(), buffer.toVkType(), outputPtr)
+				dispatchTable.vkGetBufferMemoryRequirements(device.toVkType(), buffer.toVkType(), outputPtr)
 				return MemoryRequirements.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -59,7 +58,7 @@ actual class Buffer(
 		val device = buffer.device
 		VirtualStack.push()
 		try {
-			vkDestroyBuffer(device.toVkType(), buffer.toVkType(), null)
+			dispatchTable.vkDestroyBuffer(device.toVkType(), buffer.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -70,7 +69,7 @@ actual class Buffer(
 		val device = buffer.device
 		VirtualStack.push()
 		try {
-			val result = vkBindBufferMemory(device.toVkType(), buffer.toVkType(), memory.toVkType(),
+			val result = dispatchTable.vkBindBufferMemory(device.toVkType(), buffer.toVkType(), memory.toVkType(),
 					memoryOffset.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 			_memory = memory
@@ -96,7 +95,7 @@ actual class Buffer(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkBufferViewVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateBufferView(device.toVkType(), target, null, outputPtr)
+			val result = dispatchTable.vkCreateBufferView(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return BufferView(outputVar.value!!, this)
 		} finally {
@@ -115,7 +114,7 @@ actual class Buffer(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkMemoryRequirements2>()
 			val outputPtr = outputVar.ptr
-			vkGetBufferMemoryRequirements2(device.toVkType(), target, outputPtr)
+			dispatchTable.vkGetBufferMemoryRequirements2!!(device.toVkType(), target, outputPtr)
 			return MemoryRequirements2.from(outputVar)
 		} finally {
 			VirtualStack.pop()

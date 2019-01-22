@@ -22,12 +22,14 @@ import cvulkan.*
 import kotlinx.cinterop.*
 
 actual class Fence(override val ptr: VkFence, actual val device: Device) : VkHandleNative<VkFence>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val fence = this
 		val device = fence.device
 		VirtualStack.push()
 		try {
-			vkDestroyFence(device.toVkType(), fence.toVkType(), null)
+			dispatchTable.vkDestroyFence(device.toVkType(), fence.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -39,7 +41,7 @@ actual class Fence(override val ptr: VkFence, actual val device: Device) : VkHan
 			val device = fence.device
 			VirtualStack.push()
 			try {
-				val result = vkGetFenceStatus(device.toVkType(), fence.toVkType())
+				val result = dispatchTable.vkGetFenceStatus(device.toVkType(), fence.toVkType())
 				return when (result) {
 					VK_SUCCESS -> true
 					VK_NOT_READY -> false
@@ -61,7 +63,7 @@ actual class Fence(override val ptr: VkFence, actual val device: Device) : VkHan
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<IntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetFenceFdKHR(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkGetFenceFdKHR!!(device.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputVar.value
 		} finally {
@@ -78,7 +80,7 @@ actual class Fence(override val ptr: VkFence, actual val device: Device) : VkHan
 			val builder = ImportFenceFdInfoKHRBuilder(target.pointed)
 			builder.init(fence)
 			builder.apply(block)
-			val result = vkImportFenceFdKHR(device.toVkType(), target)
+			val result = dispatchTable.vkImportFenceFdKHR!!(device.toVkType(), target)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()

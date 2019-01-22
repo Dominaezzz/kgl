@@ -19,16 +19,21 @@ import com.kgl.vulkan.dsls.CommandBufferAllocateInfoBuilder
 import com.kgl.vulkan.enums.CommandBufferLevel
 import com.kgl.vulkan.enums.CommandPoolReset
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_SUCCESS
+import cvulkan.VkCommandBufferAllocateInfo
+import cvulkan.VkCommandBufferVar
+import cvulkan.VkCommandPool
 import kotlinx.cinterop.*
 
 actual class CommandPool(override val ptr: VkCommandPool, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkCommandPool>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val commandPool = this
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			vkDestroyCommandPool(device.toVkType(), commandPool.toVkType(), null)
+			dispatchTable.vkDestroyCommandPool(device.toVkType(), commandPool.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -39,7 +44,7 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			val result = vkResetCommandPool(device.toVkType(), commandPool.toVkType(),
+			val result = dispatchTable.vkResetCommandPool(device.toVkType(), commandPool.toVkType(),
 					flags.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -57,7 +62,7 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 			builder.init(commandPool, level, commandBufferCount)
 
 			val outputPtr = VirtualStack.allocArray<VkCommandBufferVar>(commandBufferCount.toInt())
-			val result = vkAllocateCommandBuffers(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkAllocateCommandBuffers(device.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return List(commandBufferCount.toInt()) { CommandBuffer(outputPtr[it]!!, this) }
 		} finally {
@@ -70,7 +75,7 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			vkFreeCommandBuffers(device.toVkType(), commandPool.toVkType(),
+			dispatchTable.vkFreeCommandBuffers(device.toVkType(), commandPool.toVkType(),
 					commandBuffers.size.toUInt(), commandBuffers.toVkType())
 		} finally {
 			VirtualStack.pop()
@@ -82,7 +87,7 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			vkTrimCommandPool(device.toVkType(), commandPool.toVkType(), 0U.toVkType())
+			dispatchTable.vkTrimCommandPool!!(device.toVkType(), commandPool.toVkType(), 0U.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}

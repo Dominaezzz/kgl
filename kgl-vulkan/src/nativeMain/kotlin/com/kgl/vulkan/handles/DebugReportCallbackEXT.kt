@@ -20,16 +20,18 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkDebugReportCallbackEXT
-import cvulkan.vkDestroyDebugReportCallbackEXT
 import kotlinx.cinterop.StableRef
+import kotlinx.cinterop.invoke
 
 actual class DebugReportCallbackEXT(override val ptr: VkDebugReportCallbackEXT, actual val instance: Instance, private val userData: StableRef<*>) : VkHandleNative<VkDebugReportCallbackEXT>(), VkHandle {
+	internal val dispatchTable = instance.dispatchTable
+
 	override fun close() {
 		val callback = this
 		val instance = callback.instance
 		VirtualStack.push()
 		try {
-			vkDestroyDebugReportCallbackEXT(instance.toVkType(), callback.toVkType(), null)
+			dispatchTable.vkDestroyDebugReportCallbackEXT!!(instance.toVkType(), callback.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 			userData.dispose()

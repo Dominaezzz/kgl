@@ -20,16 +20,18 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkDebugUtilsMessengerEXT
-import cvulkan.vkDestroyDebugUtilsMessengerEXT
 import kotlinx.cinterop.StableRef
+import kotlinx.cinterop.invoke
 
 actual class DebugUtilsMessengerEXT(override val ptr: VkDebugUtilsMessengerEXT, actual val instance: Instance, private val userData: StableRef<*>) : VkHandleNative<VkDebugUtilsMessengerEXT>(), VkHandle {
+	internal val dispatchTable = instance.dispatchTable
+
 	override fun close() {
 		val messenger = this
 		val instance = messenger.instance
 		VirtualStack.push()
 		try {
-			vkDestroyDebugUtilsMessengerEXT(instance.toVkType(), messenger.toVkType(), null)
+			dispatchTable.vkDestroyDebugUtilsMessengerEXT!!(instance.toVkType(), messenger.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 			userData.dispose()

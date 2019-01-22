@@ -17,7 +17,9 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_SUCCESS
+import cvulkan.VkDeviceMemory
+import cvulkan.VkMemoryGetFdInfoKHR
 import kotlinx.cinterop.*
 import kotlinx.io.core.IoBuffer
 
@@ -27,6 +29,8 @@ actual class DeviceMemory(
 		actual val size: ULong,
 		actual val memoryTypeIndex: UInt
 ) : VkHandleNative<VkDeviceMemory>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	actual val commitment: ULong
 		get() {
 			val memory = this
@@ -35,7 +39,7 @@ actual class DeviceMemory(
 			try {
 				val outputVar = VirtualStack.alloc<ULongVar>()
 				val outputPtr = outputVar.ptr
-				vkGetDeviceMemoryCommitment(device.toVkType(), memory.toVkType(), outputPtr)
+				dispatchTable.vkGetDeviceMemoryCommitment(device.toVkType(), memory.toVkType(), outputPtr)
 				return outputVar.value
 			} finally {
 				VirtualStack.pop()
@@ -47,7 +51,7 @@ actual class DeviceMemory(
 		val device = memory.device
 		VirtualStack.push()
 		try {
-			vkFreeMemory(device.toVkType(), memory.toVkType(), null)
+			dispatchTable.vkFreeMemory(device.toVkType(), memory.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -60,7 +64,7 @@ actual class DeviceMemory(
 		try {
 			val outputVar = VirtualStack.alloc<COpaquePointerVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
+			val result = dispatchTable.vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
 					size.toVkType(), 0U.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return IoBuffer(outputVar.value!!.reinterpret(), size.toInt())
@@ -74,7 +78,7 @@ actual class DeviceMemory(
 		val device = memory.device
 		VirtualStack.push()
 		try {
-			vkUnmapMemory(device.toVkType(), memory.toVkType())
+			dispatchTable.vkUnmapMemory(device.toVkType(), memory.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -91,7 +95,7 @@ actual class DeviceMemory(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<IntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetMemoryFdKHR(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkGetMemoryFdKHR!!(device.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputVar.value
 		} finally {

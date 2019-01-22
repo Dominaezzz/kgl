@@ -23,6 +23,8 @@ import cvulkan.*
 import kotlinx.cinterop.*
 
 actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val instance: Instance) : VkHandleNative<VkPhysicalDevice>(), VkHandle {
+	internal val dispatchTable = instance.dispatchTable
+
 	actual val properties: PhysicalDeviceProperties
 		get() {
 			val physicalDevice = this
@@ -30,7 +32,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceProperties>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceProperties(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceProperties(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceProperties.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -44,9 +46,9 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr, null)
+				dispatchTable.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr, null)
 				val outputPtr = VirtualStack.allocArray<VkQueueFamilyProperties>(outputCountVar.value.toInt())
-				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr, outputPtr)
+				dispatchTable.vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr, outputPtr)
 				return List(outputCountVar.value.toInt()) { QueueFamilyProperties.from(outputPtr[it]) }
 			} finally {
 				VirtualStack.pop()
@@ -60,7 +62,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceMemoryProperties>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceMemoryProperties(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceMemoryProperties(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceMemoryProperties.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -74,7 +76,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceFeatures>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceFeatures(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceFeatures(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceFeatures.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -88,14 +90,14 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(), outputCountPtr, null)
+				val result = dispatchTable.vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(), outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VirtualStack.allocArray<VkLayerProperties>(outputCountVar.value.toInt())
-				val result1 = vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(), outputCountPtr, outputPtr)
+				val result1 = dispatchTable.vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(), outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -114,7 +116,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkGetPhysicalDeviceDisplayPropertiesKHR(physicalDevice.toVkType(),
+				val result = dispatchTable.vkGetPhysicalDeviceDisplayPropertiesKHR!!(physicalDevice.toVkType(),
 						outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -123,7 +125,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkDisplayPropertiesKHR>(outputCountVar.value.toInt())
-				val result1 = vkGetPhysicalDeviceDisplayPropertiesKHR(physicalDevice.toVkType(),
+				val result1 = dispatchTable.vkGetPhysicalDeviceDisplayPropertiesKHR!!(physicalDevice.toVkType(),
 						outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -145,7 +147,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkGetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice.toVkType(),
+				val result = dispatchTable.vkGetPhysicalDeviceDisplayPlanePropertiesKHR!!(physicalDevice.toVkType(),
 						outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -155,7 +157,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				val outputPtr =
 						VirtualStack.allocArray<VkDisplayPlanePropertiesKHR>(outputCountVar.value.toInt())
 				val result1 =
-						vkGetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice.toVkType(),
+						dispatchTable.vkGetPhysicalDeviceDisplayPlanePropertiesKHR!!(physicalDevice.toVkType(),
 								outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -177,7 +179,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceFeatures2>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceFeatures2(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceFeatures2!!(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceFeatures2.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -191,7 +193,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceProperties2>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceProperties2(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceProperties2!!(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceProperties2.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -205,11 +207,11 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice.toVkType(), outputCountPtr,
+				dispatchTable.vkGetPhysicalDeviceQueueFamilyProperties2!!(physicalDevice.toVkType(), outputCountPtr,
 						null)
 				val outputPtr =
 						VirtualStack.allocArray<VkQueueFamilyProperties2>(outputCountVar.value.toInt())
-				vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice.toVkType(), outputCountPtr,
+				dispatchTable.vkGetPhysicalDeviceQueueFamilyProperties2!!(physicalDevice.toVkType(), outputCountPtr,
 						outputPtr)
 				return List(outputCountVar.value.toInt()) {
 					QueueFamilyProperties2.from(outputPtr[it])
@@ -226,7 +228,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputVar = VirtualStack.alloc<VkPhysicalDeviceMemoryProperties2>()
 				val outputPtr = outputVar.ptr
-				vkGetPhysicalDeviceMemoryProperties2(physicalDevice.toVkType(), outputPtr)
+				dispatchTable.vkGetPhysicalDeviceMemoryProperties2!!(physicalDevice.toVkType(), outputPtr)
 				return PhysicalDeviceMemoryProperties2.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -240,7 +242,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkGetPhysicalDeviceDisplayProperties2KHR(physicalDevice.toVkType(),
+				val result = dispatchTable.vkGetPhysicalDeviceDisplayProperties2KHR!!(physicalDevice.toVkType(),
 						outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -249,7 +251,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkDisplayProperties2KHR>(outputCountVar.value.toInt())
-				val result1 = vkGetPhysicalDeviceDisplayProperties2KHR(physicalDevice.toVkType(),
+				val result1 = dispatchTable.vkGetPhysicalDeviceDisplayProperties2KHR!!(physicalDevice.toVkType(),
 						outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -271,8 +273,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result =
-						vkGetPhysicalDeviceDisplayPlaneProperties2KHR(physicalDevice.toVkType(),
+				val result = dispatchTable.vkGetPhysicalDeviceDisplayPlaneProperties2KHR!!(physicalDevice.toVkType(),
 								outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -282,7 +283,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				val outputPtr =
 						VirtualStack.allocArray<VkDisplayPlaneProperties2KHR>(outputCountVar.value.toInt())
 				val result1 =
-						vkGetPhysicalDeviceDisplayPlaneProperties2KHR(physicalDevice.toVkType(),
+						dispatchTable.vkGetPhysicalDeviceDisplayPlaneProperties2KHR!!(physicalDevice.toVkType(),
 								outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -305,7 +306,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
 				val result =
-						vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice.toVkType(),
+						dispatchTable.vkGetPhysicalDeviceCalibrateableTimeDomainsEXT!!(physicalDevice.toVkType(),
 								outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -313,7 +314,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VirtualStack.allocArray<VkTimeDomainEXTVar>(outputCountVar.value.toInt())
-				val result1 = vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice.toVkType(),
+				val result1 = dispatchTable.vkGetPhysicalDeviceCalibrateableTimeDomainsEXT!!(physicalDevice.toVkType(),
 						outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -336,7 +337,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkFormatProperties>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceFormatProperties(physicalDevice.toVkType(), format.toVkType(),
+			dispatchTable.vkGetPhysicalDeviceFormatProperties(physicalDevice.toVkType(), format.toVkType(),
 					outputPtr)
 			return FormatProperties.from(outputVar)
 		} finally {
@@ -356,7 +357,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkImageFormatProperties>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceImageFormatProperties(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceImageFormatProperties(physicalDevice.toVkType(),
 					format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
 					flags.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
@@ -380,7 +381,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDeviceVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateDevice(physicalDevice.toVkType(), target, null, outputPtr)
+			val result = dispatchTable.vkCreateDevice(physicalDevice.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return Device(outputVar.value!!, this)
 		} finally {
@@ -394,8 +395,8 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
-					layerName, outputCountPtr, null)
+			val result = dispatchTable.vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
+					layerName?.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -403,8 +404,8 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			}
 			val outputPtr =
 					VirtualStack.allocArray<VkExtensionProperties>(outputCountVar.value.toInt())
-			val result1 = vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
-					layerName, outputCountPtr, outputPtr)
+			val result1 = dispatchTable.vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
+					layerName?.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -428,12 +429,12 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
+			dispatchTable.vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
 					format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
 					tiling.toVkType(), outputCountPtr, null)
 			val outputPtr =
 					VirtualStack.allocArray<VkSparseImageFormatProperties>(outputCountVar.value.toInt())
-			vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
+			dispatchTable.vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
 					format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
 					tiling.toVkType(), outputCountPtr, outputPtr)
 			return List(outputCountVar.value.toInt()) {
@@ -450,7 +451,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetDisplayPlaneSupportedDisplaysKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetDisplayPlaneSupportedDisplaysKHR!!(physicalDevice.toVkType(),
 					planeIndex.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -458,7 +459,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VirtualStack.allocArray<VkDisplayKHRVar>(outputCountVar.value.toInt())
-			val result1 = vkGetDisplayPlaneSupportedDisplaysKHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetDisplayPlaneSupportedDisplaysKHR!!(physicalDevice.toVkType(),
 					planeIndex.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -477,7 +478,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetDisplayModePropertiesKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetDisplayModePropertiesKHR!!(physicalDevice.toVkType(),
 					display.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -486,7 +487,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			}
 			val outputPtr =
 					VirtualStack.allocArray<VkDisplayModePropertiesKHR>(outputCountVar.value.toInt())
-			val result1 = vkGetDisplayModePropertiesKHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetDisplayModePropertiesKHR!!(physicalDevice.toVkType(),
 					display.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -511,7 +512,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDisplayModeKHRVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkCreateDisplayModeKHR(physicalDevice.toVkType(), display.toVkType(),
+			val result = dispatchTable.vkCreateDisplayModeKHR!!(physicalDevice.toVkType(), display.toVkType(),
 					target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayModeKHR(outputVar.value!!, this, display)
@@ -526,7 +527,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<UIntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceSupportKHR!!(physicalDevice.toVkType(),
 					queueFamilyIndex.toVkType(), surface.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputVar.value.toBoolean()
@@ -541,7 +542,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkSurfaceCapabilitiesKHR>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilitiesKHR.from(outputVar)
@@ -556,7 +557,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceFormatsKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -565,7 +566,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			}
 			val outputPtr =
 					VirtualStack.allocArray<VkSurfaceFormatKHR>(outputCountVar.value.toInt())
-			val result1 = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetPhysicalDeviceSurfaceFormatsKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -584,7 +585,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfacePresentModesKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -592,7 +593,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VirtualStack.allocArray<VkPresentModeKHRVar>(outputCountVar.value.toInt())
-			val result1 = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetPhysicalDeviceSurfacePresentModesKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -619,7 +620,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			val outputVar = VirtualStack.alloc<VkExternalImageFormatPropertiesNV>()
 			val outputPtr = outputVar.ptr
 			val result =
-					vkGetPhysicalDeviceExternalImageFormatPropertiesNV(physicalDevice.toVkType(),
+					dispatchTable.vkGetPhysicalDeviceExternalImageFormatPropertiesNV!!(physicalDevice.toVkType(),
 							format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
 							flags.toVkType(), externalHandleType.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
@@ -635,7 +636,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkFormatProperties2>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceFormatProperties2(physicalDevice.toVkType(), format.toVkType(),
+			dispatchTable.vkGetPhysicalDeviceFormatProperties2!!(physicalDevice.toVkType(), format.toVkType(),
 					outputPtr)
 			return FormatProperties2.from(outputVar)
 		} finally {
@@ -653,7 +654,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkImageFormatProperties2>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceImageFormatProperties2(physicalDevice.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkGetPhysicalDeviceImageFormatProperties2!!(physicalDevice.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return ImageFormatProperties2.from(outputVar)
 		} finally {
@@ -671,11 +672,11 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			vkGetPhysicalDeviceSparseImageFormatProperties2(physicalDevice.toVkType(), target,
+			dispatchTable.vkGetPhysicalDeviceSparseImageFormatProperties2!!(physicalDevice.toVkType(), target,
 					outputCountPtr, null)
 			val outputPtr =
 					VirtualStack.allocArray<VkSparseImageFormatProperties2>(outputCountVar.value.toInt())
-			vkGetPhysicalDeviceSparseImageFormatProperties2(physicalDevice.toVkType(), target,
+			dispatchTable.vkGetPhysicalDeviceSparseImageFormatProperties2!!(physicalDevice.toVkType(), target,
 					outputCountPtr, outputPtr)
 			return List(outputCountVar.value.toInt()) {
 				SparseImageFormatProperties2.from(outputPtr[it])
@@ -695,7 +696,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkExternalBufferProperties>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceExternalBufferProperties(physicalDevice.toVkType(), target,
+			dispatchTable.vkGetPhysicalDeviceExternalBufferProperties!!(physicalDevice.toVkType(), target,
 					outputPtr)
 			return ExternalBufferProperties.from(outputVar)
 		} finally {
@@ -713,7 +714,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkExternalSemaphoreProperties>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceExternalSemaphoreProperties(physicalDevice.toVkType(), target,
+			dispatchTable.vkGetPhysicalDeviceExternalSemaphoreProperties!!(physicalDevice.toVkType(), target,
 					outputPtr)
 			return ExternalSemaphoreProperties.from(outputVar)
 		} finally {
@@ -731,7 +732,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkExternalFenceProperties>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceExternalFenceProperties(physicalDevice.toVkType(), target, outputPtr)
+			dispatchTable.vkGetPhysicalDeviceExternalFenceProperties!!(physicalDevice.toVkType(), target, outputPtr)
 			return ExternalFenceProperties.from(outputVar)
 		} finally {
 			VirtualStack.pop()
@@ -742,7 +743,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		val physicalDevice = this
 		VirtualStack.push()
 		try {
-			val result = vkReleaseDisplayEXT(physicalDevice.toVkType(), display.toVkType())
+			val result = dispatchTable.vkReleaseDisplayEXT!!(physicalDevice.toVkType(), display.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -755,7 +756,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkSurfaceCapabilities2EXT>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceCapabilities2EXT(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceCapabilities2EXT!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilities2EXT.from(outputVar)
@@ -770,7 +771,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDevicePresentRectanglesKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -778,7 +779,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VirtualStack.allocArray<VkRect2D>(outputCountVar.value.toInt())
-			val result1 = vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetPhysicalDevicePresentRectanglesKHR!!(physicalDevice.toVkType(),
 					surface.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -797,7 +798,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputVar = VirtualStack.alloc<VkMultisamplePropertiesEXT>()
 			val outputPtr = outputVar.ptr
-			vkGetPhysicalDeviceMultisamplePropertiesEXT(physicalDevice.toVkType(),
+			dispatchTable.vkGetPhysicalDeviceMultisamplePropertiesEXT!!(physicalDevice.toVkType(),
 					samples.toVkType(), outputPtr)
 			return MultisamplePropertiesEXT.from(outputVar)
 		} finally {
@@ -815,7 +816,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkSurfaceCapabilities2KHR>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceCapabilities2KHR!!(physicalDevice.toVkType(),
 					target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilities2KHR.from(outputVar)
@@ -834,7 +835,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.apply(block)
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice.toVkType(), target,
+			val result = dispatchTable.vkGetPhysicalDeviceSurfaceFormats2KHR!!(physicalDevice.toVkType(), target,
 					outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -843,7 +844,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			}
 			val outputPtr =
 					VirtualStack.allocArray<VkSurfaceFormat2KHR>(outputCountVar.value.toInt())
-			val result1 = vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice.toVkType(), target,
+			val result1 = dispatchTable.vkGetPhysicalDeviceSurfaceFormats2KHR!!(physicalDevice.toVkType(), target,
 					outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit
@@ -862,7 +863,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		try {
 			val outputCountVar = VirtualStack.alloc<UIntVar>()
 			val outputCountPtr = outputCountVar.ptr
-			val result = vkGetDisplayModeProperties2KHR(physicalDevice.toVkType(),
+			val result = dispatchTable.vkGetDisplayModeProperties2KHR!!(physicalDevice.toVkType(),
 					display.toVkType(), outputCountPtr, null)
 			when (result) {
 				VK_SUCCESS -> Unit
@@ -871,7 +872,7 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			}
 			val outputPtr =
 					VirtualStack.allocArray<VkDisplayModeProperties2KHR>(outputCountVar.value.toInt())
-			val result1 = vkGetDisplayModeProperties2KHR(physicalDevice.toVkType(),
+			val result1 = dispatchTable.vkGetDisplayModeProperties2KHR!!(physicalDevice.toVkType(),
 					display.toVkType(), outputCountPtr, outputPtr)
 			when (result1) {
 				VK_SUCCESS -> Unit

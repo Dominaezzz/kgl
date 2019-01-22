@@ -20,15 +20,17 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkSurfaceKHR
-import cvulkan.vkDestroySurfaceKHR
+import kotlinx.cinterop.invoke
 
 actual class SurfaceKHR(override val ptr: VkSurfaceKHR, actual val instance: Instance) : VkHandleNative<VkSurfaceKHR>(), VkHandle {
+	internal val dispatchTable = instance.dispatchTable
+
 	override fun close() {
 		val surface = this
 		val instance = surface.instance
 		VirtualStack.push()
 		try {
-			vkDestroySurfaceKHR(instance.toVkType(), surface.toVkType(), null)
+			dispatchTable.vkDestroySurfaceKHR!!(instance.toVkType(), surface.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}

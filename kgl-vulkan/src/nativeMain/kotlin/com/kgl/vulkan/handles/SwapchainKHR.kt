@@ -32,10 +32,12 @@ actual class SwapchainKHR(
 		actual val imageExtent: Extent2D,
 		actual val imageArrayLayers: UInt
 ) : VkHandleNative<VkSwapchainKHR>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		VirtualStack.push()
 		try {
-			vkDestroySwapchainKHR(device.toVkType(), ptr, null)
+			dispatchTable.vkDestroySwapchainKHR!!(device.toVkType(), ptr, null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -47,7 +49,7 @@ actual class SwapchainKHR(
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkGetSwapchainImagesKHR(device.toVkType(), toVkType(),
+				val result = dispatchTable.vkGetSwapchainImagesKHR!!(device.toVkType(), toVkType(),
 						outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -55,7 +57,7 @@ actual class SwapchainKHR(
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VirtualStack.allocArray<VkImageVar>(outputCountVar.value.toInt())
-				val result1 = vkGetSwapchainImagesKHR(device.toVkType(), toVkType(),
+				val result1 = dispatchTable.vkGetSwapchainImagesKHR!!(device.toVkType(), toVkType(),
 						outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit
@@ -73,7 +75,7 @@ actual class SwapchainKHR(
 		get() {
 			VirtualStack.push()
 			try {
-				val result = vkGetSwapchainStatusKHR(device.toVkType(), toVkType())
+				val result = dispatchTable.vkGetSwapchainStatusKHR!!(device.toVkType(), toVkType())
 				return when (result) {
 					VK_SUCCESS -> true
 					VK_SUBOPTIMAL_KHR -> false
@@ -89,7 +91,7 @@ actual class SwapchainKHR(
 		try {
 			val outputVar = VirtualStack.alloc<UIntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkAcquireNextImageKHR(device.toVkType(), toVkType(),
+			val result = dispatchTable.vkAcquireNextImageKHR!!(device.toVkType(), toVkType(),
 					timeout.toVkType(), semaphore.toVkType(), fence.toVkType(), outputPtr)
 			return when (result) {
 				VK_SUCCESS -> Acquire.Success(outputPtr[0].toUInt(), false)
@@ -112,7 +114,7 @@ actual class SwapchainKHR(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<UIntVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkAcquireNextImage2KHR(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkAcquireNextImage2KHR!!(device.toVkType(), target, outputPtr)
 			return when (result) {
 				VK_SUCCESS -> Acquire.Success(outputPtr[0].toUInt(), false)
 				VK_TIMEOUT -> Acquire.Timeout
@@ -130,7 +132,7 @@ actual class SwapchainKHR(
 		try {
 			val outputVar = VirtualStack.alloc<ULongVar>()
 			val outputPtr = outputVar.ptr
-			val result = vkGetSwapchainCounterEXT(device.toVkType(), toVkType(),
+			val result = dispatchTable.vkGetSwapchainCounterEXT!!(device.toVkType(), toVkType(),
 					counter.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputVar.value
@@ -145,7 +147,7 @@ actual class SwapchainKHR(
 			try {
 				val outputVar = VirtualStack.alloc<VkRefreshCycleDurationGOOGLE>()
 				val outputPtr = outputVar.ptr
-				val result = vkGetRefreshCycleDurationGOOGLE(device.toVkType(), toVkType(),
+				val result = dispatchTable.vkGetRefreshCycleDurationGOOGLE!!(device.toVkType(), toVkType(),
 						outputPtr)
 				if (result != VK_SUCCESS) handleVkResult(result)
 				return RefreshCycleDurationGOOGLE.from(outputVar)
@@ -160,7 +162,7 @@ actual class SwapchainKHR(
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = vkGetPastPresentationTimingGOOGLE(device.toVkType(), toVkType(),
+				val result = dispatchTable.vkGetPastPresentationTimingGOOGLE!!(device.toVkType(), toVkType(),
 						outputCountPtr, null)
 				when (result) {
 					VK_SUCCESS -> Unit
@@ -169,7 +171,7 @@ actual class SwapchainKHR(
 				}
 				val outputPtr =
 						VirtualStack.allocArray<VkPastPresentationTimingGOOGLE>(outputCountVar.value.toInt())
-				val result1 = vkGetPastPresentationTimingGOOGLE(device.toVkType(), toVkType(),
+				val result1 = dispatchTable.vkGetPastPresentationTimingGOOGLE!!(device.toVkType(), toVkType(),
 						outputCountPtr, outputPtr)
 				when (result1) {
 					VK_SUCCESS -> Unit

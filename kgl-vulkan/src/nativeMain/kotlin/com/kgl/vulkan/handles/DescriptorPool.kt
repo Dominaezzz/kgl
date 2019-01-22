@@ -17,16 +17,21 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.DescriptorSetAllocateInfoBuilder
 import com.kgl.vulkan.utils.*
-import cvulkan.*
+import cvulkan.VK_SUCCESS
+import cvulkan.VkDescriptorPool
+import cvulkan.VkDescriptorSetAllocateInfo
+import cvulkan.VkDescriptorSetVar
 import kotlinx.cinterop.*
 
 actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val device: Device, actual val maxSets: UInt) : VkHandleNative<VkDescriptorPool>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	override fun close() {
 		val descriptorPool = this
 		val device = descriptorPool.device
 		VirtualStack.push()
 		try {
-			vkDestroyDescriptorPool(device.toVkType(), descriptorPool.toVkType(), null)
+			dispatchTable.vkDestroyDescriptorPool(device.toVkType(), descriptorPool.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -37,7 +42,7 @@ actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val devic
 		val device = descriptorPool.device
 		VirtualStack.push()
 		try {
-			val result = vkResetDescriptorPool(device.toVkType(), descriptorPool.toVkType(),
+			val result = dispatchTable.vkResetDescriptorPool(device.toVkType(), descriptorPool.toVkType(),
 					0U.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -55,7 +60,7 @@ actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val devic
 			builder.init(descriptorPool, setLayouts)
 			val outputCount = setLayouts.size
 			val outputPtr = VirtualStack.allocArray<VkDescriptorSetVar>(outputCount)
-			val result = vkAllocateDescriptorSets(device.toVkType(), target, outputPtr)
+			val result = dispatchTable.vkAllocateDescriptorSets(device.toVkType(), target, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return List(outputCount) { DescriptorSet(outputPtr[it]!!, this) }
 		} finally {
@@ -68,7 +73,7 @@ actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val devic
 		val device = descriptorPool.device
 		VirtualStack.push()
 		try {
-			val result = vkFreeDescriptorSets(device.toVkType(), descriptorPool.toVkType(),
+			val result = dispatchTable.vkFreeDescriptorSets(device.toVkType(), descriptorPool.toVkType(),
 					descriptorSets.size.toUInt(), descriptorSets.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {

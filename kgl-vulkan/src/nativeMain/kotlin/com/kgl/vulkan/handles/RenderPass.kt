@@ -23,12 +23,13 @@ import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkExtent2D
 import cvulkan.VkRenderPass
-import cvulkan.vkDestroyRenderPass
-import cvulkan.vkGetRenderAreaGranularity
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.invoke
 import kotlinx.cinterop.ptr
 
 actual class RenderPass(override val ptr: VkRenderPass, actual val device: Device) : VkHandleNative<VkRenderPass>(), VkHandle {
+	internal val dispatchTable = device.dispatchTable
+
 	actual val renderAreaGranularity: Extent2D
 		get() {
 			val renderPass = this
@@ -37,7 +38,7 @@ actual class RenderPass(override val ptr: VkRenderPass, actual val device: Devic
 			try {
 				val outputVar = VirtualStack.alloc<VkExtent2D>()
 				val outputPtr = outputVar.ptr
-				vkGetRenderAreaGranularity(device.toVkType(), renderPass.toVkType(), outputPtr)
+				dispatchTable.vkGetRenderAreaGranularity(device.toVkType(), renderPass.toVkType(), outputPtr)
 				return Extent2D.from(outputVar)
 			} finally {
 				VirtualStack.pop()
@@ -49,7 +50,7 @@ actual class RenderPass(override val ptr: VkRenderPass, actual val device: Devic
 		val device = renderPass.device
 		VirtualStack.push()
 		try {
-			vkDestroyRenderPass(device.toVkType(), renderPass.toVkType(), null)
+			dispatchTable.vkDestroyRenderPass(device.toVkType(), renderPass.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
 		}
