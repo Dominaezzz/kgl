@@ -29,6 +29,7 @@ expect class DescriptorSetLayoutBindingBuilder {
 }
 
 expect class DescriptorSetLayoutBindingsBuilder {
-	fun binding(immutableSamplers: Collection<Sampler>? = null, block: DescriptorSetLayoutBindingBuilder.() -> Unit = {})
+	fun binding(immutableSamplers: Collection<Sampler>, block: DescriptorSetLayoutBindingBuilder.() -> Unit = {})
+	fun binding(descriptorCount: UInt = 1U, block: DescriptorSetLayoutBindingBuilder.() -> Unit)
 }
 

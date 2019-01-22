@@ -290,13 +290,13 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createPipelineCache(pInitialData: IoBuffer?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
+	actual fun createPipelineCache(initialData: IoBuffer?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val target = VkPipelineCacheCreateInfo.callocStack()
 			val builder = PipelineCacheCreateInfoBuilder(target)
-			builder.init(pInitialData)
+			builder.init(initialData)
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreatePipelineCache(device.toVkType(), target, null, outputPtr)
@@ -535,13 +535,13 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun debugMarkerSetObjectTagEXT(pTag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun debugMarkerSetObjectTagEXT(tag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val target = VkDebugMarkerObjectTagInfoEXT.callocStack()
 			val builder = DebugMarkerObjectTagInfoEXTBuilder(target)
-			builder.init(pTag)
+			builder.init(tag)
 			builder.apply(block)
 			val result = vkDebugMarkerSetObjectTagEXT(device.toVkType(), target)
 			if (result != VK_SUCCESS) handleVkResult(result)
@@ -752,13 +752,13 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createValidationCacheEXT(pInitialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
+	actual fun createValidationCacheEXT(initialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val target = VkValidationCacheCreateInfoEXT.callocStack()
 			val builder = ValidationCacheCreateInfoEXTBuilder(target)
-			builder.init(pInitialData)
+			builder.init(initialData)
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreateValidationCacheEXT(device.toVkType(), target, null, outputPtr)
@@ -800,13 +800,13 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun setDebugUtilsObjectTagEXT(pTag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun setDebugUtilsObjectTagEXT(tag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val target = VkDebugUtilsObjectTagInfoEXT.callocStack()
 			val builder = DebugUtilsObjectTagInfoEXTBuilder(target)
-			builder.init(pTag)
+			builder.init(tag)
 			builder.apply(block)
 			val result = vkSetDebugUtilsObjectTagEXT(device.toVkType(), target)
 			if (result != VK_SUCCESS) handleVkResult(result)

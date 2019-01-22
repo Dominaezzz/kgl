@@ -28,11 +28,11 @@ actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: De
 		vkFreeDescriptorSets(descriptorPool.device.ptr, descriptorPool.ptr, ptr)
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, pData: IoBuffer) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer) {
 		TODO()
 		MemoryStack.stackPush()
 		try {
-			pData.readDirect {
+			data.readDirect {
 				VK11.vkUpdateDescriptorSetWithTemplate(descriptorPool.device.toVkType(), toVkType(),
 						descriptorUpdateTemplate.toVkType(), 0)
 			}

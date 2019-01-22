@@ -183,15 +183,15 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			firstSet: UInt,
 			descriptorSets: Collection<DescriptorSet>,
-			dynamicOffsets: UIntArray
+			dynamicOffsets: UIntArray?
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
 			vkCmdBindDescriptorSets(commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
 					layout.toVkType(), firstSet.toVkType(), descriptorSets.size.toUInt(),
-					descriptorSets.toVkType(), dynamicOffsets.size.toUInt(),
-					dynamicOffsets.toVkType())
+					descriptorSets.toVkType(), dynamicOffsets?.size?.toUInt() ?: 0u,
+					dynamicOffsets?.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -414,13 +414,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	actual fun updateBuffer(
 			dstBuffer: Buffer,
 			dstOffset: ULong,
-			pData: IoBuffer
+			data: IoBuffer
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
 			vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
-					pData.readRemaining.toULong(), pData.toVkType())
+					data.readRemaining.toULong(), data.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -629,15 +629,15 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			pValues: IoBuffer
+			values: IoBuffer
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
-			pValues.readDirect {
+			values.readDirect {
 				vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-						offset.toVkType(), pValues.readRemaining.toUInt(), it)
-				pValues.readRemaining
+						offset.toVkType(), values.readRemaining.toUInt(), it)
+				values.readRemaining
 			}
 		} finally {
 			VirtualStack.pop()
@@ -861,14 +861,14 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			pData: IoBuffer
+			data: IoBuffer
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
 			vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer.toVkType(),
 					descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
-					pData.toVkType())
+					data.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}

@@ -20,7 +20,7 @@ import com.kgl.vulkan.enums.ObjectType
 data class DebugUtilsObjectNameInfoEXT(
 		val objectType: ObjectType,
 		val objectHandle: ULong,
-		val pObjectName: String?
+		val objectName: String?
 ) {
 	companion object
 }

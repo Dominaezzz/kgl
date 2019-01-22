@@ -56,7 +56,7 @@ expect class CommandBuffer : VkHandle {
 			layout: PipelineLayout,
 			firstSet: UInt,
 			descriptorSets: Collection<DescriptorSet>,
-			dynamicOffsets: UIntArray
+			dynamicOffsets: UIntArray? = null
 	)
 
 	fun bindIndexBuffer(buffer: Buffer, offset: ULong, indexType: IndexType)
@@ -98,7 +98,7 @@ expect class CommandBuffer : VkHandle {
 
 	fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: CmdCopyImageToBufferBuilder.() -> Unit)
 
-	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, pData: IoBuffer)
+	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: IoBuffer)
 
 	fun fillBuffer(dstBuffer: Buffer, dstOffset: ULong, size: ULong, data: UInt)
 
@@ -149,7 +149,7 @@ expect class CommandBuffer : VkHandle {
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			pValues: IoBuffer
+			values: IoBuffer
 	)
 
 	fun beginRenderPass(
@@ -227,7 +227,7 @@ expect class CommandBuffer : VkHandle {
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			pData: IoBuffer
+			data: IoBuffer
 	)
 
 	fun setViewportWScalingNV(firstViewport: UInt, block: CmdSetViewportWScalingNVBuilder.() -> Unit)

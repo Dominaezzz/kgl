@@ -35,7 +35,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			pData: IoBuffer,
+			data: IoBuffer,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
@@ -44,17 +44,17 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		VirtualStack.push()
 		try {
 			TODO()
-			pData.writeDirect {
+			data.writeDirect {
 				val result = vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
 						firstQuery.toVkType(), queryCount.toVkType(),
-						pData.writeRemaining.toULong(), it,
+						data.writeRemaining.toULong(), it,
 						stride.toVkType(), flags.toVkType())
 				when (result) {
 					VK_SUCCESS -> true
 					VK_NOT_READY -> false
 					else -> handleVkResult(result)
 				}
-				pData.writeRemaining
+				data.writeRemaining
 			}
 		} finally {
 			VirtualStack.pop()

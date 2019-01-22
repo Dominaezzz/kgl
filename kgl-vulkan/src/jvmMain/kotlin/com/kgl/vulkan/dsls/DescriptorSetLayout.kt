@@ -41,18 +41,31 @@ actual class DescriptorSetLayoutBindingBuilder(internal val target: VkDescriptor
 			target.stageFlags(value.toVkType())
 		}
 
-	internal fun init(immutableSamplers: Collection<Sampler>?) {
-		target.pImmutableSamplers(immutableSamplers?.toVkType())
+	internal fun init(immutableSamplers: Collection<Sampler>) {
+		target.pImmutableSamplers(immutableSamplers.toVkType())
+	}
+
+	internal fun init(descriptorCount: UInt) {
+		target.pImmutableSamplers(null)
+		target.descriptorCount(descriptorCount.toInt())
 	}
 }
 
 actual class DescriptorSetLayoutBindingsBuilder {
 	val targets: MutableList<(VkDescriptorSetLayoutBinding) -> Unit> = mutableListOf()
 
-	actual fun binding(immutableSamplers: Collection<Sampler>?, block: DescriptorSetLayoutBindingBuilder.() -> Unit) {
+	actual fun binding(immutableSamplers: Collection<Sampler>, block: DescriptorSetLayoutBindingBuilder.() -> Unit) {
 		targets += {
 			val builder = DescriptorSetLayoutBindingBuilder(it)
 			builder.init(immutableSamplers)
+			builder.apply(block)
+		}
+	}
+
+	actual fun binding(descriptorCount: UInt, block: DescriptorSetLayoutBindingBuilder.() -> Unit) {
+		targets += {
+			val builder = DescriptorSetLayoutBindingBuilder(it)
+			builder.init(descriptorCount)
 			builder.apply(block)
 		}
 	}

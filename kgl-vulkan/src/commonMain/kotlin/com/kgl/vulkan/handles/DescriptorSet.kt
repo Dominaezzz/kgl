@@ -21,6 +21,6 @@ import kotlinx.io.core.IoBuffer
 expect class DescriptorSet : VkHandle {
 	val descriptorPool: DescriptorPool
 
-	fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, pData: IoBuffer)
+	fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer)
 }
 

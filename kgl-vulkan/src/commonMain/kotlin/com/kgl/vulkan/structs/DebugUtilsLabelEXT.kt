@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.structs
 
-data class DebugUtilsLabelEXT(val pLabelName: String, val color: FloatArray?) {
+data class DebugUtilsLabelEXT(val labelName: String, val color: FloatArray?) {
 	companion object
 }
 

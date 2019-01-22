@@ -43,7 +43,7 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 	actual fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			pInfo: IoBuffer?
+			info: IoBuffer?
 	) {
 		TODO()
 		val pipeline = this
@@ -51,7 +51,7 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		MemoryStack.stackPush()
 		try {
 //            val result = vkGetShaderInfoAMD(device.toVkType(), pipeline.toVkType(),
-//                    shaderStage.toVkType(), infoType.toVkType(), pInfo.toVkType())
+//                    shaderStage.toVkType(), infoType.toVkType(), info.toVkType())
 //            when (result) {
 //                VK_SUCCESS -> Unit
 //                VK_INCOMPLETE -> Unit
@@ -75,12 +75,12 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		}
 	}
 
-	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, pData: IoBuffer) {
+	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: IoBuffer) {
 		val pipeline = this
 		val device = pipeline.device
 		MemoryStack.stackPush()
 		try {
-			pData.writeDirect(pData.writeRemaining) {
+			data.writeDirect(data.writeRemaining) {
 				val result = vkGetRayTracingShaderGroupHandlesNV(device.toVkType(), pipeline.toVkType(),
 						firstGroup.toVkType(), groupCount.toVkType(), it)
 				if (result != VK_SUCCESS) handleVkResult(result)

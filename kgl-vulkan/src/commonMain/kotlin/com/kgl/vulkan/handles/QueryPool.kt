@@ -26,7 +26,7 @@ expect class QueryPool : VkHandle {
 	fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			pData: IoBuffer,
+			data: IoBuffer,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean

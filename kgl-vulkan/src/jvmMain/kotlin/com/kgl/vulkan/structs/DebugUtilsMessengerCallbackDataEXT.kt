@@ -25,15 +25,15 @@ fun DebugUtilsMessengerCallbackDataEXT.Companion.from(ptr: VkDebugUtilsMessenger
 			List(ptr.queueLabelCount()) {
 				DebugUtilsLabelEXT.from(target[it])
 			}
-		},
+		} ?: emptyList(),
 		ptr.pCmdBufLabels()?.let { target ->
 			List(ptr.cmdBufLabelCount()) {
 				DebugUtilsLabelEXT.from(target[it])
 			}
-		},
-		ptr.pObjects()!!.let { target ->
+		} ?: emptyList(),
+		ptr.pObjects()?.let { target ->
 			List(ptr.objectCount()) {
 				DebugUtilsObjectNameInfoEXT.from(target[it])
 			}
-		}
+		} ?: emptyList()
 )

@@ -23,8 +23,8 @@ expect class DescriptorPool : VkHandle {
 
 	fun reset()
 
-	fun allocateDescriptorSets(setLayouts: Collection<DescriptorSetLayout>): List<DescriptorSet>
+	fun allocate(setLayouts: Collection<DescriptorSetLayout>): List<DescriptorSet>
 
-	fun freeDescriptorSets(descriptorSets: Collection<DescriptorSet>)
+	fun free(descriptorSets: Collection<DescriptorSet>)
 }
 

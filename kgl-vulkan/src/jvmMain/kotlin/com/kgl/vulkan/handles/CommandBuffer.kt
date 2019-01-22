@@ -202,14 +202,14 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			firstSet: UInt,
 			descriptorSets: Collection<DescriptorSet>,
-			dynamicOffsets: UIntArray
+			dynamicOffsets: UIntArray?
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			vkCmdBindDescriptorSets(commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
 					layout.toVkType(), firstSet.toVkType(), descriptorSets.toVkType(),
-					dynamicOffsets.toVkType())
+					dynamicOffsets?.toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -406,12 +406,12 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, pData: IoBuffer) {
+	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: IoBuffer) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
-					pData.toVkType())
+					data.toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -598,13 +598,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			pValues: IoBuffer
+			values: IoBuffer
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-					offset.toVkType(), pValues.toVkType())
+					offset.toVkType(), values.toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -827,13 +827,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			pData: IoBuffer
+			data: IoBuffer
 	) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			pData.readDirect {
+			data.readDirect {
 				vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer.toVkType(),
 						descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
 						0)

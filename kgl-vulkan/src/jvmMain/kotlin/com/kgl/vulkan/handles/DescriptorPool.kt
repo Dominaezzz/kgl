@@ -49,7 +49,7 @@ actual class DescriptorPool(override val ptr: Long, actual val device: Device, a
 		}
 	}
 
-	actual fun allocateDescriptorSets(setLayouts: Collection<DescriptorSetLayout>): List<DescriptorSet> {
+	actual fun allocate(setLayouts: Collection<DescriptorSetLayout>): List<DescriptorSet> {
 		val descriptorPool = this
 		val device = descriptorPool.device
 		MemoryStack.stackPush()
@@ -67,7 +67,7 @@ actual class DescriptorPool(override val ptr: Long, actual val device: Device, a
 		}
 	}
 
-	actual fun freeDescriptorSets(descriptorSets: Collection<DescriptorSet>) {
+	actual fun free(descriptorSets: Collection<DescriptorSet>) {
 		val descriptorPool = this
 		val device = descriptorPool.device
 		MemoryStack.stackPush()

@@ -16,12 +16,12 @@
 package com.kgl.vulkan.structs
 
 data class DebugUtilsMessengerCallbackDataEXT(
-		val pMessageIdName: String?,
-		val messageIdNumber: Int?,
-		val pMessage: String,
-		val pQueueLabels: List<DebugUtilsLabelEXT>?,
-		val pCmdBufLabels: List<DebugUtilsLabelEXT>?,
-		val pObjects: List<DebugUtilsObjectNameInfoEXT>
+		val messageIdName: String?,
+		val messageIdNumber: Int,
+		val message: String,
+		val queueLabels: List<DebugUtilsLabelEXT>,
+		val cmdBufLabels: List<DebugUtilsLabelEXT>,
+		val objects: List<DebugUtilsObjectNameInfoEXT>
 ) {
 	companion object
 }

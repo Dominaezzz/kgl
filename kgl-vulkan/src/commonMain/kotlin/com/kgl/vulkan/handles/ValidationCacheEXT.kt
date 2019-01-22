@@ -21,7 +21,7 @@ import kotlinx.io.core.IoBuffer
 expect class ValidationCacheEXT : VkHandle {
 	val device: Device
 
-	fun getData(pData: IoBuffer?)
+	fun getData(data: IoBuffer?)
 
 	fun merge(srcCaches: Collection<ValidationCacheEXT>)
 }

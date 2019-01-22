@@ -23,7 +23,7 @@ fun DebugUtilsMessengerCallbackDataEXT.Companion.from(ptr: VkDebugUtilsMessenger
 		ptr.pMessageIdName?.toKString(),
 		ptr.messageIdNumber,
 		ptr.pMessage!!.toKString(),
-		ptr.pQueueLabels?.let { target -> List(ptr.queueLabelCount.toInt()) { DebugUtilsLabelEXT.from(target[it]) } },
-		ptr.pCmdBufLabels?.let { target -> List(ptr.cmdBufLabelCount.toInt()) { DebugUtilsLabelEXT.from(target[it]) } },
-		ptr.pObjects!!.let { target -> List(ptr.objectCount.toInt()) { DebugUtilsObjectNameInfoEXT.from(target[it]) } }
+		ptr.pQueueLabels?.let { target -> List(ptr.queueLabelCount.toInt()) { DebugUtilsLabelEXT.from(target[it]) } } ?: emptyList(),
+		ptr.pCmdBufLabels?.let { target -> List(ptr.cmdBufLabelCount.toInt()) { DebugUtilsLabelEXT.from(target[it]) } } ?: emptyList(),
+		ptr.pObjects?.let { target -> List(ptr.objectCount.toInt()) { DebugUtilsObjectNameInfoEXT.from(target[it]) } } ?: emptyList()
 )

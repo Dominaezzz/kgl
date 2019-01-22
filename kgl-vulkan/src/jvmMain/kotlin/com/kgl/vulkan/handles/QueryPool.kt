@@ -36,14 +36,14 @@ actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHa
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			pData: IoBuffer,
+			data: IoBuffer,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
 		MemoryStack.stackPush()
 		try {
 			TODO()
-			pData.writeDirect(pData.writeRemaining) {
+			data.writeDirect(data.writeRemaining) {
 				val result = vkGetQueryPoolResults(device.toVkType(), ptr,
 						firstQuery.toVkType(), queryCount.toVkType(), it,
 						stride.toVkType(), flags.toVkType())

@@ -23,7 +23,7 @@ expect class PipelineCache : VkHandle {
 
 	val dataSize: ULong
 
-	fun getData(pData: IoBuffer): Boolean
+	fun getData(data: IoBuffer): Boolean
 
 	fun merge(srcCaches: Collection<PipelineCache>)
 }

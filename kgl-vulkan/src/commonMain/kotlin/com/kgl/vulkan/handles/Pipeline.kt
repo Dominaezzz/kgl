@@ -26,7 +26,7 @@ expect class Pipeline : VkHandle {
 	fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			pInfo: IoBuffer?
+			info: IoBuffer?
 	)
 
 	fun compileDeferredNV(shader: UInt)
@@ -34,7 +34,7 @@ expect class Pipeline : VkHandle {
 	fun getRayTracingShaderGroupHandlesNV(
 			firstGroup: UInt,
 			groupCount: UInt,
-			pData: IoBuffer
+			data: IoBuffer
 	)
 }
 

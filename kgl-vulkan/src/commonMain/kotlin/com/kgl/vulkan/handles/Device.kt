@@ -60,7 +60,7 @@ expect class Device : VkHandle {
 
 	fun createShaderModule(code: UByteArray, block: ShaderModuleCreateInfoBuilder.() -> Unit = {}): ShaderModule
 
-	fun createPipelineCache(pInitialData: IoBuffer? = null, block: PipelineCacheCreateInfoBuilder.() -> Unit = {}): PipelineCache
+	fun createPipelineCache(initialData: IoBuffer? = null, block: PipelineCacheCreateInfoBuilder.() -> Unit = {}): PipelineCache
 
 	fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>? = null, block: PipelineLayoutCreateInfoBuilder.() -> Unit = {}): PipelineLayout
 
@@ -93,7 +93,7 @@ expect class Device : VkHandle {
 
 	fun debugMarkerSetObjectNameEXT(block: DebugMarkerObjectNameInfoEXTBuilder.() -> Unit = {})
 
-	fun debugMarkerSetObjectTagEXT(pTag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit = {})
+	fun debugMarkerSetObjectTagEXT(tag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit = {})
 
 	fun createIndirectCommandsLayoutNVX(block: IndirectCommandsLayoutCreateInfoNVXBuilder.() -> Unit): IndirectCommandsLayoutNVX
 
@@ -126,13 +126,13 @@ expect class Device : VkHandle {
 
 	fun getQueue2(block: DeviceQueueInfo2Builder.() -> Unit = {}): Queue
 
-	fun createValidationCacheEXT(pInitialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}): ValidationCacheEXT
+	fun createValidationCacheEXT(initialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}): ValidationCacheEXT
 
 	fun getDescriptorSetLayoutSupport(block: DescriptorSetLayoutCreateInfoBuilder.() -> Unit): DescriptorSetLayoutSupport
 
 	fun setDebugUtilsObjectNameEXT(block: DebugUtilsObjectNameInfoEXTBuilder.() -> Unit = {})
 
-	fun setDebugUtilsObjectTagEXT(pTag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
+	fun setDebugUtilsObjectTagEXT(tag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
 
 	fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: IoBuffer): MemoryHostPointerPropertiesEXT
 

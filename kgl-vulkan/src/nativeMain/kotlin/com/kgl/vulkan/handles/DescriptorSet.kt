@@ -30,12 +30,12 @@ actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descrip
 		vkFreeDescriptorSets(descriptorPool.device.ptr, descriptorPool.ptr, 1, cValuesOf(ptr))
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, pData: IoBuffer) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer) {
 		TODO()
 		VirtualStack.push()
 		try {
 			vkUpdateDescriptorSetWithTemplate(descriptorPool.device.toVkType(), toVkType(),
-					descriptorUpdateTemplate.toVkType(), pData.toVkType())
+					descriptorUpdateTemplate.toVkType(), data.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}

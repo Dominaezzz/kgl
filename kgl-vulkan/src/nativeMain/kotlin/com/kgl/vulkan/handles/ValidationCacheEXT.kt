@@ -34,14 +34,14 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		}
 	}
 
-	actual fun getData(pData: IoBuffer?) {
+	actual fun getData(data: IoBuffer?) {
 		TODO()
 		val validationCache = this
 		val device = validationCache.device
 		VirtualStack.push()
 		try {
 //            val result = vkGetValidationCacheDataEXT(device.toVkType(), validationCache.toVkType(),
-//                    pData?.readRemaining?.toULong() ?: 0U, pData.toVkType())
+//                    data?.readRemaining?.toULong() ?: 0U, data.toVkType())
 //            when (result) {
 //                VK_SUCCESS -> Unit
 //                VK_INCOMPLETE -> Unit

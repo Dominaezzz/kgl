@@ -54,7 +54,7 @@ actual class PipelineCache(override val ptr: Long, actual val device: Device) : 
 			}
 		}
 
-	actual fun getData(pData: IoBuffer): Boolean {
+	actual fun getData(data: IoBuffer): Boolean {
 		val pipelineCache = this
 		val device = pipelineCache.device
 		MemoryStack.stackPush()
@@ -62,7 +62,7 @@ actual class PipelineCache(override val ptr: Long, actual val device: Device) : 
 			val outputSize = MemoryStack.stackGet().mallocPointer(1)
 
 			var result: Int = VK_INCOMPLETE
-			pData.writeDirect(pData.writeRemaining) {
+			data.writeDirect(data.writeRemaining) {
 				result = vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize, it)
 			}
 			return when (result) {
