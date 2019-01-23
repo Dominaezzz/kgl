@@ -5,3 +5,6 @@ before_build:
 
 build_script:
   - gradlew build
+
+after_build:
+  - if %APPVEYOR_REPO_TAG%==true ( gradlew bintrayUpload )
