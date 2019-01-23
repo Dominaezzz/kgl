@@ -24,24 +24,24 @@ actual class Cursor : Closeable {
 	internal val ptr: Long
 
 	actual constructor(image: Image, xhot: Int, yhot: Int) {
-		ptr = MemoryStack.stackPush().use {
-			val imagePtr = GLFWImage.callocStack(it)
-			imagePtr.width(xhot)
-			imagePtr.height(yhot)
-			TODO()
+		ptr = MemoryStack.stackPush().use { stack ->
+			val imagePtr = GLFWImage.callocStack(stack)
+			imagePtr.width(image.width)
+			imagePtr.height(image.height)
+			image.pixels.readDirect { imagePtr.pixels(it) }
 			glfwCreateCursor(imagePtr, xhot, yhot)
 		}
 	}
 
 	actual constructor(shape: Standard) {
-		ptr = glfwCreateStandardCursor(shape.ordinal)
+		ptr = glfwCreateStandardCursor(shape.value)
 	}
 
 	override fun close() {
 		glfwDestroyCursor(ptr)
 	}
 
-	actual enum class Standard(private val value: Int) {
+	actual enum class Standard(internal val value: Int) {
 		Arrow(GLFW_ARROW_CURSOR),
 		IBeam(GLFW_IBEAM_CURSOR),
 		CrossHair(GLFW_CROSSHAIR_CURSOR),

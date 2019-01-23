@@ -16,23 +16,23 @@
 package com.kgl.glfw
 
 import cglfw.*
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.ptr
+import cnames.structs.GLFWcursor
+import kotlinx.cinterop.*
 import kotlinx.io.core.Closeable
 
 actual class Cursor : Closeable {
 	val ptr: CPointer<GLFWcursor>?
 
 	actual constructor(image: Image, xhot: Int, yhot: Int) {
-		@Suppress("UNREACHABLE_CODE")
 		ptr = memScoped {
 			glfwCreateCursor(
 					alloc<GLFWimage> {
 						width = image.width
 						height = image.height
-						pixels = TODO() // image.pixels
+						image.pixels.readDirect {
+							pixels = it.reinterpret()
+							image.width * image.height * 4
+						}
 					}.ptr,
 					xhot,
 					yhot
