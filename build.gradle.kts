@@ -23,7 +23,6 @@ plugins {
 subprojects {
 	apply {
 		plugin("maven-publish")
-		plugin("kotlin-multiplatform")
 	}
 
 	group = "com.kgl"
