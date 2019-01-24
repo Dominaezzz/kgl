@@ -17,6 +17,7 @@ package com.kgl.glfw
 
 import com.kgl.core.Flag
 import kotlinx.io.core.Closeable
+import kotlin.native.concurrent.ThreadLocal
 
 expect class Window : Closeable {
 	var position: Pair<Int, Int>
@@ -59,6 +60,7 @@ expect class Window : Closeable {
 	fun setCharCallback(callback: ((Window, UInt) -> Unit)?)
 	fun setCharModsCallback(callback: ((Window, UInt, Flag<Mod>) -> Unit)?)
 
+	@ThreadLocal
 	companion object {
 		inline operator fun invoke(
 				width: Int,

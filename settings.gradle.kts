@@ -1,8 +1,8 @@
 pluginManagement {
 	repositories {
 		mavenCentral()
-		maven { url "https://plugins.gradle.org/m2/" }
-		maven { url "http://dl.bintray.com/kotlin/kotlin-eap" }
+		maven(url = "https://plugins.gradle.org/m2/")
+		maven(url = "http://dl.bintray.com/kotlin/kotlin-eap")
 	}
 
 	resolutionStrategy {

@@ -19,7 +19,6 @@ import cglfw.*
 import cnames.structs.GLFWmonitor
 import kotlinx.cinterop.*
 
-@ThreadLocal
 actual object Glfw {
 	actual var time: Double
 		get() = glfwGetTime()

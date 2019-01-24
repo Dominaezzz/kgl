@@ -22,6 +22,7 @@ import cvulkan.VkBool32
 import cvulkan.VkClearValue
 import kotlinx.cinterop.*
 import kotlinx.io.core.IoBuffer
+import kotlin.native.concurrent.ThreadLocal
 
 // TODO: Replace this with actual stack implementation.
 @ThreadLocal

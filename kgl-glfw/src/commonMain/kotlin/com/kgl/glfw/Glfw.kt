@@ -15,6 +15,9 @@
  */
 package com.kgl.glfw
 
+import kotlin.native.concurrent.ThreadLocal
+
+@ThreadLocal
 expect object Glfw {
 	var time: Double
 	val timerValue: ULong

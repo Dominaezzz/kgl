@@ -423,7 +423,6 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 		glfwTerminate()
 	}
 
-	@ThreadLocal
 	actual companion object {
 		actual inline operator fun invoke(
 				width: Int,

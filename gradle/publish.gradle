@@ -49,10 +49,7 @@ publishing {
 	kotlin.targets.all { target ->
 		if (target.platformType.name != 'native') {
 			def publication = publishing.publications[targetName]
-			publication.gradleModuleMetadataFile = null
-			tasks.matching { it.name == "generateMetadataFileFor${name.capitalize()}Publication" }.all {
-				onlyIf { false }
-			}
+			publication.moduleDescriptorGenerator = null
 		}
 	}
 }
