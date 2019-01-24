@@ -19,7 +19,7 @@ import cvulkan.*
 import kotlinx.cinterop.reinterpret
 
 class GlobalDispatchTable(getProcAddr: (String) -> PFN_vkVoidFunction?) {
-	val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr = getProcAddr("vkGetInstanceProcAddr")!!.reinterpret()
+	//val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr = getProcAddr("vkGetInstanceProcAddr")!!.reinterpret()
 
 	val vkCreateInstance: PFN_vkCreateInstance = getProcAddr("vkCreateInstance")!!.reinterpret()
 	val vkEnumerateInstanceVersion: PFN_vkEnumerateInstanceVersion? = getProcAddr("vkEnumerateInstanceVersion")?.reinterpret()

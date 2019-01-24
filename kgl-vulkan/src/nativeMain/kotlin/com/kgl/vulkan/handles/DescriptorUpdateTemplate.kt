@@ -20,7 +20,7 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkDescriptorUpdateTemplate
-import cvulkan.vkDestroyDescriptorUpdateTemplate
+import kotlinx.cinterop.invoke
 
 actual class DescriptorUpdateTemplate(override val ptr: VkDescriptorUpdateTemplate, actual val device: Device) : VkHandleNative<VkDescriptorUpdateTemplate>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

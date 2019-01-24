@@ -20,7 +20,7 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkIndirectCommandsLayoutNVX
-import cvulkan.vkDestroyIndirectCommandsLayoutNVX
+import kotlinx.cinterop.invoke
 
 actual class IndirectCommandsLayoutNVX(override val ptr: VkIndirectCommandsLayoutNVX, actual val device: Device) : VkHandleNative<VkIndirectCommandsLayoutNVX>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

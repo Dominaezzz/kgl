@@ -29,7 +29,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 	internal val dispatchTable = InstanceDispatchTable {
 		VirtualStack.push()
 		try {
-			globalDispatchTable.vkGetInstanceProcAddr(ptr, it.toVkType())
+			Loader.vkGetInstanceProcAddr(ptr, it.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}
@@ -108,7 +108,7 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		val instance = this
 		VirtualStack.push()
 		try {
-			globalDispatchTable.vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
+			Loader.vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
 		} finally {
 			VirtualStack.pop()
 		}

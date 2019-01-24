@@ -22,6 +22,7 @@ import com.kgl.vulkan.structs.from
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.alloc
+import kotlinx.cinterop.invoke
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 

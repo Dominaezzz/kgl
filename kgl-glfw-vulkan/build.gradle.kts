@@ -37,8 +37,6 @@ kotlin {
 		}
 	}
 
-	val vulkanLibDir = rootProject.childProjects["kgl-vulkan"]!!.file("src/nativeInterop/vulkan/lib")
-
 	if (os.isWindows || System.getProperty("idea.active") != "true") {
 		mingwX64("mingw") {
 			compilations["main"].defaultSourceSet {
@@ -49,7 +47,6 @@ kotlin {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
 			}
-			compilations["test"].linkerOpts("-L$vulkanLibDir")
 		}
 	}
 	if (os.isLinux || System.getProperty("idea.active") != "true") {
@@ -62,7 +59,6 @@ kotlin {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
 			}
-			compilations["test"].linkerOpts("-L$vulkanLibDir")
 		}
 	}
 	if (os.isMacOsX || System.getProperty("idea.active") != "true") {
@@ -75,7 +71,6 @@ kotlin {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
 			}
-			compilations["test"].linkerOpts("-L$vulkanLibDir", "-rpath $vulkanLibDir")
 		}
 	}
 }

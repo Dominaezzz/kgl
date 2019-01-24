@@ -37,7 +37,6 @@ kotlin {
 	}
 	
 	val vulkanHeaderDir = project.file("src/nativeInterop/vulkan/include")
-	val vulkanLibDir = project.file("src/nativeInterop/vulkan/lib")
 
 	if (os.isWindows || System.getProperty("idea.active") != "true") {
 		mingwX64("mingw") {
@@ -48,14 +47,12 @@ kotlin {
 			}
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
+				kotlin.srcDir("src/mingwMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
 			compilations["test"].defaultSourceSet {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
-			}
-			compilations.all {
-				linkerOpts("-L$vulkanLibDir")
 			}
 		}
 	}
@@ -68,14 +65,12 @@ kotlin {
 			}
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
+				kotlin.srcDir("src/linuxMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
 			compilations["test"].defaultSourceSet {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
-			}
-			compilations.all {
-				linkerOpts("-L$vulkanLibDir")
 			}
 		}
 	}
@@ -88,14 +83,12 @@ kotlin {
 			}
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
+				kotlin.srcDir("src/macosMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
 			compilations["test"].defaultSourceSet {
 				kotlin.srcDir("src/nativeTest/kotlin")
 				resources.srcDir("src/nativeTest/resources")
-			}
-			compilations.all {
-				linkerOpts("-L$vulkanLibDir", "-rpath $vulkanLibDir")
 			}
 		}
 	}

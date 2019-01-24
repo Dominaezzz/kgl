@@ -17,12 +17,11 @@ package com.kgl.vulkan.utils
 
 import cvulkan.PFN_vkGetInstanceProcAddr
 import kotlinx.cinterop.reinterpret
-import platform.darwin.GetProcAddress
-import platform.darwin.HMODULE
-import platform.darwin.LoadLibraryA
+import kotlinx.cinterop.COpaquePointer
+import platform.posix.*
 
 object Loader {
-	val module: COPaquePointer = dlopen("libvulkan.so", RTLD_NOW or RTLD_LOCAL) ?:
+	private val module: COpaquePointer = dlopen("libvulkan.so", RTLD_NOW or RTLD_LOCAL) ?:
 	dlopen("libvulkan.so.1", RTLD_NOW or RTLD_LOCAL) ?:
 	throw Exception("'libvulkan.so' not found!")
 
