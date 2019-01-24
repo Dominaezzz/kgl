@@ -18,6 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_SUCCESS
 import cvulkan.VkValidationCacheEXT
+import kotlinx.cinterop.invoke
 import kotlinx.io.core.IoBuffer
 
 actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
