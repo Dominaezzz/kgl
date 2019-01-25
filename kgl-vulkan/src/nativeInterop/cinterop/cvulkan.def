@@ -7,7 +7,3 @@ depends.mingw = posix windows
 depends.linux = posix
 
 compilerOpts = -DVK_NO_PROTOTYPES
-
-linkerOpts.mingw = -lvulkan-1
-linkerOpts.linux = -L/usr/lib/x86_64-linux-gnu -lvulkan
-linkerOpts.osx = -lvulkan
