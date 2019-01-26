@@ -12,7 +12,7 @@ buildscript {
 
 	dependencies {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-		classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-5")
+		classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-3")
 	}
 }
 
