@@ -1,5 +1,5 @@
 # Kotlin Graphics Libraries
-Kotlin Multiplatform frameworks for graphics.
+Kotlin Multiplatform libraries for graphics.
 - GLFW
 - Vulkan
 - OpenGL (TODO)
@@ -7,7 +7,7 @@ Kotlin Multiplatform frameworks for graphics.
 |Platform|Status|
 |-----|-----|
 |Linux/MacOS|[![Build Status](https://travis-ci.com/Dominaezzz/kgl.svg?branch=master)](https://travis-ci.com/Dominaezzz/kgl)|
-|Windows|[![Build status](https://ci.appveyor.com/api/projects/status/github/Dominaezzz/kgl?svg=true)](https://ci.appveyor.com/project/Dominaezzz/kgl)|
+|Windows|[![Build status](https://ci.appveyor.com/api/projects/status/github/Dominaezzz/kgl?branch=master&svg=true)](https://ci.appveyor.com/project/Dominaezzz/kgl)|
 
 [ ![Download](https://api.bintray.com/packages/dominaezzz/kotlin-native/kgl/images/download.svg) ](https://bintray.com/dominaezzz/kotlin-native/kgl/0.1.0/link)
 
