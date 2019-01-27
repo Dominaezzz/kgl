@@ -52,10 +52,12 @@ subprojects {
 	}
 
 	afterEvaluate {
-		(property("kotlin") as KotlinMultiplatformExtension).sourceSets.all {
-			languageSettings.apply {
-				enableLanguageFeature("InlineClasses")
-				useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
+		configure<KotlinMultiplatformExtension> {
+			sourceSets.all {
+				languageSettings.apply {
+					enableLanguageFeature("InlineClasses")
+					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
+				}
 			}
 		}
 	}
