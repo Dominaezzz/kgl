@@ -1,0 +1,7 @@
+package = copengl
+headers = GL/glcorearb.h
+#headerFilter = GL/*.h
+
+depends.osx = posix
+depends.mingw = posix windows opengl32
+depends.linux = posix
