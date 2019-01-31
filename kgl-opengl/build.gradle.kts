@@ -1,5 +1,3 @@
-import opengl.OpenGLGenerator
-
 plugins {
 	kotlin("multiplatform")
 	id("opengl-generator")
@@ -76,7 +74,30 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/mingwMain/kotlin")
-						kotlin.srcDir(buildDir.resolve("generated-src/mingw"))
+						kotlin.srcDir(buildDir.resolve("generated-src/${TargetPlatform.mingw}"))
+						resources.srcDir("src/nativeMain/resources")
+					}
+				}
+				val test by getting {
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeTest/kotlin")
+						resources.srcDir("src/nativeTest/resources")
+					}
+				}
+			}
+		}
+	}
+	if(os.isLinux) {
+		linuxX64("linux") {
+			compilations {
+				val main by getting {
+					cinterops.create("copengl") {
+						includeDirs(openglHeaderDir)
+					}
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeMain/kotlin")
+						kotlin.srcDir("src/linuxMain/kotlin")
+						kotlin.srcDir(buildDir.resolve("generated-src/${TargetPlatform.linux}"))
 						resources.srcDir("src/nativeMain/resources")
 					}
 				}

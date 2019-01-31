@@ -13,8 +13,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 object OpenGLGenerator {
     fun generate(outputDir: File) {
-        val mingwDir = outputDir.resolve("mingw")
-
+        outputDir.mkdirs()
         val xmlDoc: Document = DocumentBuilderFactory.newInstance()
             .newDocumentBuilder()
             .parse("https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/master/xml/gl.xml").apply { documentElement.normalize() }
@@ -67,7 +66,7 @@ object OpenGLGenerator {
             }
 
             enumFile.addType(enumBuilder.build())
-            enumFile.build().writeTo(mingwDir)
+            enumFile.build().writeTo(outputDir)
         }
 
         val availableCommands = registry.features.filter {
@@ -98,6 +97,6 @@ object OpenGLGenerator {
             )
         }
 
-        glFile.build().writeTo(mingwDir)
+        glFile.build().writeTo(outputDir)
     }
 }
