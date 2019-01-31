@@ -1,14 +1,13 @@
 package plugin
 
-import opengl.OpenGLGenerator
+import opengl.kn.OpenGLNativeGenerator
 import org.gradle.api.tasks.GradleBuild
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.os.OperatingSystem
 import java.io.File
 
-open class GenerateOpenGLTask : GradleBuild() {
+open class GenerateOpenGLNativeTask : GradleBuild() {
     private val os = OperatingSystem.current()
     private val target: String
         get() = when {
@@ -24,7 +23,7 @@ open class GenerateOpenGLTask : GradleBuild() {
     @TaskAction
     fun exec() {
         outputDir.mkdirs()
-        OpenGLGenerator.generate(outputDir)
+        OpenGLNativeGenerator.generate(outputDir)
     }
 }
 

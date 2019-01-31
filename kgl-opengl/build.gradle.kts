@@ -1,4 +1,4 @@
-import plugin.GenerateOpenGLTask
+import plugin.GenerateOpenGLNativeTask
 
 plugins {
 	kotlin("multiplatform")
@@ -76,7 +76,7 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/mingwMain/kotlin")
-						tasks.withType(GenerateOpenGLTask::class) {
+						tasks.withType(GenerateOpenGLNativeTask::class) {
 							kotlin.srcDir(outputDir)
 						}
 						resources.srcDir("src/nativeMain/resources")
@@ -102,7 +102,7 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/linuxMain/kotlin")
-						tasks.withType(GenerateOpenGLTask::class) {
+						tasks.withType(GenerateOpenGLNativeTask::class) {
 							kotlin.srcDir(outputDir)
 						}
 						resources.srcDir("src/nativeMain/resources")

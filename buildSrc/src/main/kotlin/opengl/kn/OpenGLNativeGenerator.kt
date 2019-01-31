@@ -1,4 +1,4 @@
-package opengl
+package opengl.kn
 
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
@@ -7,11 +7,12 @@ import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
+import opengl.Registry
 import org.w3c.dom.Document
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-object OpenGLGenerator {
+object OpenGLNativeGenerator {
     fun generate(outputDir: File) {
         outputDir.mkdirs()
         val xmlDoc: Document = DocumentBuilderFactory.newInstance()

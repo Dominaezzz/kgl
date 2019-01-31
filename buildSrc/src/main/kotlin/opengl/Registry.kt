@@ -1,5 +1,6 @@
 package opengl
 
+import opengl.kn.CTypeDecl
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node

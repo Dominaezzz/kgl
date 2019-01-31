@@ -1,4 +1,4 @@
-package opengl
+package opengl.kn
 
 data class CTypeDecl(val name: String, val isConst: Boolean, val asteriskCount: Int, val count: String) {
     override fun toString(): String {
