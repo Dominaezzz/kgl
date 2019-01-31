@@ -1,3 +1,5 @@
+import plugin.GenerateOpenGLTask
+
 plugins {
 	kotlin("multiplatform")
 	id("opengl-generator")
@@ -74,7 +76,9 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/mingwMain/kotlin")
-						kotlin.srcDir(buildDir.resolve("generated-src/${TargetPlatform.mingw}"))
+						tasks.withType(GenerateOpenGLTask::class) {
+							kotlin.srcDir(outputDir)
+						}
 						resources.srcDir("src/nativeMain/resources")
 					}
 				}
@@ -89,6 +93,7 @@ kotlin {
 	}
 	if(os.isLinux) {
 		linuxX64("linux") {
+
 			compilations {
 				val main by getting {
 					cinterops.create("copengl") {
@@ -97,7 +102,9 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/linuxMain/kotlin")
-						kotlin.srcDir(buildDir.resolve("generated-src/${TargetPlatform.linux}"))
+						tasks.withType(GenerateOpenGLTask::class) {
+							kotlin.srcDir(outputDir)
+						}
 						resources.srcDir("src/nativeMain/resources")
 					}
 				}

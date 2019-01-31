@@ -1,5 +1,6 @@
 plugins {
     `java-gradle-plugin`
+    kotlin("multiplatform") version "1.3.20" apply false
     `kotlin-dsl`
     idea
 }

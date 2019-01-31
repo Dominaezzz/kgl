@@ -5,19 +5,26 @@ import org.gradle.api.tasks.GradleBuild
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.os.OperatingSystem
 import java.io.File
 
 open class GenerateOpenGLTask : GradleBuild() {
-    @Input
-    var platform: String = "undefined"
+    private val os = OperatingSystem.current()
+    private val target: String
+        get() = when {
+            os.isWindows -> "mingw"
+            os.isLinux -> "linux"
+            os.isMacOsX -> "macos"
+            else -> throw IllegalStateException("unrecognized operating system")
+        }
 
     @OutputDirectory
-    var outputDir: File = project.buildDir.resolve("generated-src")
+    var outputDir: File = project.buildDir.resolve("generated-src").resolve(target)
 
     @TaskAction
     fun exec() {
         outputDir.mkdirs()
-        OpenGLGenerator.generate(outputDir.resolve(platform))
+        OpenGLGenerator.generate(outputDir)
     }
 }
 
