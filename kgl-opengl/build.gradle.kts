@@ -1,7 +1,12 @@
+import opengl.OpenGLGenerator
+
 plugins {
 	kotlin("multiplatform")
 	id("opengl-generator")
 }
+
+// run this whenever you want to generate the opengl code
+//OpenGLGenerator.generate(buildDir.resolve("generated-src"), buildDir.resolve("opengl-cache"))
 
 kotlin {
 	val os = org.gradle.internal.os.OperatingSystem.current()
