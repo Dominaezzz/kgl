@@ -117,6 +117,32 @@ kotlin {
 			}
 		}
 	}
+	if(os.isMacOsX) {
+		linuxX64("macos") {
+
+			compilations {
+				val main by getting {
+					cinterops.create("copengl") {
+						includeDirs(openglHeaderDir)
+					}
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeMain/kotlin")
+						kotlin.srcDir("src/macosMain/kotlin")
+						tasks.withType(GenerateOpenGLNativeTask::class) {
+							kotlin.srcDir(outputDir)
+						}
+						resources.srcDir("src/nativeMain/resources")
+					}
+				}
+				val test by getting {
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeTest/kotlin")
+						resources.srcDir("src/nativeTest/resources")
+					}
+				}
+			}
+		}
+	}
 
 }
 
