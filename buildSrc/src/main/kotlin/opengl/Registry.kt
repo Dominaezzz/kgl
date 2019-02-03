@@ -38,24 +38,23 @@ class Registry(glXml: Document) {
 			.map { commandNode ->
 				val proto = commandNode.getChild("proto")
 
-				val (returnType, funName) = definitionRegex.matchEntire(proto.textContent)!!.destructured
+				val funName = proto.getChild("name").textContent
 
-				val params = mutableListOf<Command.Param>()
-				for (paramNode in commandNode.getChildren("param")) {
+				val params = commandNode.getChildren("param").map { paramNode ->
 					val name = paramNode.getChild("name").textContent.trim()
 					val pType = paramNode.getChildren("ptype").singleOrNull()?.textContent?.trim() ?: "void"
 
 					val type = toType(paramNode.textContent, pType, name)
 
-					params += Command.Param(
+					Command.Param(
 							type, name,
 							paramNode.getAttribute("group").takeIf { it.isNotBlank() },
 							paramNode.getAttribute("len").takeIf { it.isNotBlank() }
 					)
-				}
+				}.toList()
 
 				Command(
-						returnType.trim(),
+						toType(proto.textContent, "[A-Z0-9a-z]+", funName),
 						funName,
 						commandNode.getChildren("alias").singleOrNull()?.getAttribute("name"),
 						params
@@ -112,7 +111,7 @@ class Registry(glXml: Document) {
 			val entries: Map<String, String>
 	)
 
-	data class Command(val returnType: String, val name: String, val alias: String?, val params: List<Param>) {
+	data class Command(val returnType: CTypeDecl, val name: String, val alias: String?, val params: List<Param>) {
 		data class Param(
 				val type: CTypeDecl,
 				val name: String,
@@ -148,17 +147,14 @@ class Registry(glXml: Document) {
 
 
 	companion object {
-		fun getTypeDeclRegex(type: String, name: String): Regex {
-			return Regex("""^(const )?(?:struct )?$type\s*(\*(?:(?:\s?const)?\*)?)?\s*$name(?:\[([0-9]+|[A-Z_]+)])?$""")
+		fun getTypeDeclRegex(type: String, name: String) : Regex {
+			return Regex("""^(const )?(?:struct )?($type)\s*(\*(?:(?:\s?const)?\*)?)?\s*$name(?:\[([0-9]+|[A-Z_]+)])?$""")
 		}
 
 		fun toType(typeDecl: String, type: String, name: String): CTypeDecl {
-			val (const, stars, count) = getTypeDeclRegex(type, name).matchEntire(typeDecl)!!.destructured
-			return CTypeDecl(type, const.isNotBlank(), stars.count { it == '*' }, count)
+			val (const, actualType, stars, count) = getTypeDeclRegex(type, name).matchEntire(typeDecl)!!.destructured
+			return CTypeDecl(actualType, const.isNotBlank(), stars.count { it == '*' }, count)
 		}
-
-		val definitionRegex =
-				"""^(?:const )?((?:struct )?[_A-Za-z0-9\s]+ (?:\*(?:const)?)*)([A-Za-z0-9_]+(?:\[([0-9]+)])?)$""".toRegex()
 
 		fun Node.getChildren(name: String): Sequence<Element> {
 			return childNodes.run {
