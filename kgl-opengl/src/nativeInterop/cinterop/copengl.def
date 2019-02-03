@@ -8,3 +8,4 @@ depends.mingw = posix windows opengl32
 depends.linux = posix
 
 compilerOpts.linux = -I/usr/include
+linkerOpts.linux = -L/usr/lib -lGL
