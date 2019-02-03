@@ -15,6 +15,7 @@
  */
 package com.kgl.opengl.utils
 
+import copengl.glXGetProcAddressARB
 import kotlinx.cinterop.COpaquePointer
 import platform.linux.*
 
