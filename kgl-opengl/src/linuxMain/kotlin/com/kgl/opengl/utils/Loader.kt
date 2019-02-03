@@ -17,8 +17,9 @@ package com.kgl.opengl.utils
 
 import copengl.glXGetProcAddressARB
 import kotlinx.cinterop.COpaquePointer
+import kotlinx.cinterop.reinterpret
 import platform.linux.*
 
 actual object Loader {
-	fun kglGetProcAddress(name: String): COpaquePointer? = glXGetProcAddressARB(name)
+	fun kglGetProcAddress(name: String): COpaquePointer? = glXGetProcAddressARB(name).reinterpret()
 }
