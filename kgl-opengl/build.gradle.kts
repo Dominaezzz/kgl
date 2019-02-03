@@ -1,7 +1,12 @@
+import plugin.GenerateOpenGLNativeTask
+
 plugins {
 	kotlin("multiplatform")
 	id("opengl-generator")
 }
+
+// run this whenever you want to generate the opengl code
+//OpenGLGenerator.generate(buildDir.resolve("generated-src"), buildDir.resolve("opengl-cache"))
 
 kotlin {
 	val os = org.gradle.internal.os.OperatingSystem.current()
@@ -71,7 +76,61 @@ kotlin {
 					defaultSourceSet {
 						kotlin.srcDir("src/nativeMain/kotlin")
 						kotlin.srcDir("src/mingwMain/kotlin")
-						kotlin.srcDir(buildDir.resolve("generated-src/mingw"))
+						tasks.withType(GenerateOpenGLNativeTask::class) {
+							kotlin.srcDir(outputDir)
+						}
+						resources.srcDir("src/nativeMain/resources")
+					}
+				}
+				val test by getting {
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeTest/kotlin")
+						resources.srcDir("src/nativeTest/resources")
+					}
+				}
+			}
+		}
+	}
+	if(os.isLinux) {
+		linuxX64("linux") {
+
+			compilations {
+				val main by getting {
+					cinterops.create("copengl") {
+						includeDirs(openglHeaderDir)
+					}
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeMain/kotlin")
+						kotlin.srcDir("src/linuxMain/kotlin")
+						tasks.withType(GenerateOpenGLNativeTask::class) {
+							kotlin.srcDir(outputDir)
+						}
+						resources.srcDir("src/nativeMain/resources")
+					}
+				}
+				val test by getting {
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeTest/kotlin")
+						resources.srcDir("src/nativeTest/resources")
+					}
+				}
+			}
+		}
+	}
+	if(os.isMacOsX) {
+		linuxX64("macos") {
+
+			compilations {
+				val main by getting {
+					cinterops.create("copengl") {
+						includeDirs(openglHeaderDir)
+					}
+					defaultSourceSet {
+						kotlin.srcDir("src/nativeMain/kotlin")
+						kotlin.srcDir("src/macosMain/kotlin")
+						tasks.withType(GenerateOpenGLNativeTask::class) {
+							kotlin.srcDir(outputDir)
+						}
 						resources.srcDir("src/nativeMain/resources")
 					}
 				}
