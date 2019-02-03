@@ -111,11 +111,7 @@ object OpenGLNativeGenerator {
 								.build()
 				)
 
-				if (entry in availableEnumEntries) {
-					enumFile.addImport("platform.opengl32", entry)
-				} else {
-					enumFile.addImport("copengl", entry)
-				}
+				enumFile.addImport("copengl", entry)
 			}
 
 			enumFile.addType(enumBuilder.build())
