@@ -65,6 +65,9 @@ object OpenGLNativeGenerator {
 			"GLuint64EXT" to "GLuint64"
 	)
 
+	private val virtualStackClass = ClassName("com.kgl.core.utils", "VirtualStack")
+	private val glMaskClass = ClassName("com.kgl.opengl.utils", "GLMask")
+
 	fun generate(outputDir: File) {
 		val xmlDoc: Document = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
@@ -84,23 +87,45 @@ object OpenGLNativeGenerator {
 			coreEnums -= feature.removes.flatMap { it.enums }
 		}
 
+		val bitMasks = registry.enums.filter { it.type == "bitmask" }.map { it.group }.toSet()
+
 		for (group in registry.groups) {
 			val enumFile = FileSpec.builder("com.kgl.opengl.enums", group.name)
 
 			val enumBuilder = TypeSpec.enumBuilder(group.name)
 
+			val isBitmask = group.name in bitMasks
+
 			enumBuilder.primaryConstructor(
 					FunSpec.constructorBuilder().addParameter("value", INT).build()
 			).addProperty(
-					PropertySpec.builder("value", INT).initializer("value").build()
+					PropertySpec.builder("value", INT)
+							.apply {
+								if (isBitmask) {
+									addModifiers(KModifier.OVERRIDE)
+								}
+							}
+							.initializer("value")
+							.build()
 			)
+			if (isBitmask) {
+				enumBuilder.addSuperinterface(glMaskClass.parameterizedBy(
+						ClassName("com.kgl.opengl.enums", group.name)
+				))
+			}
 
 			for (entry in group.enums) {
 				if (entry !in coreEnums) continue
 				if (entry.startsWith("GL_ALL_") && entry.endsWith("_BITS")) continue
 
 				enumBuilder.addEnumConstant(
-						entry.removePrefix("GL_"),
+						entry.removePrefix("GL_").let {
+							if (isBitmask) {
+								it.removeSuffix("_BIT")
+							} else {
+								it
+							}
+						},
 						TypeSpec.anonymousClassBuilder()
 								.addSuperclassConstructorParameter(entry)
 								.build()
@@ -130,19 +155,30 @@ object OpenGLNativeGenerator {
 				.addImport("kotlinx.cinterop", "toLong")
 				.addImport("com.kgl.opengl.utils", "Loader")
 
+		val glFunctions = TypeSpec.classBuilder("GLFunctions")
+
 		for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
 
 			val pfnType = "PFN${(command.alias ?: command.name).toUpperCase()}PROC"
 
-			glFile.addProperty(
+			glFunctions.addProperty(
 					PropertySpec.builder(
-							"kgl_${command.name}",
+							command.name,
 							ClassName("copengl", pfnType).copy(nullable = true),
-							KModifier.INTERNAL
+							KModifier.PRIVATE
 					).initializer("Loader.kglGetProcAddress(%S)?.reinterpret()", command.name).build()
 			)
 		}
+
+		glFile.addType(glFunctions.build())
+		glFile.addProperty(PropertySpec.builder(
+				"gl",
+				ClassName("com.kgl.opengl", "GLFunctions"),
+				KModifier.INTERNAL
+		).delegate("lazy { GLFunctions() }")
+				.addAnnotation(ClassName("kotlin.native.concurrent", "ThreadLocal"))
+				.build())
 
 		val existingGroups = registry.groups.map { it.name }.toSet()
 
@@ -158,25 +194,30 @@ object OpenGLNativeGenerator {
 			val ioBufferDirectBlocks = mutableListOf<Pair<String, String>>()
 			var requiresArena = false
 
-			val lengthParams = command.params.mapNotNull { it.len }.toSet()
+			val lengthParams = command.params.mapNotNull { it.len }
+					.filter { len -> len.all { it.isLetterOrDigit() } }.toSet()
 			val outputParams = command.params.takeLastWhile { it.isWritable }
 			val inputParams = command.params.dropLast(outputParams.size)
 
 			for (param in inputParams.filter { it.name !in lengthParams }) {
 				val isEnum = param.type.name == "GLenum" && param.group != null &&
 						param.group in existingGroups
+				val isMask = param.type.name == "GLbitfield" && param.group != null &&
+						param.group in existingGroups
 
 				when (param.type.asteriskCount) {
 					0 -> {
 						val typeKt = if (isEnum) {
 							ClassName("com.kgl.opengl.enums", param.group!!)
+						} else if (isMask){
+							glMaskClass.parameterizedBy(ClassName("com.kgl.opengl.enums", param.group!!))
 						} else {
 							primitiveTypes[param.type.name] ?: continue@loop
 						}
 
 						callBuilder[param.name] = when {
-							isEnum -> "${param.name.escapeKt()}.value.toUInt()"
-							typeKt.simpleName == "Boolean" -> "${param.name.escapeKt()}.toByte().toUByte()"
+							isEnum || isMask -> "${param.name.escapeKt()}.value.toUInt()"
+							typeKt is ClassName && typeKt.simpleName == "Boolean" -> "${param.name.escapeKt()}.toByte().toUByte()"
 							param.type.name == "GLsync" -> "${param.name.escapeKt()}.toCPointer()"
 							else -> param.name.escapeKt()
 						}
@@ -185,17 +226,23 @@ object OpenGLNativeGenerator {
 					1 -> {
 						when (param.type.name) {
 							"void" -> {
-								ioBufferDirectBlocks += Pair(
-										"${param.name.escapeKt()}.readDirect { kglPtr_${param.name} ->",
-										"${param.name.escapeKt()}.readRemaining"
-								)
-								callBuilder[param.name] = "kglPtr_${param.name}"
-								callBuilder[param.len ?: ""] = "${param.name.escapeKt()}.readRemaining.convert()"
-								function.addParameter(param.name, ClassName("kotlinx.io.core", "IoBuffer"))
+								// If length is clearly given.
+								if (param.len in lengthParams) {
+									ioBufferDirectBlocks += Pair(
+											"${param.name.escapeKt()}.readDirect { kglPtr_${param.name} ->",
+											"${param.name.escapeKt()}.readRemaining"
+									)
+									callBuilder[param.name] = "kglPtr_${param.name}"
+									callBuilder[param.len!!] = "${param.name.escapeKt()}.readRemaining.convert()"
+									function.addParameter(param.name, ClassName("kotlinx.io.core", "IoBuffer"))
+								} else {
+									callBuilder[param.name] = param.name.escapeKt() + ".toCPointer()"
+									function.addParameter(param.name, LONG)
+								}
 							 }
 							"GLchar" -> {
 								requiresArena = true
-								callBuilder[param.name] = "${param.name.escapeKt()}.cstr.getPointer(kglArena)"
+								callBuilder[param.name] = "${param.name.escapeKt()}.cstr.getPointer(VirtualStack)"
 								callBuilder[param.len ?: ""] = "${param.name.escapeKt()}.length"
 								function.addParameter(param.name, ClassName("kotlin", "String"))
 							}
@@ -222,7 +269,7 @@ object OpenGLNativeGenerator {
 					2 -> {
 						if (param.type.name == "GLchar") {
 							requiresArena = true
-							callBuilder[param.name] = "${param.name.escapeKt()}.toCStringArray(kglArena)"
+							callBuilder[param.name] = "${param.name.escapeKt()}.toCStringArray(VirtualStack)"
 							callBuilder[param.len ?: continue@loop] = "${param.name.escapeKt()}.size"
 							function.addParameter(
 									param.name,
@@ -295,7 +342,7 @@ object OpenGLNativeGenerator {
 											val glType = ClassName("copengl", param.type.name + "Var")
 
 											requiresArena = true
-											mainFunctionBody.addStatement("val output = kglArena.alloc<%T>()", glType)
+											mainFunctionBody.addStatement("val output = %T.alloc<%T>()", virtualStackClass, glType)
 											callBuilder[param.name] = "output.ptr"
 
 											mainFunctionBody.addStatement(callBuilder.build())
@@ -347,8 +394,8 @@ object OpenGLNativeGenerator {
 
 			if (requiresArena) {
 				tryFinallyBlocks += Pair(
-						CodeBlock.of("val kglArena = %T()\n", ClassName("kotlinx.cinterop", "Arena")),
-						CodeBlock.of("kglArena.clear()\n")
+						CodeBlock.of("%T.push()\n", virtualStackClass),
+						CodeBlock.of("%T.pop()\n", virtualStackClass)
 				)
 			}
 
@@ -392,7 +439,7 @@ object OpenGLNativeGenerator {
 
 		fun build(): String {
 			return command.params.joinToString(", ",
-					prefix = "kgl_${command.name}!!(",
+					prefix = "gl.${command.name}!!(",
 					postfix = ")"
 			) {
 				arguments[it.name] ?: "TODO()"
