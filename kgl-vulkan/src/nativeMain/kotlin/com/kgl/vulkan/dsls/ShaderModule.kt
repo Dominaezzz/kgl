@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.utils.VirtualStack
+import com.kgl.core.utils.VirtualStack
 import cvulkan.VkShaderModuleCreateInfo
 import kotlinx.cinterop.refTo
 import kotlinx.cinterop.reinterpret

@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT

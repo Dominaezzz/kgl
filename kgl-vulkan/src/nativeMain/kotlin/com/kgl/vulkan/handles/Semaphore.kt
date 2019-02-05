@@ -15,9 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.ImportSemaphoreFdInfoKHRBuilder
 import com.kgl.vulkan.dsls.SemaphoreGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.*
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkImportSemaphoreFdInfoKHR
 import cvulkan.VkSemaphore

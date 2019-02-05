@@ -15,10 +15,14 @@
  */
 package com.kgl.vulkan.dsls
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.handles.*
 import com.kgl.vulkan.unions.ClearValue
-import com.kgl.vulkan.utils.*
+import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.utils.mapToStackArray
+import com.kgl.vulkan.utils.toBoolean
+import com.kgl.vulkan.utils.toVkType
 import cvulkan.*
 import kotlinx.cinterop.*
 

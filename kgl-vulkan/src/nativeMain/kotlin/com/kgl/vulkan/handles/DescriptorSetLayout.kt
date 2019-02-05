@@ -15,14 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.DescriptorUpdateTemplateCreateInfoBuilder
-import com.kgl.vulkan.utils.*
-import cvulkan.*
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.value
-import kotlinx.cinterop.invoke
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
+import cvulkan.VK_SUCCESS
+import cvulkan.VkDescriptorSetLayout
+import cvulkan.VkDescriptorUpdateTemplateCreateInfo
+import cvulkan.VkDescriptorUpdateTemplateVar
+import kotlinx.cinterop.*
 
 actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual val device: Device) : VkHandleNative<VkDescriptorSetLayout>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

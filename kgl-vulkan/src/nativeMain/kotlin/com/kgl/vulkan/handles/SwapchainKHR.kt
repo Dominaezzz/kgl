@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
 import com.kgl.vulkan.enums.Format
 import com.kgl.vulkan.enums.ImageType

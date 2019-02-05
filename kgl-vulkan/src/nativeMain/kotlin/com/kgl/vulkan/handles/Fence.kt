@@ -15,9 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.FenceGetFdInfoKHRBuilder
 import com.kgl.vulkan.dsls.ImportFenceFdInfoKHRBuilder
-import com.kgl.vulkan.utils.*
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
 import cvulkan.*
 import kotlinx.cinterop.*
 

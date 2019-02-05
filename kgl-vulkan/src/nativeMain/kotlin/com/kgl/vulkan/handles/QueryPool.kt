@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_NOT_READY

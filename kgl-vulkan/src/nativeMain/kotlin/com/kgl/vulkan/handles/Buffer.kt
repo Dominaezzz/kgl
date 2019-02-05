@@ -15,13 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.BufferMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.BufferViewCreateInfoBuilder
 import com.kgl.vulkan.enums.Format
 import com.kgl.vulkan.structs.MemoryRequirements
 import com.kgl.vulkan.structs.MemoryRequirements2
 import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.*
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
 import cvulkan.*
 import kotlinx.cinterop.*
 

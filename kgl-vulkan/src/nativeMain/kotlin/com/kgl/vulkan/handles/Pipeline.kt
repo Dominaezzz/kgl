@@ -15,12 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
-import com.kgl.vulkan.utils.*
-import cvulkan.*
-import kotlinx.io.core.IoBuffer
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
+import cvulkan.VK_SUCCESS
+import cvulkan.VkPipeline
 import kotlinx.cinterop.invoke
+import kotlinx.io.core.IoBuffer
 
 actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

@@ -15,12 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2
 import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.*
-import cvulkan.*
+import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.VkHandleNative
+import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.utils.toVkType
+import cvulkan.VK_SUCCESS
+import cvulkan.VkAccelerationStructureMemoryRequirementsInfoNV
+import cvulkan.VkAccelerationStructureNV
+import cvulkan.VkMemoryRequirements2
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.pointed

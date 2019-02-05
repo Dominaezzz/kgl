@@ -17,33 +17,13 @@
  */
 package com.kgl.vulkan.utils
 
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.unions.ClearValue
 import cvulkan.VkBool32
 import cvulkan.VkClearValue
 import kotlinx.cinterop.*
 import kotlinx.io.core.IoBuffer
-import kotlin.native.concurrent.ThreadLocal
 
-// TODO: Replace this with actual stack implementation.
-@ThreadLocal
-internal object VirtualStack : AutofreeScope() {
-	private val scopes = mutableListOf<Arena>()
-
-	override fun alloc(size: Long, align: Int): NativePointed {
-		check(scopes.size > 0) { "Call push() before allocation." }
-		return scopes.last().alloc(size, align)
-	}
-
-	fun push() {
-		scopes.add(Arena())
-	}
-
-	fun pop() {
-		check(scopes.size > 0) { "pop() must only be called after push()." }
-
-		scopes.removeAt(scopes.lastIndex).clear()
-	}
-}
 
 internal inline fun Boolean.toVkType(): VkBool32 = this.toVkBool()
 internal inline fun Float.toVkType(): Float = this

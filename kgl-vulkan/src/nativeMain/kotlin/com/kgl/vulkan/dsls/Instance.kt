@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.utils.VirtualStack
+import com.kgl.core.utils.VirtualStack
 import com.kgl.vulkan.utils.VkVersion
 import com.kgl.vulkan.utils.mapToStackArray
 import com.kgl.vulkan.utils.toVkType
