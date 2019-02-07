@@ -223,6 +223,8 @@ window.position = ((mode.width - width) / 2) to ((mode.height - height) / 2)
 ```
 
 ## Limitations
+- OpenGL is only supported on native targets.
+- Only core OpenGL is supported and is loaded on the first gl function call.
 - Platform specific extensions have not been implemented yet. Mostly because of [this](https://youtrack.jetbrains.com/issue/KT-27801).
 - Support for pNext has not been implemented yet.
 - Some parts of the api that use an `IoBuffer` have not yet been implemented as it requires bespoke design.
