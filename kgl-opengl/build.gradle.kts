@@ -72,6 +72,7 @@ kotlin {
 				kotlin.srcDir("src/mingwMain/kotlin")
 				tasks.withType(GenerateOpenGLNativeTask::class) {
 					kotlin.srcDir(outputDir)
+					compileKotlinTask.dependsOn(this)
 				}
 				resources.srcDir("src/nativeMain/resources")
 			}
@@ -87,6 +88,7 @@ kotlin {
 				kotlin.srcDir("src/linuxMain/kotlin")
 				tasks.withType(GenerateOpenGLNativeTask::class) {
 					kotlin.srcDir(outputDir)
+					compileKotlinTask.dependsOn(this)
 				}
 				resources.srcDir("src/nativeMain/resources")
 			}
@@ -102,6 +104,7 @@ kotlin {
 				kotlin.srcDir("src/macosMain/kotlin")
 				tasks.withType(GenerateOpenGLNativeTask::class) {
 					kotlin.srcDir(outputDir)
+					compileKotlinTask.dependsOn(this)
 				}
 				resources.srcDir("src/nativeMain/resources")
 			}

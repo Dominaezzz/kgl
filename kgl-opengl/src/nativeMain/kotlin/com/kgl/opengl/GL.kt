@@ -25,7 +25,7 @@ fun glGetProgramInfoLog(program: UInt): String {
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, output.ptr)
 		val infoLogLength = output.value
 		val infoLog = VirtualStack.allocArray<ByteVar>(infoLogLength + 1)
-		gl.glGetProgramInfoLog!!(program, infoLogLength + 1, null, infoLog)
+		glGetProgramInfoLog(program, infoLogLength + 1, null, infoLog)
 		return infoLog.toKString()
 	} finally {
 		VirtualStack.push()
@@ -34,13 +34,12 @@ fun glGetProgramInfoLog(program: UInt): String {
 
 fun glGetShaderInfoLog(shader: UInt): String {
 	VirtualStack.push()
-	val kglArena = Arena()
 	try {
 		val output = VirtualStack.alloc<IntVar>()
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, output.ptr)
 		val infoLogLength = output.value
 		val infoLog = VirtualStack.allocArray<ByteVar>(infoLogLength + 1)
-		gl.glGetShaderInfoLog!!(shader, infoLogLength + 1, null, infoLog)
+		glGetShaderInfoLog(shader, infoLogLength + 1, null, infoLog)
 		return infoLog.toKString()
 	} finally {
 		VirtualStack.pop()
