@@ -2,7 +2,7 @@
 Kotlin Multiplatform libraries for graphics.
 - [GLFW](https://www.glfw.org)
 - [Vulkan](https://www.khronos.org/vulkan)
-- [OpenGL](https://www.opengl.org) (TODO)
+- [OpenGL](https://www.opengl.org)
 
 |Platform|Status|
 |-----|-----|
