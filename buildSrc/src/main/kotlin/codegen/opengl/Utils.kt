@@ -98,31 +98,32 @@ internal val primitiveTypes = mapOf(
 
 		"GLboolean" to BOOLEAN,
 		"GLbyte" to BYTE,
-		"GLubyte" to ClassName("kotlin", "UByte"),
+		"GLubyte" to UBYTE,
 		"GLshort" to SHORT,
-		"GLushort" to ClassName("kotlin", "UShort"),
+		"GLushort" to USHORT,
 		"GLint" to INT,
-		"GLuint" to ClassName("kotlin", "UInt"),
+		"GLuint" to UINT,
 		"GLfixed" to INT,
 		"GLint64" to LONG,
-		"GLuint64" to ClassName("kotlin", "ULong"),
+		"GLuint64" to ULONG,
 
-		// "GLsizei" to ClassName("kotlin", "UInt"),
+		// "GLsizei" to UINT,
 		"GLsizei" to INT,
 
 		//"GLenum" to INT,
-		"GLenum" to ClassName("kotlin", "UInt"),
+		"GLenum" to UINT,
 
 		/* These should be able to store sizeof(void*) */
 		"GLintptr" to LONG ,
 		"GLsizeiptr" to LONG,
-		// "GLsizeiptr" to ClassName("kotlin", "ULong"),
+		// "GLsizeiptr" to ULONG,
 		"GLsync" to LONG /* Probably should be here since, `typedef struct __GLsync *GLsync;` */,
 
-		"GLbitfield" to ClassName("kotlin", "UInt"),
+		"GLbitfield" to UINT,
 		// "GLbitfield" to INT,
 
-		"GLhalf" to null,
+		//"GLhalf" to null,
+
 		"GLfloat" to FLOAT,
 		"GLclampf" to FLOAT /* From 0.0f to 1.0f */,
 		"GLdouble" to DOUBLE,
