@@ -14,7 +14,7 @@ Kotlin Multiplatform libraries for graphics.
 KGL uses LWJGL for the JVM target and the respective native libraries on the native targets.
 It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
 
-You can find some samples [here](https://github.com/Dominaezzz/kgl-vulkan-samples).
+You can find some kgl-vulkan samples [here](https://github.com/Dominaezzz/kgl-vulkan-samples) and kgl-opengl samples [here](https://github.com/Dominaezzz/kgl-opengl-samples).
 
 ## Design
 The main goal of this library is to hide the verbosity of working with vulkan.
