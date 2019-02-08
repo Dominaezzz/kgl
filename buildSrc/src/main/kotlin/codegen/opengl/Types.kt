@@ -13,21 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package opengl.kn
+package codegen.opengl
 
-data class CTypeDecl(val name: String, val isConst: Boolean, val asteriskCount: Int, val count: String) {
-	override fun toString(): String {
-		return buildString {
-			if (isConst) append("const ")
-			append(name)
-			repeat(asteriskCount) {
-				append('*')
-			}
-			if (count.isNotBlank()) {
-				append('[')
-				append(count)
-				append(']')
-			}
-		}
-	}
-}
+import com.squareup.kotlinpoet.ClassName
+
+
+internal val VIRTUAL_STACK = ClassName("com.kgl.core.utils", "VirtualStack")
+internal val GL_MASK = ClassName("com.kgl.opengl.utils", "GLMask")
+internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
+
+internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
+
+internal val UINT = ClassName("kotlin", "UInt")

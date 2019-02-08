@@ -13,6 +13,7 @@ buildscript {
 	dependencies {
 		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
 		classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-3")
+		classpath("de.undercouch:gradle-download-task:3.4.3")
 	}
 }
 

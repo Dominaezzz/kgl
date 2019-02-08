@@ -1,12 +1,25 @@
-import plugin.GenerateOpenGLNativeTask
+import codegen.opengl.OpenGLGenerator
+import de.undercouch.gradle.tasks.download.Download
 
 plugins {
 	kotlin("multiplatform")
-	id("opengl-generator")
+	id("de.undercouch.download")
 }
 
-// run this whenever you want to generate the opengl code
-//OpenGLGenerator.generate(buildDir.resolve("generated-src"), buildDir.resolve("opengl-cache"))
+val downloadRegistry by tasks.creating(Download::class) {
+	val glXmlCommit = "89acc93eaa6acd97159fb069e66acb92f12d7b87"
+
+	src("https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/$glXmlCommit/xml/gl.xml")
+	dest(buildDir.resolve("cache/gl.xml"))
+	overwrite(false)
+}
+
+val generateOpenGL by tasks.creating(OpenGLGenerator::class) {
+	registryFile = downloadRegistry.dest
+	outputDir = buildDir.resolve("generated-src")
+
+	dependsOn(downloadRegistry)
+}
 
 kotlin {
 	val os = org.gradle.internal.os.OperatingSystem.current()
@@ -70,12 +83,12 @@ kotlin {
 			defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
 				kotlin.srcDir("src/mingwMain/kotlin")
-				tasks.withType(GenerateOpenGLNativeTask::class) {
-					kotlin.srcDir(outputDir)
-					compileKotlinTask.dependsOn(this)
-				}
+				kotlin.srcDir(generateOpenGL.mingwDir)
+
 				resources.srcDir("src/nativeMain/resources")
 			}
+
+			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
 	if (os.isLinux || !isIdeaActive) linuxX64("linux") {
@@ -86,12 +99,11 @@ kotlin {
 			defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
 				kotlin.srcDir("src/linuxMain/kotlin")
-				tasks.withType(GenerateOpenGLNativeTask::class) {
-					kotlin.srcDir(outputDir)
-					compileKotlinTask.dependsOn(this)
-				}
+				kotlin.srcDir(generateOpenGL.linuxDir)
+
 				resources.srcDir("src/nativeMain/resources")
 			}
+			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
 	if (os.isMacOsX || !isIdeaActive) macosX64("macos") {
@@ -102,12 +114,11 @@ kotlin {
 			defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
 				kotlin.srcDir("src/macosMain/kotlin")
-				tasks.withType(GenerateOpenGLNativeTask::class) {
-					kotlin.srcDir(outputDir)
-					compileKotlinTask.dependsOn(this)
-				}
+				kotlin.srcDir(generateOpenGL.macosDir)
+
 				resources.srcDir("src/nativeMain/resources")
 			}
+			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
 }

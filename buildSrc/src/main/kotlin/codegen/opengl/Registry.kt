@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package opengl
+package codegen.opengl
 
-import opengl.kn.CTypeDecl
+import codegen.CTypeDecl
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node

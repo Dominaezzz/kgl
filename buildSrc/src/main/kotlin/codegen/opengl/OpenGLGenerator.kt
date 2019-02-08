@@ -13,69 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package opengl.kn
+package codegen.opengl
 
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import opengl.Registry
-import org.w3c.dom.Document
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-object OpenGLNativeGenerator {
-	private const val glXmlCommit = "89acc93eaa6acd97159fb069e66acb92f12d7b87"
-	private val primitiveTypes = mapOf(
-			"GLchar" to BYTE,
+open class OpenGLGenerator : DefaultTask() {
+	@InputFile
+	lateinit var registryFile: File
 
-			"GLboolean" to BOOLEAN,
-			"GLbyte" to BYTE,
-			"GLubyte" to ClassName("kotlin", "UByte"),
-			"GLshort" to SHORT,
-			"GLushort" to ClassName("kotlin", "UShort"),
-			"GLint" to INT,
-			"GLuint" to ClassName("kotlin", "UInt"),
-			"GLfixed" to INT,
-			"GLint64" to LONG,
-			"GLuint64" to ClassName("kotlin", "ULong"),
+	@OutputDirectory
+	lateinit var outputDir: File
 
-			// "GLsizei" to ClassName("kotlin", "UInt"),
-			"GLsizei" to INT,
+	@get:OutputDirectory
+	val commonNativeDir: File get() = outputDir.resolve("native")
 
-			//"GLenum" to INT,
-			"GLenum" to ClassName("kotlin", "UInt"),
+	@get:OutputDirectory
+	val mingwDir: File get() = outputDir.resolve("mingw")
 
-			/* These should be able to store sizeof(void*) */
-			"GLintptr" to LONG ,
-			"GLsizeiptr" to LONG,
-			// "GLsizeiptr" to ClassName("kotlin", "ULong"),
-			"GLsync" to LONG /* Probably should be here since, `typedef struct __GLsync *GLsync;` */,
+	@get:OutputDirectory
+	val linuxDir: File get() = outputDir.resolve("linux")
 
-			"GLbitfield" to ClassName("kotlin", "UInt"),
-			// "GLbitfield" to INT,
+	@get:OutputDirectory
+	val macosDir: File get() = outputDir.resolve("macos")
 
-			"GLhalf" to null,
-			"GLfloat" to FLOAT,
-			"GLclampf" to FLOAT /* From 0.0f to 1.0f */,
-			"GLdouble" to DOUBLE,
-			"GLclampd" to DOUBLE /* From 0.0 to 1.0 */
-	)
-	private val primitiveTypeAliases = mapOf(
-			// "GLeglImageOES" to "void*",
-			"GLint64EXT" to "GLint64",
-			"GLuint64EXT" to "GLuint64"
-	)
-
-	private val virtualStackClass = ClassName("com.kgl.core.utils", "VirtualStack")
-	private val glMaskClass = ClassName("com.kgl.opengl.utils", "GLMask")
-	private val cOpaquePointerType = ClassName("kotlinx.interop", "COpaquePointer")
-
-	fun generate(outputDir: File) {
-		val xmlDoc: Document = DocumentBuilderFactory.newInstance()
+	@TaskAction
+	fun generate() {
+		val registry = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
-				.parse("https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/$glXmlCommit/xml/gl.xml")
-				.apply { documentElement.normalize() }
-
-		val registry = Registry(xmlDoc)
+				.parse(registryFile)
+				.let {
+					it.documentElement.normalize()
+					Registry(it)
+				}
 
 		val coreCommands = mutableSetOf<String>()
 		val coreEnums = mutableSetOf<String>()
@@ -91,15 +67,13 @@ object OpenGLNativeGenerator {
 		val bitMasks = registry.enums.filter { it.type == "bitmask" }.map { it.group }.toSet()
 
 		for (group in registry.groups) {
-			val enumFile = FileSpec.builder("com.kgl.opengl.enums", group.name)
+			val isBitmask = group.name in bitMasks
 
 			val enumBuilder = TypeSpec.enumBuilder(group.name)
 
-			val isBitmask = group.name in bitMasks
+			enumBuilder.primaryConstructor(FunSpec.constructorBuilder().addParameter("value", INT).build())
 
-			enumBuilder.primaryConstructor(
-					FunSpec.constructorBuilder().addParameter("value", INT).build()
-			).addProperty(
+			enumBuilder.addProperty(
 					PropertySpec.builder("value", INT)
 							.apply {
 								if (isBitmask) {
@@ -109,12 +83,14 @@ object OpenGLNativeGenerator {
 							.initializer("value")
 							.build()
 			)
+
 			if (isBitmask) {
-				enumBuilder.addSuperinterface(glMaskClass.parameterizedBy(
+				enumBuilder.addSuperinterface(GL_MASK.parameterizedBy(
 						ClassName("com.kgl.opengl.enums", group.name)
 				))
 			}
 
+			val enumFile = FileSpec.builder("com.kgl.opengl.enums", group.name)
 			for (entry in group.enums) {
 				if (entry !in coreEnums) continue
 				if (entry.startsWith("GL_ALL_") && entry.endsWith("_BITS")) continue
@@ -136,7 +112,12 @@ object OpenGLNativeGenerator {
 			}
 
 			enumFile.addType(enumBuilder.build())
-			enumFile.build().writeTo(outputDir)
+
+			with(enumFile.build()) {
+				writeTo(mingwDir)
+				writeTo(linuxDir)
+				writeTo(macosDir)
+			}
 		}
 
 		val glFile = FileSpec.builder("com.kgl.opengl", "GL")
@@ -156,10 +137,7 @@ object OpenGLNativeGenerator {
 				.addImport("kotlinx.cinterop", "toLong")
 				.addImport("com.kgl.opengl.utils", "Loader")
 
-		val glFunctions = TypeSpec.classBuilder("GLFunctions")
-
 		for (enum in registry.enums) {
-			val UINT = ClassName("kotlin", "UInt")
 			for ((name, _) in enum.entries) {
 				if (name !in coreEnums) continue
 
@@ -169,6 +147,7 @@ object OpenGLNativeGenerator {
 			}
 		}
 
+		val glFunctions = TypeSpec.classBuilder("GLFunctions")
 		for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
 
@@ -187,9 +166,7 @@ object OpenGLNativeGenerator {
 				"gl",
 				ClassName("com.kgl.opengl", "GLFunctions"),
 				KModifier.INTERNAL
-		).delegate("lazy { GLFunctions() }")
-				.addAnnotation(ClassName("kotlin.native.concurrent", "ThreadLocal"))
-				.build())
+		).delegate("lazy { GLFunctions() }").addAnnotation(THREAD_LOCAL).build())
 
 		loop@for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
@@ -226,8 +203,8 @@ object OpenGLNativeGenerator {
 
 			if (requiresArena) {
 				tryFinallyBlocks += Pair(
-						CodeBlock.of("%T.push()\n", virtualStackClass),
-						CodeBlock.of("%T.pop()\n", virtualStackClass)
+						CodeBlock.of("%T.push()\n", VIRTUAL_STACK),
+						CodeBlock.of("%T.pop()\n", VIRTUAL_STACK)
 				)
 			}
 
@@ -252,79 +229,10 @@ object OpenGLNativeGenerator {
 			glFile.addFunction(function.build())
 		}
 
-		glFile.build().writeTo(outputDir)
-	}
-
-	private fun String.escapeKt(): String = when (this) {
-		"val" -> "`val`"
-		else -> this
-	}
-
-	private val Registry.Command.Param.isWritable: Boolean get() = type.asteriskCount > 0 && !type.isConst
-
-	private class GLCallBuilder(private val command: Registry.Command) {
-		private val arguments = mutableMapOf<String, String>()
-
-		operator fun set(paramName: String, argument: String) {
-			arguments[paramName] = argument
-		}
-
-		fun build(): String {
-			return command.params.joinToString(", ",
-					prefix = "gl.${command.name}!!(",
-					postfix = ")"
-			) {
-				arguments[it.name] ?: "TODO()"
-			}
-		}
-	}
-
-	private fun CTypeDecl.toKtInteropParamType(): TypeName {
-		return if (name == "void" && asteriskCount == 1) {
-			if (isConst) {
-				ClassName("kotlinx.cinterop", "CValuesRef")
-						.parameterizedBy(STAR)
-			} else {
-				ClassName("kotlinx.cinterop", "COpaquePointer")
-			}.copy(nullable = true)
-		} else if (asteriskCount > 0) {
-			ClassName("kotlinx.cinterop", if (isConst) "CValuesRef" else "CPointer")
-					.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
-					.copy(nullable = true)
-		} else {
-			if (name == "GLsync") {
-				ClassName("copengl", name).copy(nullable = true)
-			} else {
-				ClassName("copengl", name)
-			}
-		}
-	}
-
-	private fun CTypeDecl.toKtInteropType(): TypeName {
-		return if (name == "void" && asteriskCount == 1) {
-			ClassName("kotlinx.cinterop", "COpaquePointer")
-					.copy(nullable = true)
-		} else if (asteriskCount > 0) {
-			ClassName("kotlinx.cinterop", "CPointer")
-					.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
-					.copy(nullable = true)
-		} else {
-			if (name == "GLsync") {
-				ClassName("copengl", name).copy(nullable = true)
-			} else {
-				ClassName("copengl", name)
-			}
-		}
-	}
-
-	private fun glTypeToKtInteropType(name: String, asteriskCount: Int): TypeName {
-		return if (name == "void" && asteriskCount == 1) {
-			ClassName("kotlinx.cinterop", "COpaquePointerVar")
-		} else if (asteriskCount > 0) {
-			ClassName("kotlinx.cinterop", "CPointerVar")
-					.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
-		} else {
-			ClassName("copengl", name + "Var")
+		with(glFile.build()) {
+			writeTo(mingwDir)
+			writeTo(linuxDir)
+			writeTo(macosDir)
 		}
 	}
 }

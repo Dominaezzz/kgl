@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-object TargetPlatform {
-	const val mingw = "mingw"
-	const val linux = "linux"
-	const val macos = "macos"
+package codegen
+
+data class CTypeDecl(val name: String, val isConst: Boolean, val asteriskCount: Int, val count: String) {
+	override fun toString(): String {
+		return buildString {
+			if (isConst) append("const ")
+			append(name)
+			repeat(asteriskCount) {
+				append('*')
+			}
+			if (count.isNotBlank()) {
+				append('[')
+				append(count)
+				append(']')
+			}
+		}
+	}
 }
