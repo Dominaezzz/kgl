@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.ByteArrayOutputStream
 
 buildscript {
-	val kotlinVersion by extra("1.3.20")
+	val kotlinVersion by extra("1.3.21")
 
 	repositories {
 		jcenter()
@@ -18,7 +18,7 @@ buildscript {
 }
 
 plugins {
-	kotlin("multiplatform") version ("1.3.20") apply false
+	kotlin("multiplatform") version ("1.3.21") apply false
 }
 
 subprojects {
