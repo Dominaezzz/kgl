@@ -29,17 +29,20 @@ import kotlinx.cinterop.pointed
 import kotlinx.cinterop.staticCFunction
 
 actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebugUtilsMessengerCreateInfoEXT) {
-	internal fun init(messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>, messageType: VkFlag<DebugUtilsMessageTypeEXT>, callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit) {
-		target.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-		target.pNext = null
-		target.flags = 0U
+	actual var messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>?
+		get() = DebugUtilsMessageSeverityEXT.fromMultiple(target.messageSeverity)
+		set(value) {
+			target.messageSeverity = value?.value ?: 0u
+		}
 
-		target.messageSeverity = messageSeverity.value
-		target.messageType = messageType.value
+	actual var messageType: VkFlag<DebugUtilsMessageTypeEXT>?
+		get() = DebugUtilsMessageTypeEXT.fromMultiple(target.messageType)
+		set(value) {
+			target.messageType = value?.value ?: 0u
+		}
 
-		val stablePtr = StableRef.create(callback)
-
-		target.pUserData = stablePtr.asCPointer()
+	actual fun userCallback(callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit) {
+		target.pUserData = StableRef.create(callback).asCPointer()
 		target.pfnUserCallback = staticCFunction { severity, type, callbackData, userData ->
 			val theCallback = userData!!.asStableRef<(VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit>().get()
 
@@ -51,5 +54,11 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 
 			VK_FALSE.toUInt()
 		}
+	}
+
+	internal fun init() {
+		target.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
+		target.pNext = null
+		target.flags = 0U
 	}
 }

@@ -20,8 +20,9 @@ import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.toVkType
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT
+import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackEXT
 
-actual class DebugUtilsMessengerEXT(override val ptr: Long, actual val instance: Instance) : VkHandleJVM<Long>(), VkHandle {
+actual class DebugUtilsMessengerEXT(override val ptr: Long, actual val instance: Instance, val callback: VkDebugUtilsMessengerCallbackEXT) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val messenger = this
 		val instance = messenger.instance
@@ -30,6 +31,7 @@ actual class DebugUtilsMessengerEXT(override val ptr: Long, actual val instance:
 			vkDestroyDebugUtilsMessengerEXT(instance.toVkType(), messenger.toVkType(), null)
 		} finally {
 			MemoryStack.stackPop()
+			callback.close()
 		}
 	}
 }

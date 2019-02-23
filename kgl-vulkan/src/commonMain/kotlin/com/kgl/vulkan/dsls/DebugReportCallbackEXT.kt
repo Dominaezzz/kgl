@@ -15,4 +15,22 @@
  */
 package com.kgl.vulkan.dsls
 
-expect class DebugReportCallbackCreateInfoEXTBuilder
+import com.kgl.vulkan.enums.DebugReportEXT
+import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
+import com.kgl.vulkan.utils.VkFlag
+
+typealias DebugReportCallbackEXT = (
+		flags: VkFlag<DebugReportEXT>,
+		objectType: DebugReportObjectTypeEXT,
+		`object`: ULong,
+		location: ULong,
+		messageCode: Int,
+		layerPrefix: String,
+		message: String
+) -> Unit
+
+expect class DebugReportCallbackCreateInfoEXTBuilder {
+	var flags: VkFlag<DebugReportEXT>?
+
+	fun callback(callback: DebugReportCallbackEXT)
+}

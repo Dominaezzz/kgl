@@ -27,11 +27,9 @@ actual class DebugReportCallbackEXT(override val ptr: VkDebugReportCallbackEXT, 
 	internal val dispatchTable = instance.dispatchTable
 
 	override fun close() {
-		val callback = this
-		val instance = callback.instance
 		VirtualStack.push()
 		try {
-			dispatchTable.vkDestroyDebugReportCallbackEXT!!(instance.toVkType(), callback.toVkType(), null)
+			dispatchTable.vkDestroyDebugReportCallbackEXT!!(instance.toVkType(), ptr, null)
 		} finally {
 			VirtualStack.pop()
 			userData.dispose()

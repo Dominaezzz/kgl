@@ -28,16 +28,18 @@ import kotlinx.cinterop.toKString
 
 
 actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebugReportCallbackCreateInfoEXT) {
-	internal fun init(flags: VkFlag<DebugReportEXT>, callback: (VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit) {
-		target.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
-		target.pNext = null
-		target.flags = flags.value
+	actual var flags: VkFlag<DebugReportEXT>?
+		get() = DebugReportEXT.fromMultiple(target.flags)
+		set(value) {
+			target.flags = value?.value ?: 0U
+		}
 
+	actual fun callback(callback: DebugReportCallbackEXT) {
 		target.pUserData = StableRef.create(callback).asCPointer()
 		target.pfnCallback = staticCFunction { flags, objectType, `object`, location, messageCode, pLayerPrefix, pMessage, pUserData ->
-			val callback = pUserData!!.asStableRef<(VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit>().get()
+			val theCallback = pUserData!!.asStableRef<(VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit>().get()
 
-			callback(
+			theCallback(
 					DebugReportEXT.fromMultiple(flags),
 					DebugReportObjectTypeEXT.from(objectType),
 					`object`.toULong(), location.toULong(), messageCode,
@@ -46,6 +48,11 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 			)
 			VK_FALSE.toUInt()
 		}
+	}
+
+	internal fun init() {
+		target.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
+		target.pNext = null
 	}
 }
 

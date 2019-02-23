@@ -15,5 +15,21 @@
  */
 package com.kgl.vulkan.dsls
 
+import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
+import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
+import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
+import com.kgl.vulkan.utils.VkFlag
 
-expect class DebugUtilsMessengerCreateInfoEXTBuilder
+typealias DebugUtilsMessengerCallbackEXT = (
+		messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
+		messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
+		callbackData: DebugUtilsMessengerCallbackDataEXT
+) -> Unit
+
+expect class DebugUtilsMessengerCreateInfoEXTBuilder {
+	var messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>?
+
+	var messageType: VkFlag<DebugUtilsMessageTypeEXT>?
+
+	fun userCallback(callback: DebugUtilsMessengerCallbackEXT)
+}

@@ -15,14 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DebugUtilsMessengerCallbackDataEXTBuilder
-import com.kgl.vulkan.dsls.DisplaySurfaceCreateInfoKHRBuilder
-import com.kgl.vulkan.dsls.InstanceCreateInfoBuilder
+import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
 import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
 import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
 import com.kgl.vulkan.structs.ExtensionProperties
 import com.kgl.vulkan.structs.LayerProperties
 import com.kgl.vulkan.structs.PhysicalDeviceGroupProperties
@@ -39,16 +36,9 @@ expect class Instance : VkHandle {
 
 	fun createDisplayPlaneSurfaceKHR(displayMode: DisplayModeKHR, block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit): SurfaceKHR
 
-	fun createDebugUtilsMessengerEXT(
-			messageType: VkFlag<DebugUtilsMessageTypeEXT>,
-			messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
-			callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit
-	): DebugUtilsMessengerEXT
+	fun createDebugUtilsMessengerEXT(block: DebugUtilsMessengerCreateInfoEXTBuilder.() -> Unit): DebugUtilsMessengerEXT
 
-	fun createDebugReportCallbackEXT(
-			flags: VkFlag<DebugReportEXT>,
-			callback: (VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit
-	): DebugReportCallbackEXT
+	fun createDebugReportCallbackEXT(block: DebugReportCallbackCreateInfoEXTBuilder.() -> Unit): DebugReportCallbackEXT
 
 	fun debugReportMessageEXT(
 			flags: VkFlag<DebugReportEXT>,

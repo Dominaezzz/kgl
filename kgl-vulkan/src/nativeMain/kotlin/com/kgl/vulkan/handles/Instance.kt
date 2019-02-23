@@ -21,7 +21,10 @@ import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
 import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
 import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.structs.ExtensionProperties
+import com.kgl.vulkan.structs.LayerProperties
+import com.kgl.vulkan.structs.PhysicalDeviceGroupProperties
+import com.kgl.vulkan.structs.from
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
@@ -133,17 +136,13 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		}
 	}
 
-	actual fun createDebugUtilsMessengerEXT(
-			messageType: VkFlag<DebugUtilsMessageTypeEXT>,
-			messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
-			callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit
-	): DebugUtilsMessengerEXT {
+	actual fun createDebugUtilsMessengerEXT(block: DebugUtilsMessengerCreateInfoEXTBuilder.() -> Unit): DebugUtilsMessengerEXT {
 		VirtualStack.push()
 		try {
 			val target = VirtualStack.alloc<VkDebugUtilsMessengerCreateInfoEXT>()
 			val builder = DebugUtilsMessengerCreateInfoEXTBuilder(target)
-			builder.init(messageSeverity, messageType, callback)
-			// builder.apply(block)
+			builder.init()
+			builder.apply(block)
 
 			val stablePtr = target.pUserData!!.asStableRef<Any>()
 
@@ -159,16 +158,13 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 		}
 	}
 
-	actual fun createDebugReportCallbackEXT(
-			flags: VkFlag<DebugReportEXT>,
-			callback: (VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit
-	): DebugReportCallbackEXT {
+	actual fun createDebugReportCallbackEXT(block: DebugReportCallbackCreateInfoEXTBuilder.() -> Unit): DebugReportCallbackEXT {
 		VirtualStack.push()
 		try {
 			val target = VirtualStack.alloc<VkDebugReportCallbackCreateInfoEXT>()
 			val builder = DebugReportCallbackCreateInfoEXTBuilder(target)
-			builder.init(flags, callback)
-			// builder.apply(block)
+			builder.init()
+			builder.apply(block)
 
 			val stablePtr = target.pUserData!!.asStableRef<Any>()
 

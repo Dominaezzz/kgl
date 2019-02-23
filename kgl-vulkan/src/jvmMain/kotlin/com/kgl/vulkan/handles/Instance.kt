@@ -122,42 +122,45 @@ actual class Instance(override val ptr: VkInstance) : VkHandleJVM<VkInstance>(),
 		}
 	}
 
-	actual fun createDebugUtilsMessengerEXT(
-			messageType: VkFlag<DebugUtilsMessageTypeEXT>,
-			messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
-			callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit
-	): DebugUtilsMessengerEXT {
+	actual fun createDebugUtilsMessengerEXT(block: DebugUtilsMessengerCreateInfoEXTBuilder.() -> Unit): DebugUtilsMessengerEXT {
 		MemoryStack.stackPush()
 		try {
 			val target = VkDebugUtilsMessengerCreateInfoEXT.callocStack()
 			val builder = DebugUtilsMessengerCreateInfoEXTBuilder(target)
-			builder.init(messageSeverity, messageType, callback)
-			// builder.apply(block)
+			builder.init()
+			builder.apply(block)
+
+			val callback = target.pfnUserCallback()
 
 			val outputVar = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreateDebugUtilsMessengerEXT(ptr, target, null, outputVar)
-			if (result != VK_SUCCESS) handleVkResult(result)
-			return DebugUtilsMessengerEXT(outputVar[0], this)
+			if (result != VK_SUCCESS) {
+				callback.close()
+				handleVkResult(result)
+			}
+			return DebugUtilsMessengerEXT(outputVar[0], this, callback)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun createDebugReportCallbackEXT(
-			flags: VkFlag<DebugReportEXT>,
-			callback: (VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit
-	): DebugReportCallbackEXT {
+	actual fun createDebugReportCallbackEXT(block: DebugReportCallbackCreateInfoEXTBuilder.() -> Unit): DebugReportCallbackEXT {
 		MemoryStack.stackPush()
 		try {
 			val target = VkDebugReportCallbackCreateInfoEXT.callocStack()
 			val builder = DebugReportCallbackCreateInfoEXTBuilder(target)
-			builder.init(flags, callback)
-			// builder.apply(block)
+			builder.init()
+			builder.apply(block)
+
+			val callback = target.pfnCallback()
 
 			val outputVar = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreateDebugReportCallbackEXT(ptr, target, null, outputVar)
-			if (result != VK_SUCCESS) handleVkResult(result)
-			return DebugReportCallbackEXT(outputVar[0], this)
+			if (result != VK_SUCCESS) {
+				callback.free()
+				handleVkResult(result)
+			}
+			return DebugReportCallbackEXT(outputVar[0], this, callback)
 		} finally {
 			MemoryStack.stackPop()
 		}

@@ -26,16 +26,20 @@ import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
 import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
 
 actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebugUtilsMessengerCreateInfoEXT) {
-	internal fun init(messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>, messageType: VkFlag<DebugUtilsMessageTypeEXT>, callback: (VkFlag<DebugUtilsMessageSeverityEXT>, VkFlag<DebugUtilsMessageTypeEXT>, DebugUtilsMessengerCallbackDataEXT) -> Unit) {
-		target.sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT)
-		target.pNext(0)
-		target.flags(0)
+	actual var messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>?
+		get() = DebugUtilsMessageSeverityEXT.fromMultiple(target.messageSeverity())
+		set(value) {
+			target.messageSeverity(value?.value ?: 0)
+		}
 
-		target.messageSeverity(messageSeverity.value)
-		target.messageType(messageType.value)
+	actual var messageType: VkFlag<DebugUtilsMessageTypeEXT>?
+		get() = DebugUtilsMessageTypeEXT.fromMultiple(target.messageType())
+		set(value) {
+			target.messageType(value?.value ?: 0)
+		}
 
+	actual fun userCallback(callback: DebugUtilsMessengerCallbackEXT) {
 		target.pUserData(0)
-
 		target.pfnUserCallback { severity, type, callbackData, _ ->
 			callback(
 					DebugUtilsMessageSeverityEXT.from(severity),
@@ -44,6 +48,12 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 			)
 			VK_FALSE
 		}
+	}
+
+	internal fun init() {
+		target.sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT)
+		target.pNext(0)
+		target.flags(0)
 	}
 }
 

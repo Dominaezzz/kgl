@@ -19,16 +19,18 @@ import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
 import com.kgl.vulkan.utils.VkFlag
 import org.lwjgl.system.MemoryUtil
-import org.lwjgl.vulkan.EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
+import org.lwjgl.vulkan.EXTDebugReport
 import org.lwjgl.vulkan.VK10
 import org.lwjgl.vulkan.VkDebugReportCallbackCreateInfoEXT
 
 actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebugReportCallbackCreateInfoEXT) {
-	internal fun init(flags: VkFlag<DebugReportEXT>, callback: (VkFlag<DebugReportEXT>, DebugReportObjectTypeEXT, ULong, ULong, Int, String, String) -> Unit) {
-		target.sType(VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT)
-		target.pNext(0)
-		target.flags(flags.value)
+	actual var flags: VkFlag<DebugReportEXT>?
+		get() = DebugReportEXT.fromMultiple(target.flags())
+		set(value) {
+			target.flags(value?.value ?: 0)
+		}
 
+	actual fun callback(callback: DebugReportCallbackEXT) {
 		target.pUserData(0)
 		target.pfnCallback { flags, objectType, `object`, location, messageCode, pLayerPrefix, pMessage, _ ->
 			callback(
@@ -40,6 +42,11 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 			)
 			VK10.VK_FALSE
 		}
+	}
+
+	internal fun init() {
+		target.sType(EXTDebugReport.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT)
+		target.pNext(0)
 	}
 }
 

@@ -20,16 +20,16 @@ import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.toVkType
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.EXTDebugReport.vkDestroyDebugReportCallbackEXT
+import org.lwjgl.vulkan.VkDebugReportCallbackEXT
 
-actual class DebugReportCallbackEXT(override val ptr: Long, actual val instance: Instance) : VkHandleJVM<Long>(), VkHandle {
+actual class DebugReportCallbackEXT(override val ptr: Long, actual val instance: Instance, private val callback: VkDebugReportCallbackEXT) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
-		val callback = this
-		val instance = callback.instance
 		MemoryStack.stackPush()
 		try {
-			vkDestroyDebugReportCallbackEXT(instance.toVkType(), callback.toVkType(), null)
+			vkDestroyDebugReportCallbackEXT(instance.toVkType(), ptr, null)
 		} finally {
 			MemoryStack.stackPop()
+			callback.close()
 		}
 	}
 }
