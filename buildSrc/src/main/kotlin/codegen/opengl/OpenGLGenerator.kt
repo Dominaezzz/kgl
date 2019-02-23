@@ -185,7 +185,7 @@ open class OpenGLGenerator : DefaultTask() {
 
 				callBuilder[param.name] = if (param.type.asteriskCount > 0 && param.type.isConst) {
 					requiresArena = true
-					param.name.escapeKt() + "?.getPointer(VirtualStack)"
+					param.name.escapeKt() + "?.getPointer(VirtualStack.currentFrame!!)"
 				} else {
 					param.name.escapeKt()
 				}
