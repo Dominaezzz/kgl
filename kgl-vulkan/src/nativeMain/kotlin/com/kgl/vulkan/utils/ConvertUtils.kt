@@ -42,16 +42,16 @@ internal inline fun VkFlag<*>?.toVkType(): UInt = this?.toVkType() ?: 0U
 internal inline fun VkEnum<*>.toVkType(): UInt = this.value
 internal inline fun VkEnum<*>?.toVkType(): UInt = this?.toVkType() ?: 0U
 
-internal inline fun ByteArray.toVkType(): CPointer<ByteVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun ShortArray.toVkType(): CPointer<ShortVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun IntArray.toVkType(): CPointer<IntVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun LongArray.toVkType(): CPointer<LongVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun FloatArray.toVkType(): CPointer<FloatVar> = refTo(0).getPointer(VirtualStack)
+internal inline fun ByteArray.toVkType(): CPointer<ByteVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun ShortArray.toVkType(): CPointer<ShortVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun IntArray.toVkType(): CPointer<IntVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun LongArray.toVkType(): CPointer<LongVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun FloatArray.toVkType(): CPointer<FloatVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
 
-internal inline fun UByteArray.toVkType(): CPointer<UByteVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun UShortArray.toVkType(): CPointer<UShortVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun UIntArray.toVkType(): CPointer<UIntVar> = refTo(0).getPointer(VirtualStack)
-internal inline fun ULongArray.toVkType(): CPointer<ULongVar> = refTo(0).getPointer(VirtualStack)
+internal inline fun UByteArray.toVkType(): CPointer<UByteVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun UShortArray.toVkType(): CPointer<UShortVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun UIntArray.toVkType(): CPointer<UIntVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
+internal inline fun ULongArray.toVkType(): CPointer<ULongVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
 
 internal inline fun IoBuffer.toVkType(): COpaquePointer {
 	TODO("Needs to be redesigned")
@@ -63,14 +63,14 @@ internal inline fun IoBuffer.toVkType(): COpaquePointer {
 	return buffer ?: throw Error("Could not read directly from IOBuffer")
 }
 
-internal inline fun String.toVkType(): CPointer<ByteVar> = cstr.getPointer(VirtualStack)
+internal inline fun String.toVkType(): CPointer<ByteVar> = cstr.getPointer(VirtualStack.currentFrame!!)
 internal inline fun String?.toVkType(): CPointer<ByteVar>? = this?.toVkType()
 internal inline fun Array<String>.toVkType(): CPointer<CPointerVar<ByteVar>> {
-	return mapToCArray(VirtualStack) { value = it.cstr.getPointer(VirtualStack) }
+	return mapToCArray(VirtualStack) { value = it.cstr.getPointer(VirtualStack.currentFrame!!) }
 }
 
 internal inline fun Collection<String>.toVkType(): CPointer<CPointerVar<ByteVar>> {
-	return mapToCArray(VirtualStack) { value = it.cstr.getPointer(VirtualStack) }
+	return mapToCArray(VirtualStack) { value = it.cstr.getPointer(VirtualStack.currentFrame!!) }
 }
 
 internal inline fun Collection<ClearValue>.toVkType(): CPointer<VkClearValue> {

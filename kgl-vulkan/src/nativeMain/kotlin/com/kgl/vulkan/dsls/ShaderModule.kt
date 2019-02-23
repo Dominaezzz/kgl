@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkShaderModuleCreateInfo
-import kotlinx.cinterop.refTo
 import kotlinx.cinterop.reinterpret
 
 actual class ShaderModuleCreateInfoBuilder(internal val target: VkShaderModuleCreateInfo) {
@@ -25,7 +24,7 @@ actual class ShaderModuleCreateInfoBuilder(internal val target: VkShaderModuleCr
 		target.sType = cvulkan.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
 		target.pNext = null
 		target.flags = 0U
-		target.pCode = code.refTo(0).getPointer(VirtualStack).reinterpret()
+		target.pCode = code.toVkType().reinterpret()
 		target.codeSize = code.size.toULong()
 	}
 }

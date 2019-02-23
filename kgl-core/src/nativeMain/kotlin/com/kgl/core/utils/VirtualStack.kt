@@ -17,13 +17,16 @@ package com.kgl.core.utils
 
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.AutofreeScope
+import kotlinx.cinterop.NativePlacement
 import kotlinx.cinterop.NativePointed
 import kotlin.native.concurrent.ThreadLocal
 
 // TODO: Replace this with actual stack implementation.
 @ThreadLocal
-object VirtualStack : AutofreeScope() {
+object VirtualStack : NativePlacement {
 	private val scopes = mutableListOf<Arena>()
+
+	val currentFrame: AutofreeScope? get() = scopes.lastOrNull()
 
 	override fun alloc(size: Long, align: Int): NativePointed {
 		check(scopes.size > 0) { "Call push() before allocation." }
