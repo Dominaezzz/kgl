@@ -45,3 +45,35 @@ fun glGetShaderInfoLog(shader: UInt): String {
 		VirtualStack.pop()
 	}
 }
+
+fun glShaderSource(shader: UInt, string: String) {
+	VirtualStack.push()
+	try {
+		val input = VirtualStack.alloc<CPointerVar<ByteVar>> {
+			value = string.cstr.getPointer(VirtualStack.currentFrame!!)
+		}
+		val inputLength = VirtualStack.alloc<IntVar> {
+			value = string.length
+		}
+
+		glShaderSource(shader, 1, input.ptr, inputLength.ptr)
+	} finally {
+		VirtualStack.pop()
+	}
+}
+
+fun glShaderSource(shader: UInt, strings: List<String>) {
+	VirtualStack.push()
+	try {
+		val input = VirtualStack.allocArray<CPointerVar<ByteVar>>(strings.size) {
+			value = strings[it].cstr.getPointer(VirtualStack.currentFrame!!)
+		}
+		val inputLength = VirtualStack.allocArray<IntVar>(strings.size) {
+			value = strings[it].length
+		}
+
+		glShaderSource(shader, strings.size, input, inputLength)
+	} finally {
+		VirtualStack.pop()
+	}
+}
