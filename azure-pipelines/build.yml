@@ -1,0 +1,21 @@
+trigger:
+  - azure_pipelines
+
+pool:
+  vmImage: ubuntu-16.04
+
+steps:
+  - bash: sudo apt install libvulkan-dev build-essential libevent-pthreads-2.0.5 doxygen xorg-dev libglu1-mesa-dev
+    displayName: 'Install dependencies'
+
+  - bash: |
+      git clone https://github.com/glfw/glfw.git
+      cd glfw
+      cmake .
+      make
+      sudo make install
+      cd ..
+    displayName: 'Install GLFW from source'
+
+  - bash: ./gradlew build
+    displayName: 'Build KGL'
