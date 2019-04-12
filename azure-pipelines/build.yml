@@ -32,3 +32,17 @@ jobs:
 
       - bash: ./gradlew build
         displayName: 'Build KGL'
+
+  - job: Windows
+    pool:
+      vmImage: vs2017-win2016
+
+    steps:
+      - script: choco install msys2 --params "/InstallDir:c:\msys64"
+        displayName: 'Install MSYS2'
+
+      - bash: C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-glfw
+        displayName: 'Install GLFW'
+
+      - bash: gradlew build
+        displayName: 'Build KGL'
