@@ -41,8 +41,8 @@ jobs:
       - script: choco install msys2 --params "/InstallDir:c:\msys64"
         displayName: 'Install MSYS2'
 
-      - bash: C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-glfw
+      - script: C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-glfw
         displayName: 'Install GLFW'
 
-      - bash: gradlew build
+      - script: gradlew build
         displayName: 'Build KGL'
