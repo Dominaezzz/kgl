@@ -1,6 +1,3 @@
-trigger:
-  - azure_pipelines
-
 jobs:
   - job: Linux
     pool:
@@ -38,11 +35,5 @@ jobs:
       vmImage: vs2017-win2016
 
     steps:
-      - script: choco install msys2 --params "/InstallDir:c:\msys64"
-        displayName: 'Install MSYS2'
-
-      - script: C:\msys64\usr\bin\pacman --noconfirm -S mingw-w64-x86_64-glfw
-        displayName: 'Install GLFW'
-
       - script: gradlew build
         displayName: 'Build KGL'
