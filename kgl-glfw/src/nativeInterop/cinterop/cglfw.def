@@ -3,7 +3,7 @@ headers = GLFW/glfw3.h
 headerFilter = GLFW/glfw3.h
 
 staticLibraries.mingw = libglfw3.a
-libraryPaths.mingw = build/downloads/glfw-3.2.1.bin.WIN64/lib-mingw-w64
+libraryPaths.mingw = build/downloads/glfw-3.2.1.bin.WIN64/lib-mingw-w64 kgl-glfw/build/downloads/glfw-3.2.1.bin.WIN64/lib-mingw-w64
 
 depends.osx = posix
 depends.mingw = posix windows
