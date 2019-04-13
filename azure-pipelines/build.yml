@@ -1,39 +1,46 @@
-jobs:
-  - job: Linux
-    pool:
-      vmImage: ubuntu-16.04
+strategy:
+  matrix:
+    linux:
+      imageName: 'ubuntu-16.04'
+    mac:
+      imageName: 'macos-10.14'
+    windows:
+      imageName: 'vs2017-win2016'
 
-    steps:
-      - bash: sudo apt install libvulkan-dev build-essential libevent-pthreads-2.0.5 doxygen xorg-dev libglu1-mesa-dev
-        displayName: 'Install dependencies'
+pool:
+  vmImage: $(imageName)
 
-      - bash: |
-          git clone https://github.com/glfw/glfw.git
-          cd glfw
-          cmake .
-          make
-          sudo make install
-          cd ..
-        displayName: 'Install GLFW from source'
+steps:
+  - bash: sudo apt install libvulkan-dev build-essential libevent-pthreads-2.0.5 doxygen xorg-dev libglu1-mesa-dev
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: 'Install GLFW''s build dependencies'
 
-      - bash: ./gradlew build
-        displayName: 'Build KGL'
+  - bash: |
+      git clone https://github.com/glfw/glfw.git
+      cd glfw
+      cmake .
+      make
+      sudo make install
+      cd ..
+    condition: eq(variables['Agent.OS'], 'Linux')
+    displayName: 'Build GLFW from source'
 
-  - job: MacOS
-    pool:
-      vmImage: macOS-10.14
+  - bash: brew install glfw --HEAD
+    condition: eq( variables['Agent.OS'], 'Darwin' )
+    displayName: 'Install GLFW'
 
-    steps:
-      - bash: brew install glfw --HEAD
-        displayName: 'Install GLFW'
+  - task: Gradle@2
+    inputs:
+      workingDirectory: ''
+      gradleWrapperFile: 'gradlew'
+      gradleOptions: '-Xmx3072m'
+      tasks: 'assemble'
+    displayName: 'Compile KGL'
 
-      - bash: ./gradlew build
-        displayName: 'Build KGL'
-
-  - job: Windows
-    pool:
-      vmImage: vs2017-win2016
-
-    steps:
-      - script: gradlew build
-        displayName: 'Build KGL'
+  - task: Gradle@2
+    inputs:
+      workingDirectory: ''
+      gradleWrapperFile: 'gradlew'
+      gradleOptions: '-Xmx3072m'
+      tasks: 'check'
+    displayName: 'Test KGL'
