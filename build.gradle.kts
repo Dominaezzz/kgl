@@ -43,7 +43,7 @@ subprojects {
 		mavenLocal()
 	}
 
-	extra["kotlinxIOVersion"] = "0.1.4"
+	extra["kotlinxIOVersion"] = "0.1.7"
 	extra["lwjglVersion"] = "3.2.1"
 
 	val os = OperatingSystem.current()
