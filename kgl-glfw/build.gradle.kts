@@ -1,5 +1,25 @@
+import de.undercouch.gradle.tasks.download.Download
+
 plugins {
 	kotlin("multiplatform")
+	id("de.undercouch.download")
+}
+
+val glfwVersion = "3.2.1"
+val downloadsDir = buildDir.resolve("downloads")
+
+val downloadBinaries by tasks.creating(Download::class) {
+	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.WIN64.zip")
+	dest(downloadsDir.resolve("glfw-$glfwVersion.bin.WIN64.zip"))
+
+	overwrite(false)
+}
+
+val unzipBinaries by tasks.creating(Copy::class) {
+	dependsOn(downloadBinaries)
+
+	from(zipTree(downloadBinaries.dest))
+	into(downloadsDir)
 }
 
 kotlin {
@@ -38,12 +58,18 @@ kotlin {
 	}
 
 	val vulkanHeaderDir = rootProject.childProjects["kgl-vulkan"]!!.file("src/nativeInterop/vulkan/include")
+	val glfwDir = downloadsDir.resolve("glfw-$glfwVersion.bin.WIN64")
 
 	if (os.isWindows || System.getProperty("idea.active") != "true") {
 		mingwX64("mingw") {
 			compilations["main"].cinterops.apply {
 				create("cglfw") {
-					includeDirs(vulkanHeaderDir)
+					tasks[interopProcessingTaskName].dependsOn(unzipBinaries)
+
+					includeDirs(glfwDir.resolve("include"), vulkanHeaderDir)
+
+					// This doesn't seem to work. https://github.com/JetBrains/kotlin-native/issues/2314
+					// extraOpts("-include-binary", glfwDir.resolve("lib-mingw-w64/libglfw3.a").absolutePath)
 				}
 			}
 			compilations["main"].defaultSourceSet {
