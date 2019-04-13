@@ -1,5 +1,6 @@
 import codegen.opengl.OpenGLGenerator
 import de.undercouch.gradle.tasks.download.Download
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
 	kotlin("multiplatform")
@@ -22,7 +23,7 @@ val generateOpenGL by tasks.creating(OpenGLGenerator::class) {
 }
 
 kotlin {
-	val os = org.gradle.internal.os.OperatingSystem.current()
+	val os = OperatingSystem.current()
 	val isIdeaActive = System.getProperty("idea.active") == "true"
 
 	sourceSets {

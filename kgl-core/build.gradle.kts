@@ -1,9 +1,12 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
 	kotlin("multiplatform")
 }
 
 kotlin {
-	val os = org.gradle.internal.os.OperatingSystem.current()
+	val os = OperatingSystem.current()
+	val isIdeaActive = System.getProperty("idea.active") == "true"
 
 	sourceSets {
 		val commonMain by getting {
@@ -50,7 +53,7 @@ kotlin {
 			}
 		}
 	}
-	if (os.isWindows || System.getProperty("idea.active") != "true") {
+	if (os.isWindows || !isIdeaActive) {
 		mingwX64("mingw") {
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDir("src/nativeMain/kotlin")
@@ -65,7 +68,7 @@ kotlin {
 			}
 		}
 	}
-	if (os.isLinux || System.getProperty("idea.active") != "true") {
+	if (os.isLinux || !isIdeaActive) {
 		linuxX64("linux") {
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDirs("src/nativeMain/kotlin")
@@ -80,7 +83,7 @@ kotlin {
 			}
 		}
 	}
-	if (os.isMacOsX || System.getProperty("idea.active") != "true") {
+	if (os.isMacOsX || !isIdeaActive) {
 		macosX64("macos") {
 			compilations["main"].defaultSourceSet {
 				kotlin.srcDirs("src/nativeMain/kotlin")
@@ -98,7 +101,7 @@ kotlin {
 		// iosArm64("iosArm64")
 		// iosX64("iosX64")
 	}
-	if ((os.isLinux || os.isMacOsX) && System.getProperty("idea.active") != "true") {
+	if ((os.isLinux || os.isMacOsX) && !isIdeaActive) {
 		// androidNativeArm32("androidNativeArm32")
 		// androidNativeArm64("androidNativeArm64")
 	}

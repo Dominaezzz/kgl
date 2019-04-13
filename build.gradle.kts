@@ -1,3 +1,4 @@
+import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import java.io.ByteArrayOutputStream
 
@@ -45,11 +46,12 @@ subprojects {
 	extra["kotlinxIOVersion"] = "0.1.4"
 	extra["lwjglVersion"] = "3.2.1"
 
-	val os = org.gradle.internal.os.OperatingSystem.current()
-	when {
-		os.isWindows -> extra["lwjglNatives"] = "natives-windows"
-		os.isLinux -> extra["lwjglNatives"] = "natives-linux"
-		os.isMacOsX -> extra["lwjglNatives"] = "natives-macos"
+	val os = OperatingSystem.current()
+	extra["lwjglNatives"] = when {
+		os.isWindows -> "natives-windows"
+		os.isLinux -> "natives-linux"
+		os.isMacOsX -> "natives-macos"
+		else -> throw Exception("Host platform not supported")
 	}
 
 	afterEvaluate {

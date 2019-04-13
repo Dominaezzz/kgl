@@ -1,9 +1,12 @@
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
 	kotlin("multiplatform")
 }
 
 kotlin {
-	val os = org.gradle.internal.os.OperatingSystem.current()
+	val os = OperatingSystem.current()
+	val isIdeaActive = System.getProperty("idea.active") == "true"
 
 	sourceSets {
 		val commonMain by getting {
@@ -38,7 +41,7 @@ kotlin {
 	
 	val vulkanHeaderDir = project.file("src/nativeInterop/vulkan/include")
 
-	if (os.isWindows || System.getProperty("idea.active") != "true") {
+	if (os.isWindows || !isIdeaActive) {
 		mingwX64("mingw") {
 			compilations["main"].cinterops.apply {
 				create("cvulkan") {
@@ -56,7 +59,7 @@ kotlin {
 			}
 		}
 	}
-	if (os.isLinux || System.getProperty("idea.active") != "true") {
+	if (os.isLinux || !isIdeaActive) {
 		linuxX64("linux") {
 			compilations["main"].cinterops.apply {
 				create("cvulkan") {
@@ -74,7 +77,7 @@ kotlin {
 			}
 		}
 	}
-	if (os.isMacOsX || System.getProperty("idea.active") != "true") {
+	if (os.isMacOsX || !isIdeaActive) {
 		macosX64("macos") {
 			compilations["main"].cinterops.apply {
 				create("cvulkan") {
