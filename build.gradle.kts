@@ -1,5 +1,7 @@
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.ByteArrayOutputStream
 
 buildscript {
@@ -62,6 +64,34 @@ subprojects {
 					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
 				}
 			}
+
+			// Hack until https://youtrack.jetbrains.com/issue/KT-30498
+			targets.filterIsInstance<KotlinNativeTarget>()
+					.filter { it.konanTarget != HostManager.host }
+					.forEach { target ->
+						target.compilations.forEach { comp ->
+							comp.cinterops.forEach {
+								project.tasks[it.interopProcessingTaskName].enabled = false
+							}
+							comp.compileKotlinTask.enabled = false
+						}
+						target.binaries.forEach { it.linkTask.enabled = false }
+
+						target.mavenPublication(Action {
+							val publicationToDisable = this
+
+							tasks.filterIsInstance<AbstractPublishToMaven>().forEach { publish ->
+								publish.onlyIf {
+									publish.publication != publicationToDisable
+								}
+							}
+							tasks.filterIsInstance<GenerateModuleMetadata>().forEach { generate ->
+								generate.onlyIf {
+									generate.publication.get() != publicationToDisable
+								}
+							}
+						})
+					}
 		}
 	}
 }
