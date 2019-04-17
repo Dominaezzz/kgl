@@ -1,0 +1,4 @@
+package = cstb
+headers = stb_image.h
+
+compilerOpts = -DSTBI_NO_STDIO
