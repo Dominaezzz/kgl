@@ -4,24 +4,10 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
 import java.io.ByteArrayOutputStream
 
-buildscript {
-	val kotlinVersion by extra("1.3.30")
-
-	repositories {
-		jcenter()
-		maven(url = "https://plugins.gradle.org/m2/")
-		maven(url = "https://dl.bintray.com/jetbrains/kotlin-native-dependencies")
-	}
-
-	dependencies {
-		classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-		classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4-jetbrains-3")
-		classpath("de.undercouch:gradle-download-task:3.4.3")
-	}
-}
-
 plugins {
 	kotlin("multiplatform") version ("1.3.30") apply false
+	id("com.jfrog.bintray") version ("1.8.4-jetbrains-3") apply false
+	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
 subprojects {
