@@ -11,10 +11,6 @@ plugins {
 }
 
 subprojects {
-	apply {
-		plugin("maven-publish")
-	}
-
 	group = "com.kgl"
 
 	val stdout = ByteArrayOutputStream()
@@ -55,25 +51,27 @@ subprojects {
 			targets.filterIsInstance<KotlinNativeTarget>()
 					.filter { it.konanTarget != HostManager.host }
 					.forEach { target ->
-						target.compilations.forEach { comp ->
-							comp.cinterops.forEach {
-								project.tasks[it.interopProcessingTaskName].enabled = false
+						target.compilations.all {
+							cinterops.all {
+								project.tasks[interopProcessingTaskName].enabled = false
 							}
-							comp.compileKotlinTask.enabled = false
+							compileKotlinTask.enabled = false
 						}
-						target.binaries.forEach { it.linkTask.enabled = false }
+						target.binaries.all {
+							linkTask.enabled = false
+						}
 
 						target.mavenPublication(Action {
 							val publicationToDisable = this
 
-							tasks.filterIsInstance<AbstractPublishToMaven>().forEach { publish ->
-								publish.onlyIf {
-									publish.publication != publicationToDisable
+							tasks.withType<AbstractPublishToMaven> {
+								onlyIf {
+									publication != publicationToDisable
 								}
 							}
-							tasks.filterIsInstance<GenerateModuleMetadata>().forEach { generate ->
-								generate.onlyIf {
-									generate.publication.get() != publicationToDisable
+							tasks.withType<GenerateModuleMetadata> {
+								onlyIf {
+									publication.get() != publicationToDisable
 								}
 							}
 						})
