@@ -17,6 +17,7 @@ package com.kgl.glfw
 
 import cglfw.*
 import cnames.structs.GLFWmonitor
+import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
 actual object Glfw {
@@ -30,7 +31,7 @@ actual object Glfw {
 	actual val timerFrequency: ULong get() = glfwGetTimerFrequency()
 
 	actual var currentContext: Window?
-		get() = glfwGetCurrentContext()?.asStableRef<Window>()?.get()
+		get() = glfwGetWindowUserPointer(glfwGetCurrentContext())?.asStableRef<Window>()?.get()
 		set(value) {
 			glfwMakeContextCurrent(value?.ptr)
 		}
@@ -38,14 +39,19 @@ actual object Glfw {
 	actual val primaryMonitor: Monitor? get() = glfwGetPrimaryMonitor()?.let { Monitor(it) }
 
 	actual val monitors: List<Monitor>
-		get() = memScoped {
-			val count = alloc<IntVar>()
+		get() {
+			VirtualStack.push()
+			try {
+				val count = VirtualStack.alloc<IntVar>()
 
-			object : AbstractList<Monitor>() {
-				val monitors: CPointer<CPointerVar<GLFWmonitor>> = glfwGetMonitors(count.ptr)!!
+				return object : AbstractList<Monitor>() {
+					val monitors: CPointer<CPointerVar<GLFWmonitor>> = glfwGetMonitors(count.ptr)!!
 
-				override val size: Int = count.value
-				override fun get(index: Int) = Monitor(monitors[index]!!)
+					override val size: Int = count.value
+					override fun get(index: Int) = Monitor(monitors[index]!!)
+				}
+			} finally {
+				VirtualStack.pop()
 			}
 		}
 

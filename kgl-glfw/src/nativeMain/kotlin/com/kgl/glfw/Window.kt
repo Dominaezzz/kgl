@@ -15,10 +15,10 @@
  */
 package com.kgl.glfw
 
-//import kotlinx.io.core.Closeable
 import cglfw.*
 import cnames.structs.GLFWwindow
 import com.kgl.core.Flag
+import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 import kotlinx.io.core.Closeable
 import kotlin.native.concurrent.ensureNeverFrozen
@@ -28,37 +28,56 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	init {
 		ensureNeverFrozen()
 
+		check(glfwGetWindowUserPointer(ptr) == null) {
+			"Must not already have a userPointer"
+		}
+
 		glfwSetWindowUserPointer(ptr, StableRef.create(this).asCPointer())
 	}
 
 	actual var position: Pair<Int, Int>
-		get() = memScoped {
-			val width = alloc<IntVar>()
-			val height = alloc<IntVar>()
-			glfwGetWindowSize(ptr, width.ptr, height.ptr)
-			width.value to height.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<IntVar>()
+				val height = VirtualStack.alloc<IntVar>()
+				glfwGetWindowSize(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 		set(value) {
 			glfwSetWindowPos(ptr, value.first, value.second)
 		}
 
 	actual var size: Pair<Int, Int>
-		get() = memScoped {
-			val width = alloc<IntVar>()
-			val height = alloc<IntVar>()
-			glfwGetWindowSize(ptr, width.ptr, height.ptr)
-			width.value to height.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<IntVar>()
+				val height = VirtualStack.alloc<IntVar>()
+				glfwGetWindowSize(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 		set(value) {
 			glfwSetWindowSize(ptr, value.first, value.second)
 		}
 
 	actual val frameBufferSize: Pair<Int, Int>
-		get() = memScoped {
-			val width = alloc<IntVar>()
-			val height = alloc<IntVar>()
-			glfwGetFramebufferSize(ptr, width.ptr, height.ptr)
-			width.value to height.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<IntVar>()
+				val height = VirtualStack.alloc<IntVar>()
+				glfwGetFramebufferSize(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 
 	actual var clipboardString: String?
@@ -96,11 +115,16 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	actual val monitor: Monitor? get() = glfwGetWindowMonitor(ptr)?.let { Monitor(it) }
 
 	actual var cursorPosition: Pair<Double, Double>
-		get() = memScoped {
-			val width = alloc<DoubleVar>()
-			val height = alloc<DoubleVar>()
-			glfwGetCursorPos(ptr, width.ptr, height.ptr)
-			width.value to height.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<DoubleVar>()
+				val height = VirtualStack.alloc<DoubleVar>()
+				glfwGetCursorPos(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 		set(value) {
 			glfwSetCursorPos(ptr, value.first, value.second)

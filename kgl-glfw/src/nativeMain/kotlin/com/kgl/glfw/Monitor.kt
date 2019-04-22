@@ -17,39 +17,55 @@ package com.kgl.glfw
 
 import cglfw.*
 import cnames.structs.GLFWmonitor
+import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
 actual class Monitor(val ptr: CPointer<GLFWmonitor>) {
 	actual val name: String get() = glfwGetMonitorName(ptr)!!.toKString()
 	actual val position: Pair<Int, Int>
-		get() = memScoped {
-			val x = alloc<IntVar>()
-			val y = alloc<IntVar>()
-			glfwGetMonitorPos(ptr, x.ptr, y.ptr)
-			x.value to y.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val x = VirtualStack.alloc<IntVar>()
+				val y = VirtualStack.alloc<IntVar>()
+				glfwGetMonitorPos(ptr, x.ptr, y.ptr)
+				x.value to y.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 	actual val physicalSize: Pair<Int, Int>
-		get() = memScoped {
-			val width = alloc<IntVar>()
-			val height = alloc<IntVar>()
-			glfwGetMonitorPhysicalSize(ptr, width.ptr, height.ptr)
-			width.value to height.value
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<IntVar>()
+				val height = VirtualStack.alloc<IntVar>()
+				glfwGetMonitorPhysicalSize(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
 		}
 	actual val videoMode: VideoMode get() = VideoMode(glfwGetVideoMode(ptr)!!)
 	actual val videoModes: List<VideoMode>
-		get() = memScoped {
-			object : AbstractList<VideoMode>() {
-				val videoModes: CPointer<GLFWvidmode>
+		get() {
+			VirtualStack.push()
+			return try {
+				object : AbstractList<VideoMode>() {
+					val videoModes: CPointer<GLFWvidmode>
 
-				init {
-					val count = alloc<IntVar>()
-					videoModes = glfwGetVideoModes(ptr, count.ptr)!!
-					size = count.value
+					init {
+						val count = VirtualStack.alloc<IntVar>()
+						videoModes = glfwGetVideoModes(ptr, count.ptr)!!
+						size = count.value
+					}
+
+					override val size: Int
+
+					override fun get(index: Int) = VideoMode(videoModes[index].ptr)
 				}
-
-				override val size: Int
-
-				override fun get(index: Int) = VideoMode(videoModes[index].ptr)
+			} finally {
+				VirtualStack.pop()
 			}
 		}
 	actual var gammaRamp: GammaRamp

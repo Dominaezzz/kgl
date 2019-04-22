@@ -17,16 +17,21 @@ package com.kgl.glfw
 
 import cglfw.*
 import cnames.structs.GLFWcursor
-import kotlinx.cinterop.*
+import com.kgl.core.VirtualStack
+import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.reinterpret
 import kotlinx.io.core.Closeable
 
 actual class Cursor : Closeable {
 	val ptr: CPointer<GLFWcursor>?
 
 	actual constructor(image: Image, xhot: Int, yhot: Int) {
-		ptr = memScoped {
+		VirtualStack.push()
+		ptr = try {
 			glfwCreateCursor(
-					alloc<GLFWimage> {
+					VirtualStack.alloc<GLFWimage> {
 						width = image.width
 						height = image.height
 						image.pixels.readDirect {
@@ -37,6 +42,8 @@ actual class Cursor : Closeable {
 					xhot,
 					yhot
 			)
+		} finally {
+			VirtualStack.pop()
 		}
 	}
 

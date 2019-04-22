@@ -16,6 +16,7 @@
 package com.kgl.glfw
 
 import cglfw.*
+import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
 actual enum class Joystick(internal val value: Int) {
@@ -42,23 +43,34 @@ actual val Joystick.isPresent: Boolean get() = glfwJoystickPresent(value) == GLF
 actual val Joystick.deviceName: String? get() = glfwGetJoystickName(value)?.toKString()
 
 actual val Joystick.axes: List<Float>?
-	get() = memScoped {
-		val count = alloc<IntVar>()
-		glfwGetJoystickAxes(value, count.ptr)?.let {
-			object : AbstractList<Float>() {
-				override val size: Int = count.value
-				override fun get(index: Int): Float = it[index]
+	get() {
+		VirtualStack.push()
+		return try {
+			val count = VirtualStack.alloc<IntVar>()
+
+			glfwGetJoystickAxes(value, count.ptr)?.let {
+				object : AbstractList<Float>() {
+					override val size: Int = count.value
+					override fun get(index: Int): Float = it[index]
+				}
 			}
+		} finally {
+			VirtualStack.pop()
 		}
 	}
 
 actual val Joystick.buttons: List<Action>?
-	get() = memScoped {
-		val count = alloc<IntVar>()
-		glfwGetJoystickButtons(value, count.ptr)?.let {
-			object : AbstractList<Action>() {
-				override val size: Int = count.value
-				override fun get(index: Int): Action = Action.from(it[index].toInt())
+	get() {
+		VirtualStack.push()
+		return try {
+			val count = VirtualStack.alloc<IntVar>()
+			glfwGetJoystickButtons(value, count.ptr)?.let {
+				object : AbstractList<Action>() {
+					override val size: Int = count.value
+					override fun get(index: Int): Action = Action.from(it[index].toInt())
+				}
 			}
+		} finally {
+			VirtualStack.pop()
 		}
 	}
