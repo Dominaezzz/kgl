@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.BufferMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.BufferViewCreateInfoBuilder
 import com.kgl.vulkan.enums.Format

@@ -18,7 +18,7 @@ package codegen.opengl
 import com.squareup.kotlinpoet.ClassName
 
 
-internal val VIRTUAL_STACK = ClassName("com.kgl.core.utils", "VirtualStack")
+internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
 internal val GL_MASK = ClassName("com.kgl.opengl.utils", "GLMask")
 internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
 

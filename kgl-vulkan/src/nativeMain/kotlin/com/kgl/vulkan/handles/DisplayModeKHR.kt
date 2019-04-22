@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.DisplayPlaneInfo2KHRBuilder
 import com.kgl.vulkan.structs.DisplayPlaneCapabilities2KHR
 import com.kgl.vulkan.structs.DisplayPlaneCapabilitiesKHR

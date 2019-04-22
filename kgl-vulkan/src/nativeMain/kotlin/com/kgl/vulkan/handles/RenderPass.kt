@@ -17,7 +17,7 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.structs.Extent2D
 import com.kgl.vulkan.structs.from
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
 import com.kgl.vulkan.utils.toVkType

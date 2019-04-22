@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.ImageMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
 import com.kgl.vulkan.dsls.ImageSubresourceBuilder

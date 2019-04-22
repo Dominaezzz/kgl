@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.core.utils
+package com.kgl.core
 
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.AutofreeScope
@@ -38,7 +38,7 @@ object VirtualStack : NativePlacement {
 	}
 
 	fun pop() {
-		check(scopes.size > 0) { "pop() must only be called after push()." }
+		check(scopes.isNotEmpty()) { "pop() must only be called after push()." }
 
 		scopes.removeAt(scopes.lastIndex).clear()
 	}

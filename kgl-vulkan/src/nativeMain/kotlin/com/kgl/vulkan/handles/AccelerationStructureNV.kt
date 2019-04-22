@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2

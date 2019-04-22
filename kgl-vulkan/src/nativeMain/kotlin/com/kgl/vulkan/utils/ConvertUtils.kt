@@ -17,7 +17,7 @@
  */
 package com.kgl.vulkan.utils
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.unions.ClearValue
 import cvulkan.VkBool32
 import cvulkan.VkClearValue

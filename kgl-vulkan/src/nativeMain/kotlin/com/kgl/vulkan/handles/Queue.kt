@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.DebugUtilsLabelEXTBuilder
 import com.kgl.vulkan.dsls.PresentInfoKHRBuilder
 import com.kgl.vulkan.dsls.QueueBindSparseBuilder

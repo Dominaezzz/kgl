@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.enums.PipelineStage
 import com.kgl.vulkan.enums.SparseMemoryBind
 import com.kgl.vulkan.handles.*

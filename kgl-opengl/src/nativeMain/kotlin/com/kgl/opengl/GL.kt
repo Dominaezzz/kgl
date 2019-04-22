@@ -15,7 +15,7 @@
  */
 package com.kgl.opengl
 
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
 fun glGetProgramInfoLog(program: UInt): String {

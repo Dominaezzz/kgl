@@ -16,7 +16,7 @@
 package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.*
-import com.kgl.core.utils.VirtualStack
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.mapToStackArray
 import com.kgl.vulkan.utils.toVkType
