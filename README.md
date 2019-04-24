@@ -1,15 +1,14 @@
+[![Download](https://api.bintray.com/packages/dominaezzz/kotlin-native/kgl/images/download.svg)](https://bintray.com/dominaezzz/kotlin-native/kgl/_latestVersion)
+[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Build Status](https://travis-ci.com/Dominaezzz/kgl.svg?branch=master)](https://travis-ci.com/Dominaezzz/kgl)
+[![Build status](https://ci.appveyor.com/api/projects/status/github/Dominaezzz/kgl?branch=master&svg=true)](https://ci.appveyor.com/project/Dominaezzz/kgl)
+
 # Kotlin Graphics Libraries
+
 Kotlin Multiplatform libraries for graphics.
 - [GLFW](https://www.glfw.org)
 - [Vulkan](https://www.khronos.org/vulkan)
 - [OpenGL](https://www.opengl.org)
-
-|Platform|Status|
-|-----|-----|
-|Linux/MacOS|[![Build Status](https://travis-ci.com/Dominaezzz/kgl.svg?branch=master)](https://travis-ci.com/Dominaezzz/kgl)|
-|Windows|[![Build status](https://ci.appveyor.com/api/projects/status/github/Dominaezzz/kgl?branch=master&svg=true)](https://ci.appveyor.com/project/Dominaezzz/kgl)|
-
-[![Download](https://api.bintray.com/packages/dominaezzz/kotlin-native/kgl/images/download.svg)](https://bintray.com/dominaezzz/kotlin-native/kgl/_latestVersion)
 
 KGL uses LWJGL for the JVM target and the respective native libraries on the native targets.
 It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
