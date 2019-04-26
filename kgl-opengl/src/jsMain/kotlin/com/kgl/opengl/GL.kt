@@ -1,0 +1,37 @@
+/**
+ * Copyright [2019] [Dominic Fischer]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.kgl.opengl
+
+import com.kgl.opengl.utils.Loader
+import org.khronos.webgl.WebGLProgram
+import org.khronos.webgl.WebGLShader
+
+
+actual fun glGetProgramInfoLog(program: UInt): String {
+	return Loader.context.getProgramInfoLog(program.unsafeCast<WebGLProgram>())!!
+}
+
+actual fun glGetShaderInfoLog(shader: UInt): String {
+	return Loader.context.getShaderInfoLog(shader.unsafeCast<WebGLShader>())!!
+}
+
+actual fun glShaderSource(shader: UInt, string: String) {
+	Loader.context.shaderSource(shader.unsafeCast<WebGLShader>(), string)
+}
+
+actual fun glShaderSource(shader: UInt, strings: List<String>) {
+	Loader.context.shaderSource(shader.unsafeCast<WebGLShader>(), strings.joinToString("\n"))
+}

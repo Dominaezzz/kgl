@@ -18,7 +18,7 @@ package com.kgl.opengl
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
-fun glGetProgramInfoLog(program: UInt): String {
+actual fun glGetProgramInfoLog(program: UInt): String {
 	VirtualStack.push()
 	try {
 		val output = VirtualStack.alloc<IntVar>()
@@ -28,11 +28,11 @@ fun glGetProgramInfoLog(program: UInt): String {
 		glGetProgramInfoLog(program, infoLogLength + 1, null, infoLog)
 		return infoLog.toKString()
 	} finally {
-		VirtualStack.push()
+		VirtualStack.pop()
 	}
 }
 
-fun glGetShaderInfoLog(shader: UInt): String {
+actual fun glGetShaderInfoLog(shader: UInt): String {
 	VirtualStack.push()
 	try {
 		val output = VirtualStack.alloc<IntVar>()
@@ -46,7 +46,7 @@ fun glGetShaderInfoLog(shader: UInt): String {
 	}
 }
 
-fun glShaderSource(shader: UInt, string: String) {
+actual fun glShaderSource(shader: UInt, string: String) {
 	VirtualStack.push()
 	try {
 		val input = VirtualStack.alloc<CPointerVar<ByteVar>> {
@@ -62,7 +62,7 @@ fun glShaderSource(shader: UInt, string: String) {
 	}
 }
 
-fun glShaderSource(shader: UInt, strings: List<String>) {
+actual fun glShaderSource(shader: UInt, strings: List<String>) {
 	VirtualStack.push()
 	try {
 		val input = VirtualStack.allocArray<CPointerVar<ByteVar>>(strings.size) {
