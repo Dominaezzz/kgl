@@ -9,19 +9,27 @@ plugins {
 
 val glfwVersion = "3.2.1"
 val downloadsDir = buildDir.resolve("downloads")
+val glfwDir = downloadsDir.resolve("glfw.bin")
 
-val downloadBinaries by tasks.creating(Download::class) {
+val downloadBinaries by tasks.registering(Download::class) {
 	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.WIN64.zip")
-	dest(downloadsDir.resolve("glfw-$glfwVersion.bin.WIN64.zip"))
+	dest(downloadsDir.resolve("glfw.bin.zip"))
 
 	overwrite(false)
 }
 
-val unzipBinaries by tasks.creating(Copy::class) {
+val unzipBinaries by tasks.registering(Copy::class) {
 	dependsOn(downloadBinaries)
 
-	from(zipTree(downloadBinaries.dest))
-	into(downloadsDir)
+	from(zipTree(downloadBinaries.get().dest)) {
+		eachFile {
+			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+		}
+		include("glfw-*/include/**", "glfw-*/lib-mingw-w64/**")
+
+		includeEmptyDirs = false
+	}
+	into(glfwDir)
 }
 
 kotlin {
@@ -61,7 +69,6 @@ kotlin {
 	}
 
 	val vulkanHeaderDir = rootProject.childProjects["kgl-vulkan"]!!.file("src/nativeInterop/vulkan/include")
-	val glfwDir = downloadsDir.resolve("glfw-$glfwVersion.bin.WIN64")
 
 	if (os.isWindows || !isIdeaActive) {
 		mingwX64 {
