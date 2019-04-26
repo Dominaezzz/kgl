@@ -16,6 +16,7 @@
 package com.kgl.glfw
 
 import cglfw.*
+import com.kgl.core.VirtualStack
 import com.kgl.vulkan.handles.Instance
 import com.kgl.vulkan.handles.PhysicalDevice
 import com.kgl.vulkan.handles.SurfaceKHR
@@ -25,20 +26,30 @@ import kotlinx.cinterop.*
 actual val isVulkanSupported: Boolean get() = glfwVulkanSupported() == GLFW_TRUE
 
 actual val requiredInstanceExtensions: Array<String>?
-	get() = memScoped {
-		val count = alloc<UIntVar>()
-		val output = glfwGetRequiredInstanceExtensions(count.ptr) ?: return null
+	get() {
+		VirtualStack.push()
+		try {
+			val count = VirtualStack.alloc<UIntVar>()
+			val output = glfwGetRequiredInstanceExtensions(count.ptr) ?: return null
 
-		Array(count.value.toInt()) { output[it]!!.toKString() }
+			return Array(count.value.toInt()) { output[it]!!.toKString() }
+		} finally {
+			VirtualStack.pop()
+		}
 	}
 
 actual fun PhysicalDevice.getPresentationSupport(queueFamilyIndex: UInt): Boolean {
 	return glfwGetPhysicalDevicePresentationSupport(instance.ptr, ptr, queueFamilyIndex) == GLFW_TRUE
 }
 
-actual fun Instance.createWindowSurface(window: Window): SurfaceKHR = memScoped {
-	val handlePtr = alloc<VkSurfaceKHRVar>()
-	val result = glfwCreateWindowSurface(ptr, window.ptr, null, handlePtr.ptr)
-	if (result != VK_SUCCESS) handleVkResult(result)
-	SurfaceKHR(handlePtr.value!!, this@createWindowSurface)
+actual fun Instance.createWindowSurface(window: Window): SurfaceKHR {
+	VirtualStack.push()
+	try {
+		val handlePtr = VirtualStack.alloc<VkSurfaceKHRVar>()
+		val result = glfwCreateWindowSurface(ptr, window.ptr, null, handlePtr.ptr)
+		if (result != VK_SUCCESS) handleVkResult(result)
+		return SurfaceKHR(handlePtr.value!!, this)
+	} finally {
+		VirtualStack.pop()
+	}
 }
