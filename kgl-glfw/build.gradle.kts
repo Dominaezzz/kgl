@@ -1,5 +1,6 @@
 import de.undercouch.gradle.tasks.download.Download
 import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	kotlin("multiplatform")
@@ -63,7 +64,7 @@ kotlin {
 	val glfwDir = downloadsDir.resolve("glfw-$glfwVersion.bin.WIN64")
 
 	if (os.isWindows || !isIdeaActive) {
-		mingwX64("mingw") {
+		mingwX64 {
 			compilations["main"].cinterops.apply {
 				create("cglfw") {
 					tasks[interopProcessingTaskName].dependsOn(unzipBinaries)
@@ -74,47 +75,41 @@ kotlin {
 					// extraOpts("-include-binary", glfwDir.resolve("lib-mingw-w64/libglfw3.a").absolutePath)
 				}
 			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
 		}
 	}
 	if (os.isLinux || !isIdeaActive) {
-		linuxX64("linux") {
+		linuxX64 {
 			compilations["main"].cinterops.apply {
 				create("cglfw") {
 					includeDirs(vulkanHeaderDir)
 				}
-			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
 			}
 		}
 	}
 	if (os.isMacOsX || !isIdeaActive) {
-		macosX64("macos") {
+		macosX64 {
 			compilations["main"].cinterops.apply {
 				create("cglfw") {
 					includeDirs(vulkanHeaderDir)
 				}
 			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
+		}
+	}
+
+	targets.withType<KotlinNativeTarget> {
+		compilations {
+			"main" {
+				defaultSourceSet {
+					kotlin.srcDir("src/nativeMain/kotlin")
+					resources.srcDir("src/nativeMain/resources")
+				}
 			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
+
+			"test" {
+				defaultSourceSet {
+					kotlin.srcDir("src/nativeTest/kotlin")
+					resources.srcDir("src/nativeTest/resources")
+				}
 			}
 		}
 	}

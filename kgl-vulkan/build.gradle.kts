@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	kotlin("multiplatform")
@@ -41,57 +42,32 @@ kotlin {
 	
 	val vulkanHeaderDir = project.file("src/nativeInterop/vulkan/include")
 
-	if (os.isWindows || !isIdeaActive) {
-		mingwX64("mingw") {
-			compilations["main"].cinterops.apply {
-				create("cvulkan") {
-					includeDirs(vulkanHeaderDir)
+	if (os.isWindows || !isIdeaActive) mingwX64()
+	if (os.isLinux || !isIdeaActive) linuxX64()
+	if (os.isMacOsX || !isIdeaActive) macosX64()
+
+	targets.withType<KotlinNativeTarget> {
+		compilations {
+			"main" {
+				cinterops {
+					create("cvulkan") {
+						includeDirs(vulkanHeaderDir)
+					}
+				}
+
+				defaultSourceSet {
+					kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
+
+					kotlin.srcDir("src/nativeMain/kotlin")
+					resources.srcDir("src/nativeMain/resources")
 				}
 			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/mingwMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
-		}
-	}
-	if (os.isLinux || !isIdeaActive) {
-		linuxX64("linux") {
-			compilations["main"].cinterops.apply {
-				create("cvulkan") {
-					includeDirs(vulkanHeaderDir)
+
+			"test" {
+				defaultSourceSet {
+					kotlin.srcDir("src/nativeTest/kotlin")
+					resources.srcDir("src/nativeTest/resources")
 				}
-			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/linuxMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
-		}
-	}
-	if (os.isMacOsX || !isIdeaActive) {
-		macosX64("macos") {
-			compilations["main"].cinterops.apply {
-				create("cvulkan") {
-					includeDirs(vulkanHeaderDir)
-				}
-			}
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/macosMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
 			}
 		}
 	}

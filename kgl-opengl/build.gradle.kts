@@ -75,8 +75,7 @@ kotlin {
 
 	val openglHeaderDir = project.file("src/nativeInterop/opengl")
 
-	// For ARM, should be changed to iosArm32 or iosArm64
-	if (os.isWindows || !isIdeaActive) mingwX64("mingw") {
+	if (os.isWindows || !isIdeaActive) mingwX64 {
 		val main by compilations.getting {
 			cinterops.create("copengl") {
 				includeDirs(openglHeaderDir)
@@ -92,7 +91,7 @@ kotlin {
 			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
-	if (os.isLinux || !isIdeaActive) linuxX64("linux") {
+	if (os.isLinux || !isIdeaActive) linuxX64 {
 		val main by compilations.getting {
 			cinterops.create("copengl") {
 				includeDirs(openglHeaderDir)
@@ -107,7 +106,7 @@ kotlin {
 			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
-	if (os.isMacOsX || !isIdeaActive) macosX64("macos") {
+	if (os.isMacOsX || !isIdeaActive) macosX64 {
 		val main by compilations.getting {
 			cinterops.create("copengl") {
 				includeDirs(openglHeaderDir)

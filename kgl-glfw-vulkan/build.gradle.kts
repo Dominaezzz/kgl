@@ -1,4 +1,5 @@
 import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	kotlin("multiplatform")
@@ -40,39 +41,24 @@ kotlin {
 		}
 	}
 
-	if (os.isWindows || !isIdeaActive) {
-		mingwX64("mingw") {
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
+	if (os.isWindows || !isIdeaActive) mingwX64()
+	if (os.isLinux || !isIdeaActive) linuxX64()
+	if (os.isMacOsX || !isIdeaActive) macosX64()
+
+	targets.withType<KotlinNativeTarget> {
+		compilations {
+			"main" {
+				defaultSourceSet {
+					kotlin.srcDir("src/nativeMain/kotlin")
+					resources.srcDir("src/nativeMain/resources")
+				}
 			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
-		}
-	}
-	if (os.isLinux || !isIdeaActive) {
-		linuxX64("linux") {
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
-		}
-	}
-	if (os.isMacOsX || !isIdeaActive) {
-		macosX64("macos") {
-			compilations["main"].defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
-			compilations["test"].defaultSourceSet {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
+
+			"test" {
+				defaultSourceSet {
+					kotlin.srcDir("src/nativeTest/kotlin")
+					resources.srcDir("src/nativeTest/resources")
+				}
 			}
 		}
 	}
