@@ -20,7 +20,7 @@ val downloadBinaries by tasks.registering(Download::class) {
 }
 
 val unzipBinaries by tasks.registering(Copy::class) {
-	from(zipTree(downloadBinaries.map { it.dest })) {
+	from(downloadBinaries.map { zipTree(it.dest) }) {
 		eachFile {
 			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
 		}
