@@ -1,5 +1,5 @@
+import config.Config
 import config.Versions
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -7,9 +7,6 @@ plugins {
 }
 
 kotlin {
-	val os = OperatingSystem.current()
-	val isIdeaActive = System.getProperty("idea.active") == "true"
-
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -45,9 +42,9 @@ kotlin {
 
 	val vulkanHeaderDir = project.file("src/nativeInterop/vulkan/include")
 
-	if (os.isWindows || !isIdeaActive) mingwX64()
-	if (os.isLinux || !isIdeaActive) linuxX64()
-	if (os.isMacOsX || !isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
