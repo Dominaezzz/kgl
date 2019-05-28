@@ -21,33 +21,32 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 
-open class OpenGLGenerator : DefaultTask() {
+open class GenerateOpenGL : DefaultTask() {
 	@InputFile
-	lateinit var registryFile: File
+	val registryFile = project.objects.fileProperty()
 
 	@OutputDirectory
-	lateinit var outputDir: File
+	val outputDir = project.objects.directoryProperty()
 
 	@get:OutputDirectory
-	val commonNativeDir: File get() = outputDir.resolve("native")
+	val commonNativeDir = outputDir.file("native")
 
 	@get:OutputDirectory
-	val mingwDir: File get() = outputDir.resolve("mingw")
+	val mingwDir = outputDir.file("mingw")
 
 	@get:OutputDirectory
-	val linuxDir: File get() = outputDir.resolve("linux")
+	val linuxDir = outputDir.file("linux")
 
 	@get:OutputDirectory
-	val macosDir: File get() = outputDir.resolve("macos")
+	val macosDir = outputDir.file("macos")
 
 	@TaskAction
 	fun generate() {
 		val registry = DocumentBuilderFactory.newInstance()
 				.newDocumentBuilder()
-				.parse(registryFile)
+				.parse(registryFile.get().asFile)
 				.let {
 					it.documentElement.normalize()
 					Registry(it)
@@ -114,9 +113,9 @@ open class OpenGLGenerator : DefaultTask() {
 			enumFile.addType(enumBuilder.build())
 
 			with(enumFile.build()) {
-				writeTo(mingwDir)
-				writeTo(linuxDir)
-				writeTo(macosDir)
+				writeTo(mingwDir.get().asFile)
+				writeTo(linuxDir.get().asFile)
+				writeTo(macosDir.get().asFile)
 			}
 		}
 
@@ -230,9 +229,9 @@ open class OpenGLGenerator : DefaultTask() {
 		}
 
 		with(glFile.build()) {
-			writeTo(mingwDir)
-			writeTo(linuxDir)
-			writeTo(macosDir)
+			writeTo(mingwDir.get().asFile)
+			writeTo(linuxDir.get().asFile)
+			writeTo(macosDir.get().asFile)
 		}
 	}
 }

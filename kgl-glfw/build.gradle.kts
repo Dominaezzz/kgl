@@ -1,5 +1,6 @@
+import config.Config
+import config.Versions
 import de.undercouch.gradle.tasks.download.Download
-import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -19,9 +20,7 @@ val downloadBinaries by tasks.registering(Download::class) {
 }
 
 val unzipBinaries by tasks.registering(Copy::class) {
-	dependsOn(downloadBinaries)
-
-	from(zipTree(downloadBinaries.get().dest)) {
+	from(zipTree(downloadBinaries.map { it.dest })) {
 		eachFile {
 			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
 		}
@@ -33,17 +32,14 @@ val unzipBinaries by tasks.registering(Copy::class) {
 }
 
 kotlin {
-	val os = OperatingSystem.current()
-	val isIdeaActive = System.getProperty("idea.active") == "true"
-
 	sourceSets {
-		val commonMain by getting {
+		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-core"))
 			}
 		}
-		val commonTest by getting {
+		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
@@ -52,60 +48,38 @@ kotlin {
 	}
 
 	jvm {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-jdk8"))
-				api("org.lwjgl:lwjgl-glfw:${extra["lwjglVersion"]}")
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-jdk8"))
+					api("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}")
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test"))
-				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
-				implementation("org.lwjgl:lwjgl-glfw:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
+			"test" {
+				dependencies {
+					implementation(kotlin("test"))
+					implementation(kotlin("test-junit"))
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				}
 			}
 		}
 	}
 
 	val vulkanHeaderDir = rootProject.childProjects["kgl-vulkan"]!!.file("src/nativeInterop/vulkan/include")
 
-	if (os.isWindows || !isIdeaActive) {
-		mingwX64 {
-			compilations["main"].cinterops.apply {
-				create("cglfw") {
-					tasks[interopProcessingTaskName].dependsOn(unzipBinaries)
-
-					includeDirs(glfwDir.resolve("include"), vulkanHeaderDir)
-
-					// This doesn't seem to work. https://github.com/JetBrains/kotlin-native/issues/2314
-					// extraOpts("-include-binary", glfwDir.resolve("lib-mingw-w64/libglfw3.a").absolutePath)
-				}
-			}
-		}
-	}
-	if (os.isLinux || !isIdeaActive) {
-		linuxX64 {
-			compilations["main"].cinterops.apply {
-				create("cglfw") {
-					includeDirs(vulkanHeaderDir)
-				}
-			}
-		}
-	}
-	if (os.isMacOsX || !isIdeaActive) {
-		macosX64 {
-			compilations["main"].cinterops.apply {
-				create("cglfw") {
-					includeDirs(vulkanHeaderDir)
-				}
-			}
-		}
-	}
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
 			"main" {
+				cinterops {
+					create("cglfw") {
+						includeDirs(vulkanHeaderDir)
+					}
+				}
 				defaultSourceSet {
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")
@@ -117,6 +91,18 @@ kotlin {
 					kotlin.srcDir("src/nativeTest/kotlin")
 					resources.srcDir("src/nativeTest/resources")
 				}
+			}
+		}
+	}
+
+	if (Config.OS.isWindows || !Config.isIdeaActive) {
+		mingwX64 {
+			compilations["main"].cinterops["cglfw"].apply {
+				tasks[interopProcessingTaskName].dependsOn(unzipBinaries)
+				includeDirs(unzipBinaries.map { it.destinationDir.resolve("include") })
+
+				// This doesn't seem to work. https://github.com/JetBrains/kotlin-native/issues/2314
+				// extraOpts("-include-binary", glfwDir.resolve("lib-mingw-w64/libglfw3.a").absolutePath)
 			}
 		}
 	}

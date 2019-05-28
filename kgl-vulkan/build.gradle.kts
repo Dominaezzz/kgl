@@ -1,3 +1,4 @@
+import config.Versions
 import org.gradle.internal.os.OperatingSystem
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -10,13 +11,13 @@ kotlin {
 	val isIdeaActive = System.getProperty("idea.active") == "true"
 
 	sourceSets {
-		val commonMain by getting {
+		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-core"))
 			}
 		}
-		val commonTest by getting {
+		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
@@ -25,21 +26,23 @@ kotlin {
 	}
 
 	jvm {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-jdk8"))
-				api("org.lwjgl:lwjgl-vulkan:${extra["lwjglVersion"]}")
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-jdk8"))
+					api("org.lwjgl:lwjgl-vulkan:${Versions.LWJGL}")
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test"))
-				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
+			"test" {
+				dependencies {
+					implementation(kotlin("test"))
+					implementation(kotlin("test-junit"))
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				}
 			}
 		}
 	}
-	
+
 	val vulkanHeaderDir = project.file("src/nativeInterop/vulkan/include")
 
 	if (os.isWindows || !isIdeaActive) mingwX64()

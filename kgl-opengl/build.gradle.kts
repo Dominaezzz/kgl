@@ -1,13 +1,15 @@
-import codegen.opengl.OpenGLGenerator
+import codegen.opengl.GenerateOpenGL
+import config.Config
+import config.Versions
 import de.undercouch.gradle.tasks.download.Download
-import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	kotlin("multiplatform")
 	id("de.undercouch.download")
 }
 
-val downloadRegistry by tasks.creating(Download::class) {
+val downloadRegistry by tasks.registering(Download::class) {
 	val glXmlCommit = "89acc93eaa6acd97159fb069e66acb92f12d7b87"
 
 	src("https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/$glXmlCommit/xml/gl.xml")
@@ -15,25 +17,20 @@ val downloadRegistry by tasks.creating(Download::class) {
 	overwrite(false)
 }
 
-val generateOpenGL by tasks.creating(OpenGLGenerator::class) {
-	registryFile = downloadRegistry.dest
-	outputDir = buildDir.resolve("generated-src")
-
-	dependsOn(downloadRegistry)
+val generateOpenGL by tasks.registering(GenerateOpenGL::class) {
+	registryFile.set(downloadRegistry.map { RegularFile { it.dest } })
+	outputDir.set(buildDir.resolve("generated-src"))
 }
 
 kotlin {
-	val os = OperatingSystem.current()
-	val isIdeaActive = System.getProperty("idea.active") == "true"
-
 	sourceSets {
-		val commonMain by getting {
+		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-core"))
 			}
 		}
-		val commonTest by getting {
+		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
@@ -42,80 +39,71 @@ kotlin {
 	}
 
 	js {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-js"))
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-js"))
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test-js"))
+			"test" {
+				dependencies {
+					implementation(kotlin("test-js"))
+				}
 			}
 		}
 	}
 
 	jvm {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-jdk8"))
-				api("org.lwjgl:lwjgl-opengl:${extra["lwjglVersion"]}")
-				api("org.lwjgl:lwjgl-opengles:${extra["lwjglVersion"]}")
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-jdk8"))
+					api("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}")
+					api("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}")
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test"))
-				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
-				implementation("org.lwjgl:lwjgl-opengl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
-				implementation("org.lwjgl:lwjgl-opengles:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
+			"test" {
+				dependencies {
+					implementation(kotlin("test"))
+					implementation(kotlin("test-junit"))
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					implementation("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					implementation("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				}
 			}
 		}
 	}
 
-	val openglHeaderDir = project.file("src/nativeInterop/opengl")
-
-	if (os.isWindows || !isIdeaActive) mingwX64 {
-		val main by compilations.getting {
-			cinterops.create("copengl") {
-				includeDirs(openglHeaderDir)
-			}
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64 {
+		compilations["main"].apply {
 			defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/mingwMain/kotlin")
-				kotlin.srcDir(generateOpenGL.mingwDir)
-
-				resources.srcDir("src/nativeMain/resources")
+				kotlin.srcDir(generateOpenGL.map { it.mingwDir })
 			}
-
-			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
-	if (os.isLinux || !isIdeaActive) linuxX64 {
-		val main by compilations.getting {
-			cinterops.create("copengl") {
-				includeDirs(openglHeaderDir)
-			}
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64 {
+		compilations["main"].apply {
 			defaultSourceSet {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/linuxMain/kotlin")
-				kotlin.srcDir(generateOpenGL.linuxDir)
-
-				resources.srcDir("src/nativeMain/resources")
+				kotlin.srcDir(generateOpenGL.map { it.linuxDir })
 			}
-			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
-	if (os.isMacOsX || !isIdeaActive) macosX64 {
-		val main by compilations.getting {
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
+		compilations["main"].apply {
+			defaultSourceSet {
+				kotlin.srcDir(generateOpenGL.map { it.macosDir })
+			}
+		}
+	}
+
+	targets.withType<KotlinNativeTarget> {
+		compilations["main"].apply {
 			cinterops.create("copengl") {
-				includeDirs(openglHeaderDir)
+				includeDirs("src/nativeInterop/opengl")
 			}
 			defaultSourceSet {
+				kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
 				kotlin.srcDir("src/nativeMain/kotlin")
-				kotlin.srcDir("src/macosMain/kotlin")
-				kotlin.srcDir(generateOpenGL.macosDir)
-
 				resources.srcDir("src/nativeMain/resources")
 			}
 			compileKotlinTask.dependsOn(generateOpenGL)

@@ -1,4 +1,5 @@
-import org.gradle.internal.os.OperatingSystem
+import config.Config
+import config.Versions
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -6,18 +7,15 @@ plugins {
 }
 
 kotlin {
-	val os = OperatingSystem.current()
-	val isIdeaActive = System.getProperty("idea.active") == "true"
-
 	sourceSets {
-		val commonMain by getting {
+		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-glfw"))
 				api(project(":kgl-vulkan"))
 			}
 		}
-		val commonTest by getting {
+		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
@@ -26,24 +24,26 @@ kotlin {
 	}
 
 	jvm {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-jdk8"))
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-jdk8"))
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test"))
-				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
-				implementation("org.lwjgl:lwjgl-glfw:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
+			"test" {
+				dependencies {
+					implementation(kotlin("test"))
+					implementation(kotlin("test-junit"))
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				}
 			}
 		}
 	}
 
-	if (os.isWindows || !isIdeaActive) mingwX64()
-	if (os.isLinux || !isIdeaActive) linuxX64()
-	if (os.isMacOsX || !isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {

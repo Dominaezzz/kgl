@@ -1,4 +1,5 @@
-import org.gradle.internal.os.OperatingSystem
+import config.Config
+import config.Versions
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
@@ -6,17 +7,14 @@ plugins {
 }
 
 kotlin {
-	val os = OperatingSystem.current()
-	val isIdeaActive = System.getProperty("idea.active") == "true"
-
 	sourceSets {
-		val commonMain by getting {
+		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
-				api("org.jetbrains.kotlinx:kotlinx-io:${extra["kotlinxIOVersion"]}")
+				api("org.jetbrains.kotlinx:kotlinx-io:${Versions.KOTLINX_IO}")
 			}
 		}
-		val commonTest by getting {
+		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
@@ -27,44 +25,39 @@ kotlin {
 	jvm {
 		compilations {
 			"main" {
-				defaultSourceSet {
-					dependencies {
-						implementation(kotlin("stdlib-jdk8"))
-						api("org.lwjgl:lwjgl:${extra["lwjglVersion"]}")
-					}
-				}
 				dependencies {
-					api("org.jetbrains.kotlinx:kotlinx-io-jvm:${extra["kotlinxIOVersion"]}")
+					implementation(kotlin("stdlib-jdk8"))
+					api("org.lwjgl:lwjgl:${Versions.LWJGL}")
+					api("org.jetbrains.kotlinx:kotlinx-io-jvm:${Versions.KOTLINX_IO}")
 				}
 			}
-
 			"test" {
-				defaultSourceSet {
-					dependencies {
-						implementation(kotlin("test"))
-						implementation(kotlin("test-junit"))
-						implementation("org.lwjgl:lwjgl:${extra["lwjglVersion"]}:${extra["lwjglNatives"]}")
-					}
+				dependencies {
+					implementation(kotlin("test"))
+					implementation(kotlin("test-junit"))
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
 				}
 			}
 		}
 	}
 	js {
-		compilations["main"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("stdlib-js"))
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-js"))
+				}
 			}
-		}
-		compilations["test"].defaultSourceSet {
-			dependencies {
-				implementation(kotlin("test-js"))
+			"test" {
+				dependencies {
+					implementation(kotlin("test-js"))
+				}
 			}
 		}
 	}
-	if (os.isWindows || !isIdeaActive) mingwX64()
-	if (os.isLinux || !isIdeaActive) linuxX64()
-	if (os.isMacOsX || !isIdeaActive) macosX64()
-	if (!isIdeaActive) {
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (!Config.isIdeaActive) {
 		// iosArm32()
 		// iosArm64()
 		// iosX64()
@@ -80,7 +73,7 @@ kotlin {
 					resources.srcDir("src/nativeMain/resources")
 				}
 				dependencies {
-					api("org.jetbrains.kotlinx:kotlinx-io-native:${extra["kotlinxIOVersion"]}")
+					api("org.jetbrains.kotlinx:kotlinx-io-native:${Versions.KOTLINX_IO}")
 				}
 			}
 
