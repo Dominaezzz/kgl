@@ -52,3 +52,15 @@ steps:
       gradleOptions: '-Xmx3072m'
       tasks: 'check'
     displayName: 'Test KGL'
+
+  - task: Gradle@2
+    inputs:
+      workingDirectory: ''
+      gradleWrapperFile: 'gradlew'
+      gradleOptions: '-Xmx3072m'
+      tasks: 'bintrayUpload'
+    condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
+    displayName: 'Publish artifacts to Bintray'
+    env:
+      BINTRAY_API_KEY: $(BINTRAY_API_KEY)
+      BINTRAY_USER: $(BINTRAY_USER)
