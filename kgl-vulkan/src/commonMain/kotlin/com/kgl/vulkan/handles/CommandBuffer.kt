@@ -17,7 +17,6 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
-import com.kgl.vulkan.unions.ClearValue
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
 import kotlinx.io.core.IoBuffer
@@ -155,7 +154,6 @@ expect class CommandBuffer : VkHandle {
 	fun beginRenderPass(
 			renderPass: RenderPass,
 			framebuffer: Framebuffer,
-			clearValues: Collection<ClearValue>?,
 			contents: SubpassContents,
 			block: RenderPassBeginInfoBuilder.() -> Unit
 	)

@@ -305,11 +305,19 @@ class DslTests {
 			}
 		}
 
-		// TODO: Bespoke DSL for clearValues
-		commandBuffer.beginRenderPass(renderPass, framebuffer, null, SubpassContents.INLINE) {
+		commandBuffer.beginRenderPass(renderPass, framebuffer, SubpassContents.INLINE) {
 			renderArea {
 				offset(0, 0)
 				extent(1080U, 720U)
+			}
+
+			clearValues {
+				clearValue {
+					color(1.0f, 0.5f, 1.0f, 1.0f)
+				}
+				clearValue {
+					depthStencil(1.0f, 0U)
+				}
 			}
 		}
 	}

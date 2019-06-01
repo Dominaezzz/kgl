@@ -18,7 +18,6 @@
 package com.kgl.vulkan.utils
 
 import com.kgl.core.VirtualStack
-import com.kgl.vulkan.unions.ClearValue
 import cvulkan.VkBool32
 import cvulkan.VkClearValue
 import kotlinx.cinterop.*
@@ -71,10 +70,6 @@ internal inline fun Array<String>.toVkType(): CPointer<CPointerVar<ByteVar>> {
 
 internal inline fun Collection<String>.toVkType(): CPointer<CPointerVar<ByteVar>> {
 	return mapToCArray(VirtualStack) { value = it.cstr.getPointer(VirtualStack.currentFrame!!) }
-}
-
-internal inline fun Collection<ClearValue>.toVkType(): CPointer<VkClearValue> {
-	return mapToCArray(VirtualStack) { it.write(this) }
 }
 
 internal inline fun Collection<VkEnum<*>>.toVkType(): CPointer<UIntVar> {

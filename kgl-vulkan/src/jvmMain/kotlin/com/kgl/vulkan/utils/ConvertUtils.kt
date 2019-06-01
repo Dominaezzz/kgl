@@ -17,7 +17,6 @@
  */
 package com.kgl.vulkan.utils
 
-import com.kgl.vulkan.unions.ClearValue
 import kotlinx.io.core.IoBuffer
 import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
@@ -25,7 +24,6 @@ import org.lwjgl.system.Pointer
 import org.lwjgl.system.Struct
 import org.lwjgl.system.StructBuffer
 import org.lwjgl.vulkan.VK10.VK_TRUE
-import org.lwjgl.vulkan.VkClearValue
 import java.nio.*
 
 internal inline fun Int.toBoolean(): Boolean = this == VK_TRUE
@@ -104,15 +102,6 @@ internal inline fun Collection<String>.toVkType(): PointerBuffer {
 	return stack.mallocPointer(size).also {
 		forEachIndexed { index, item ->
 			it.put(index, stack.UTF8(item))
-		}
-	}
-}
-
-@JvmName("toNativeType__")
-internal inline fun Collection<ClearValue>.toVkType(): VkClearValue.Buffer {
-	return VkClearValue.callocStack(size).also {
-		forEachIndexed { index, item ->
-			item.write(it[index])
 		}
 	}
 }

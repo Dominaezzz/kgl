@@ -18,7 +18,6 @@ package com.kgl.vulkan.handles
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
-import com.kgl.vulkan.unions.ClearValue
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
@@ -663,7 +662,6 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	actual fun beginRenderPass(
 			renderPass: RenderPass,
 			framebuffer: Framebuffer,
-			clearValues: Collection<ClearValue>?,
 			contents: SubpassContents,
 			block: RenderPassBeginInfoBuilder.() -> Unit
 	) {
@@ -672,7 +670,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val target = VirtualStack.alloc<VkRenderPassBeginInfo>().ptr
 			val builder = RenderPassBeginInfoBuilder(target.pointed)
-			builder.init(renderPass, framebuffer, clearValues)
+			builder.init(renderPass, framebuffer)
 			builder.apply(block)
 			dispatchTable.vkCmdBeginRenderPass(commandBuffer.toVkType(), target, contents.toVkType())
 		} finally {

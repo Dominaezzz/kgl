@@ -17,7 +17,6 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.handles.*
-import com.kgl.vulkan.unions.ClearValue
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.mapToStackArray
 import com.kgl.vulkan.utils.toVkType
@@ -438,16 +437,87 @@ actual class RenderPassBeginInfoBuilder(internal val target: VkRenderPassBeginIn
 		builder.apply(block)
 	}
 
-	internal fun init(
-			renderPass: RenderPass,
-			framebuffer: Framebuffer,
-			clearValues: Collection<ClearValue>?
-	) {
+	actual fun clearValues(block: ClearValuesBuilder.() -> Unit) {
+		val targets = ClearValuesBuilder().apply(block).targets
+		target.pClearValues(targets.mapToStackArray(VkClearValue::callocStack))
+	}
+
+	internal fun init(renderPass: RenderPass, framebuffer: Framebuffer) {
 		target.sType(VK11.VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO)
 		target.pNext(0)
 		target.renderPass(renderPass.toVkType())
 		target.framebuffer(framebuffer.toVkType())
-		target.pClearValues(clearValues?.toVkType())
+	}
+}
+
+actual class ClearColorValueBuilder(internal val target: VkClearColorValue) {
+	internal fun init(r: Float, g: Float, b: Float, a: Float) {
+		target.float32(0, r)
+		target.float32(1, g)
+		target.float32(2, b)
+		target.float32(3, a)
+	}
+
+	internal fun init(r: Int, g: Int, b: Int, a: Int) {
+		target.int32(0, r)
+		target.int32(1, g)
+		target.int32(2, b)
+		target.int32(3, a)
+	}
+
+	internal fun init(r: UInt, g: UInt, b: UInt, a: UInt) {
+		target.uint32(0, r.toInt())
+		target.uint32(1, g.toInt())
+		target.uint32(2, b.toInt())
+		target.uint32(3, a.toInt())
+	}
+}
+
+actual class ClearDepthStencilValueBuilder(internal val target: VkClearDepthStencilValue) {
+	internal fun init(depth: Float, stencil: UInt) {
+		target.depth(depth)
+		target.stencil(stencil.toInt())
+	}
+}
+
+actual class ClearValueBuilder(internal val target: VkClearValue) {
+	actual fun color(r: Float, g: Float, b: Float, a: Float) {
+		val subTarget = target.color()
+		val builder = ClearColorValueBuilder(subTarget)
+		builder.init(r, g, b, a)
+	}
+
+	actual fun color(r: Int, g: Int, b: Int, a: Int) {
+		val subTarget = target.color()
+		val builder = ClearColorValueBuilder(subTarget)
+		builder.init(r, g, b, a)
+	}
+
+	actual fun color(r: UInt, g: UInt, b: UInt, a: UInt) {
+		val subTarget = target.color()
+		val builder = ClearColorValueBuilder(subTarget)
+		builder.init(r, g, b, a)
+	}
+
+	actual fun depthStencil(depth: Float, stencil: UInt) {
+		val subTarget = target.depthStencil()
+		val builder = ClearDepthStencilValueBuilder(subTarget)
+		builder.init(depth, stencil)
+	}
+
+	internal fun init() {
+	}
+}
+
+actual class ClearValuesBuilder {
+	val targets: MutableList<(VkClearValue) -> Unit> = mutableListOf()
+
+	actual fun clearValue(block: ClearValueBuilder.() -> Unit) {
+		targets += {
+			val builder = ClearValueBuilder(it)
+			builder.init()
+			builder.apply(block)
+		}
 	}
 }
 

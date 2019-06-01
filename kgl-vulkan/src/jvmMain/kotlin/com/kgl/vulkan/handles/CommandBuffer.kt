@@ -17,7 +17,6 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
-import com.kgl.vulkan.unions.ClearValue
 import com.kgl.vulkan.utils.*
 import kotlinx.io.core.IoBuffer
 import org.lwjgl.system.MemoryStack
@@ -613,7 +612,6 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	actual fun beginRenderPass(
 			renderPass: RenderPass,
 			framebuffer: Framebuffer,
-			clearValues: Collection<ClearValue>?,
 			contents: SubpassContents,
 			block: RenderPassBeginInfoBuilder.() -> Unit
 	) {
@@ -622,7 +620,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val target = VkRenderPassBeginInfo.callocStack()
 			val builder = RenderPassBeginInfoBuilder(target)
-			builder.init(renderPass, framebuffer, clearValues)
+			builder.init(renderPass, framebuffer)
 			builder.apply(block)
 			vkCmdBeginRenderPass(commandBuffer.toVkType(), target, contents.toVkType())
 		} finally {

@@ -175,6 +175,26 @@ expect class ConditionalRenderingBeginInfoEXTBuilder
 
 expect class RenderPassBeginInfoBuilder {
 	fun renderArea(block: Rect2DBuilder.() -> Unit)
+
+	fun clearValues(block: ClearValuesBuilder.() -> Unit)
+}
+
+expect class ClearColorValueBuilder
+
+expect class ClearDepthStencilValueBuilder
+
+expect class ClearValueBuilder {
+	fun color(r: Float, g: Float, b: Float, a: Float)
+
+	fun color(r: Int, g: Int, b: Int, a: Int)
+
+	fun color(r: UInt, g: UInt, b: UInt, a: UInt)
+
+	fun depthStencil(depth: Float, stencil: UInt)
+}
+
+expect class ClearValuesBuilder {
+	fun clearValue(block: ClearValueBuilder.() -> Unit)
 }
 
 expect class DebugMarkerMarkerInfoEXTBuilder {
