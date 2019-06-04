@@ -67,9 +67,8 @@ kotlin {
 	}
 
 	evaluationDependsOn(":kgl-vulkan")
-	val vulkanHeaderDir = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs").map {
-		it.destinationDir.resolve("include")
-	}
+	val vulkanUnzipDocs = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs")
+	val vulkanHeaderDir = vulkanUnzipDocs.map { it.destinationDir.resolve("include") }
 
 	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
@@ -101,7 +100,10 @@ kotlin {
 	if (Config.OS.isWindows || !Config.isIdeaActive) {
 		mingwX64 {
 			compilations["main"].cinterops["cglfw"].apply {
-				tasks[interopProcessingTaskName].dependsOn(unzipBinaries)
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(unzipBinaries)
+					dependsOn(vulkanUnzipDocs)
+				}
 				includeDirs(unzipBinaries.map { it.destinationDir.resolve("include") })
 
 				// This doesn't seem to work. https://github.com/JetBrains/kotlin-native/issues/2314
