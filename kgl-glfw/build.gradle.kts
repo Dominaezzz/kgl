@@ -79,6 +79,9 @@ kotlin {
 			"main" {
 				cinterops {
 					create("cglfw") {
+						tasks.named(interopProcessingTaskName) {
+							dependsOn(vulkanUnzipDocs)
+						}
 						includeDirs(vulkanHeaderDir)
 					}
 				}
@@ -102,7 +105,6 @@ kotlin {
 			compilations["main"].cinterops["cglfw"].apply {
 				tasks.named(interopProcessingTaskName) {
 					dependsOn(unzipBinaries)
-					dependsOn(vulkanUnzipDocs)
 				}
 				includeDirs(unzipBinaries.map { it.destinationDir.resolve("include") })
 
