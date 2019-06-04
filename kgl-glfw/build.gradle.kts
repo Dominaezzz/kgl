@@ -66,7 +66,10 @@ kotlin {
 		}
 	}
 
-	val vulkanHeaderDir = rootProject.childProjects["kgl-vulkan"]!!.file("src/nativeInterop/vulkan/include")
+	evaluationDependsOn(":kgl-vulkan")
+	val vulkanHeaderDir = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs").map {
+		it.destinationDir.resolve("include")
+	}
 
 	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
