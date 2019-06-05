@@ -10,5 +10,5 @@ repositories {
 }
 
 dependencies {
-	implementation(group = "com.squareup", name = "kotlinpoet", version = "1.0.1")
+	implementation(group = "com.squareup", name = "kotlinpoet", version = "1.2.0")
 }

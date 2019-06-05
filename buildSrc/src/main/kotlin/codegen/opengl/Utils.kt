@@ -15,7 +15,10 @@
  */
 package codegen.opengl
 
-import codegen.CTypeDecl
+import codegen.*
+import codegen.C_OPAQUE_POINTER
+import codegen.UBYTE
+import codegen.USHORT
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 

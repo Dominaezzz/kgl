@@ -15,6 +15,9 @@
  */
 package codegen.opengl
 
+import codegen.THREAD_LOCAL
+import codegen.UINT
+import codegen.VIRTUAL_STACK
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.gradle.api.DefaultTask

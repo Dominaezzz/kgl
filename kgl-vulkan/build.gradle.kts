@@ -1,3 +1,4 @@
+import codegen.vulkan.GenerateVulkan
 import config.Config
 import config.Versions
 import de.undercouch.gradle.tasks.download.Download
@@ -27,9 +28,16 @@ val unzipDocs by tasks.registering(Copy::class) {
 	into(downloadDocs.map { it.dest.resolveSibling("Vulkan-Docs") })
 }
 
+val generateVulkan by tasks.registering(GenerateVulkan::class) {
+	docsDir.set(unzipDocs.get().destinationDir)
+	outputDir.set(buildDir.resolve("generated-src"))
+}
+
 kotlin {
 	sourceSets {
 		commonMain {
+			kotlin.srcDir(generateVulkan.map { it.commonDir })
+
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-core"))
@@ -46,6 +54,12 @@ kotlin {
 	jvm {
 		compilations {
 			"main" {
+				compileKotlinTask.dependsOn(generateVulkan)
+
+				defaultSourceSet {
+					kotlin.srcDir(generateVulkan.map { it.jvmDir })
+				}
+
 				dependencies {
 					implementation(kotlin("stdlib-jdk8"))
 					api("org.lwjgl:lwjgl-vulkan:${Versions.LWJGL}")
@@ -68,6 +82,8 @@ kotlin {
 	targets.withType<KotlinNativeTarget> {
 		compilations {
 			"main" {
+				compileKotlinTask.dependsOn(generateVulkan)
+
 				cinterops {
 					create("cvulkan") {
 						tasks.named(interopProcessingTaskName) {
@@ -78,6 +94,7 @@ kotlin {
 				}
 
 				defaultSourceSet {
+					kotlin.srcDir(generateVulkan.map { it.nativeDir })
 					kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
 
 					kotlin.srcDir("src/nativeMain/kotlin")

@@ -18,13 +18,4 @@ package codegen.opengl
 import com.squareup.kotlinpoet.ClassName
 
 
-internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
 internal val GL_MASK = ClassName("com.kgl.opengl.utils", "GLMask")
-internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
-
-internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
-
-internal val UBYTE = ClassName("kotlin", "UByte")
-internal val USHORT = ClassName("kotlin", "UShort")
-internal val UINT = ClassName("kotlin", "UInt")
-internal val ULONG = ClassName("kotlin", "ULong")
