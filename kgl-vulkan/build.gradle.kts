@@ -28,7 +28,14 @@ val unzipDocs by tasks.registering(Copy::class) {
 	into(downloadDocs.map { it.dest.resolveSibling("Vulkan-Docs") })
 }
 
+val makeHtmlDocs by tasks.registering(Exec::class) {
+	commandLine("make", "manhtml")
+	workingDir = unzipDocs.get().destinationDir
+}
+
 val generateVulkan by tasks.registering(GenerateVulkan::class) {
+	dependsOn(makeHtmlDocs)
+
 	docsDir.set(unzipDocs.get().destinationDir)
 	outputDir.set(buildDir.resolve("generated-src"))
 }

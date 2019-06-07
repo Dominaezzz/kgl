@@ -37,6 +37,24 @@ steps:
     condition: eq( variables['Agent.OS'], 'Darwin' )
     displayName: 'Install GLFW'
 
+  - bash: |
+      case $THE_OS in
+          "Windows_NT")
+              choco install ruby
+              gem install asciidoctor
+          ;;
+          "Linux")
+              sudo apt install -y asciidoctor
+          ;;
+          "Darwin")
+              brew install asciidoctor
+          ;;
+          *) echo "Unknown OS!";;
+      esac
+    displayName: 'Install build dependencies'
+    env:
+      THE_OS: $(Agent.OS)
+
   - task: Gradle@2
     inputs:
       workingDirectory: ''
