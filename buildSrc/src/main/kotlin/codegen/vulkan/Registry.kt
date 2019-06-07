@@ -384,3 +384,20 @@ data class VkCommand(
 }
 
 const val NULL_TERMINATED = "null-terminated"
+
+val primitives = listOf(
+		VkPrimitive("char", BYTE, "0.toByte()"),
+		VkPrimitive("int", INT, "0"),
+		VkPrimitive("int32_t", INT, "0"),
+		VkPrimitive("uint8_t", UBYTE, "0.toByte()", "0.toUByte()", "toByte()", "toUByte()"),
+		VkPrimitive("uint16_t", USHORT, "0.toShort()", "0.toUShort()", "toShort()", "toUShort()"),
+		VkPrimitive("uint32_t", UINT, "0", "0U", "toInt()", "toUInt()"),
+		VkPrimitive("uint64_t", ULONG, "0L", "0UL", "toLong()", "toULong()"),
+		VkPrimitive("VkBool", BOOLEAN, "false", toNativeVkType = "toVkBool()", fromNativeVkType = "toBoolean()"),
+		VkPrimitive("VkBool32", BOOLEAN, "false", toNativeVkType = "toVkBool()", fromNativeVkType = "toBoolean()"),
+		VkPrimitive("float", FLOAT, "0f"),
+		VkPrimitive("void", UNIT, "Unit"),
+		VkPrimitive("size_t", ULONG, "0L", "0UL", "toLong()", "toULong()"),
+		VkPrimitive("VkDeviceSize", ULONG, "0L", "0UL", "toLong()", "toULong()"),
+		VkPrimitive("VkSampleMask", UINT, "0", "0U", "toInt()", "toUInt()")
+)

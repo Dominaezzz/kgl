@@ -16,6 +16,7 @@
 package codegen
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 
 internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
@@ -37,3 +38,7 @@ internal val LIST = ClassName("kotlin.collections", "List")
 internal val MUTABLE_LIST = ClassName("kotlin.collections", "MutableList")
 
 internal val MEMORY_STACK = ClassName("org.lwjgl.system", "MemoryStack")
+
+object KtxC {
+	val REINTERPRET = MemberName("kotlinx.cinterop", "reinterpret")
+}
