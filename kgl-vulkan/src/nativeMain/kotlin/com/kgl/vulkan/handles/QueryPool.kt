@@ -51,7 +51,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		try {
 			TODO()
 			data.writeDirect {
-				val result = dispatchTable.vkGetQueryPoolResults!!(device.toVkType(), queryPool.toVkType(),
+				val result = dispatchTable.vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
 						firstQuery.toVkType(), queryCount.toVkType(),
 						data.writeRemaining.toULong(), it,
 						stride.toVkType(), flags.toVkType())
