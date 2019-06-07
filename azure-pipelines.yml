@@ -40,7 +40,7 @@ steps:
   - bash: |
       case $THE_OS in
           "Windows_NT")
-              choco install ruby
+              choco install ruby python3
               gem install asciidoctor
           ;;
           "Linux")
