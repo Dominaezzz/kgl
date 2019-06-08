@@ -29,7 +29,13 @@ val unzipDocs by tasks.registering(Copy::class) {
 }
 
 val makeHtmlDocs by tasks.registering(Exec::class) {
-	commandLine("make", "manhtml")
+	if (Config.OS.isWindows) {
+		// Requires unix environment to build.
+		executable = "C:\\Program Files\\Git\\bin\\sh.exe"
+		args("--login", "-i", "-c", "make", "manhtml")
+	} else {
+		commandLine("make", "manhtml")
+	}
 	workingDir = unzipDocs.get().destinationDir
 }
 
