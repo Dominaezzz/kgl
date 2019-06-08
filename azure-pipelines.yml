@@ -42,7 +42,6 @@ steps:
           "Windows_NT")
               choco install ruby python3 make
               gem install asciidoctor
-              refreshenv
           ;;
           "Linux")
               sudo apt install -y asciidoctor
@@ -55,6 +54,10 @@ steps:
     displayName: 'Install build dependencies'
     env:
       THE_OS: $(Agent.OS)
+
+  - powershell: refreshenv
+    condition: eq(variables['Agent.OS'], 'Windows_NT')
+    displayName: 'Refresh Environmental Vars'
 
   - task: Gradle@2
     inputs:
