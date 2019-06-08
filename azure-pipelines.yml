@@ -42,6 +42,7 @@ steps:
           "Windows_NT")
               choco install ruby python3 make
               gem install asciidoctor
+              refreshenv
           ;;
           "Linux")
               sudo apt install -y asciidoctor
