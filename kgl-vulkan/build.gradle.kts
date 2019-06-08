@@ -28,7 +28,20 @@ val unzipDocs by tasks.registering(Copy::class) {
 	into(downloadDocs.map { it.dest.resolveSibling("Vulkan-Docs") })
 }
 
+val makeHtmlDocs by tasks.registering(Exec::class) {
+	if (Config.OS.isWindows) {
+		// Requires unix environment to build.
+		executable = "C:\\Program Files\\Git\\bin\\sh.exe"
+		args("-c", "make PYTHON=python manhtml")
+	} else {
+		commandLine("make", "manhtml")
+	}
+	workingDir = unzipDocs.get().destinationDir
+}
+
 val generateVulkan by tasks.registering(GenerateVulkan::class) {
+	dependsOn(makeHtmlDocs)
+
 	docsDir.set(unzipDocs.get().destinationDir)
 	outputDir.set(buildDir.resolve("generated-src"))
 }
