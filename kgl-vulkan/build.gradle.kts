@@ -32,7 +32,7 @@ val makeHtmlDocs by tasks.registering(Exec::class) {
 	if (Config.OS.isWindows) {
 		// Requires unix environment to build.
 		executable = "C:\\Program Files\\Git\\bin\\sh.exe"
-		args("-c", "make manhtml")
+		args("-c", "make PYTHON=python manhtml")
 	} else {
 		commandLine("make", "manhtml")
 	}
