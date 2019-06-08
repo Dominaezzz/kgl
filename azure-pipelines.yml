@@ -56,9 +56,9 @@ steps:
       THE_OS: $(Agent.OS)
 
   - powershell: |
-      echo %PATH%
+      $env:PATH
       refreshenv
-      echo %PATH%
+      $env.PATH
     condition: eq(variables['Agent.OS'], 'Windows_NT')
     displayName: 'Refresh Environmental Vars'
 
@@ -69,6 +69,8 @@ steps:
       gradleOptions: '-Xmx3072m'
       tasks: 'assemble'
     displayName: 'Compile KGL'
+    env:
+      PYTHON: python
 
   - task: Gradle@2
     inputs:
