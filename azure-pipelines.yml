@@ -55,7 +55,10 @@ steps:
     env:
       THE_OS: $(Agent.OS)
 
-  - powershell: refreshenv
+  - powershell: |
+      echo %PATH%
+      refreshenv
+      echo %PATH%
     condition: eq(variables['Agent.OS'], 'Windows_NT')
     displayName: 'Refresh Environmental Vars'
 
