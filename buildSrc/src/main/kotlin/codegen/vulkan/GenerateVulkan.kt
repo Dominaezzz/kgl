@@ -17,6 +17,8 @@ package codegen.vulkan
 
 import codegen.KtxC
 import codegen.STRING
+import codegen.UINT
+import codegen.ULONG
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.Parser
 import com.squareup.kotlinpoet.*
@@ -519,7 +521,91 @@ open class GenerateVulkan : DefaultTask() {
 			}
 		}
 
+		fun generateAPIConstants() {
+			val vkClass = buildTypeSpec({ TypeSpec.objectBuilder("Vk") }) { platform ->
+				for ((name, value) in registry.constants) {
+					// Skip aliases for now.
+					if (value.startsWith("VK_")) continue
+
+					val constantType = when {
+						value.contains('U') && value.contains('L') -> ULONG
+						value.contains('U') -> UINT
+						value.endsWith('f') -> FLOAT
+						value.endsWith('"') -> STRING
+						else -> INT
+					}
+
+					val nameKt = name.removePrefix("VK_")
+
+					val property = PropertySpec.builder(nameKt, constantType)
+					if (platform != Platform.COMMON) {
+						property.addModifiers(KModifier.ACTUAL)
+
+						if (platform == Platform.JVM) {
+							property.initializer(
+									buildString {
+										append("%T.")
+										append(name)
+										if (constantType.simpleName[0] == 'U') {
+											append(".to")
+											append(constantType.simpleName)
+											append("()")
+										}
+									},
+									extensionInvMap[name]?.getLWJGLClass() ?: VK11
+							)
+						} else {
+							property.initializer("%M", MemberName("cvulkan", name))
+						}
+					}
+
+					addProperty(property.build())
+				}
+
+				for (extension in registry.extensions) {
+					// Skip disabled extensions
+					if (extension.supported != "vulkan") continue
+
+					// Skip platform specific enums for now.
+					if (extension.platform != null) continue
+
+					val lwjglClass = extension.getLWJGLClass()
+
+					for (require in extension.requires) {
+						for ((name, value) in require.constants) {
+							if (value == null) continue
+
+							val constantType = when {
+								name.endsWith("_NAME") -> STRING
+								name.endsWith("_VERSION") -> INT
+								else -> TODO("Extension constant $name not expected.")
+							}
+
+							val nameKt = name.removePrefix("VK_")
+
+							val property = PropertySpec.builder(nameKt, constantType)
+							if (platform != Platform.COMMON) {
+								property.addModifiers(KModifier.ACTUAL)
+
+								property.initializer("%M", if (platform == Platform.JVM) {
+									MemberName(lwjglClass, name)
+								} else {
+									MemberName("cvulkan", name)
+								})
+							}
+							addProperty(property.build())
+						}
+					}
+				}
+			}
+
+			FileSpec.get("com.kgl.vulkan", vkClass.common).writeTo(commonDir.get().asFile)
+			FileSpec.get("com.kgl.vulkan", vkClass.native).writeTo(nativeDir.get().asFile)
+			FileSpec.get("com.kgl.vulkan", vkClass.jvm).writeTo(jvmDir.get().asFile)
+		}
+
 		generateDispatchTables()
 		generateEnums()
+		generateAPIConstants()
 	}
 }
