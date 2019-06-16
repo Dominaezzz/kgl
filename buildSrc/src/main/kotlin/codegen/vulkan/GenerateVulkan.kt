@@ -15,7 +15,7 @@
  */
 package codegen.vulkan
 
-import codegen.KtxC
+import codegen.*
 import codegen.STRING
 import codegen.UINT
 import codegen.ULONG
@@ -604,8 +604,81 @@ open class GenerateVulkan : DefaultTask() {
 			FileSpec.get("com.kgl.vulkan", vkClass.jvm).writeTo(jvmDir.get().asFile)
 		}
 
+		fun generateExceptions() {
+			val errorsFile = MultiPlatform(
+					FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
+					FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
+					FileSpec.builder("com.kgl.vulkan.utils", "Errors")
+			)
+
+			val vulkanError = ClassName("com.kgl.vulkan.utils", "VulkanError")
+
+			errorsFile.common.addType(TypeSpec.classBuilder(vulkanError)
+					.superclass(ClassName("kotlin", "Error"))
+					.addModifiers(KModifier.SEALED)
+					.build())
+
+			val handleResultJvm = FunSpec.builder("handleVkResult").addParameter("resultCode", INT)
+			val handleResultNative = FunSpec.builder("handleVkResult").addParameter("resultCode", INT)
+
+			handleResultJvm.returns(NOTHING)
+			handleResultNative.returns(NOTHING)
+
+			handleResultJvm.beginControlFlow("return when(resultCode)")
+			handleResultNative.beginControlFlow("return when(resultCode)")
+
+			val manPageDoc = apiSpecDoc.select("div.sect2:has(h3#_vkresult3)").single()
+			val divs = manPageDoc.select("div.sect3")
+
+			val description = divs[2]
+			val entryDescriptionMap = description.select("div#fundamentals-errorcodes > ul > li > p")
+					.associateBy({ it.child(0).text() }, { it.toKDocText() })
+
+			for (entry in getEnumEntries(registry.enums.single { it.name == "VkResult" })) {
+				if (!entry.nameVk.startsWith("VK_ERROR_")) continue
+
+				val errorType = ClassName("com.kgl.vulkan.utils",
+						entry.nameVk.removePrefix("VK_ERROR_").snakeToPascalCase() + "Error")
+
+				errorsFile.common.addType(TypeSpec.classBuilder(errorType)
+						.superclass(vulkanError)
+						.apply {
+							val doc = entryDescriptionMap[entry.nameVk]
+							if (doc != null) {
+								addKdoc(doc)
+							}
+						}
+						.build())
+
+				handleResultJvm.addStatement("%T.${entry.nameVk} -> throw %T()", entry.jvmClass, errorType)
+				handleResultNative.addStatement("%M -> throw %T()", MemberName("cvulkan", entry.nameVk), errorType)
+			}
+
+			val unknownVulkanError = ClassName("com.kgl.vulkan.utils", "UnknownVulkanError")
+
+			errorsFile.common.addType(TypeSpec.classBuilder(unknownVulkanError)
+					.superclass(vulkanError)
+					.primaryConstructor(FunSpec.constructorBuilder()
+							.addParameter("resultCode", INT).build())
+					.addProperty(PropertySpec.builder("resultCode", INT).initializer("resultCode").build())
+					.build())
+			handleResultJvm.addStatement("else -> throw %T(resultCode)", unknownVulkanError)
+			handleResultNative.addStatement("else -> throw %T(resultCode)", unknownVulkanError)
+
+			handleResultJvm.endControlFlow()
+			handleResultNative.endControlFlow()
+
+			errorsFile.jvm.addFunction(handleResultJvm.build())
+			errorsFile.native.addFunction(handleResultNative.build())
+
+			errorsFile.common.build().writeTo(commonDir.get().asFile)
+			errorsFile.jvm.build().writeTo(jvmDir.get().asFile)
+			errorsFile.native.build().writeTo(nativeDir.get().asFile)
+		}
+
 		generateDispatchTables()
 		generateEnums()
 		generateAPIConstants()
+		generateExceptions()
 	}
 }
