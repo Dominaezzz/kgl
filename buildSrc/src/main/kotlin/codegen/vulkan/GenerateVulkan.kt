@@ -16,19 +16,19 @@
 package codegen.vulkan
 
 import codegen.*
-import codegen.STRING
-import codegen.UINT
-import codegen.ULONG
 import com.beust.klaxon.JsonArray
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Parser
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
-import java.lang.Exception
 import javax.xml.parsers.DocumentBuilderFactory
 
 open class GenerateVulkan : DefaultTask() {
@@ -54,7 +54,12 @@ open class GenerateVulkan : DefaultTask() {
 		(Parser.default()
 				.parse(this::class.java.getResourceAsStream("/vk_hidden_entries.json")) as JsonArray<*>)
 				.map { it as String }.toSet()
-		setOf()
+	}
+
+	private val typeOverrides: Map<String, String> by lazy {
+		(Parser.default()
+				.parse(this::class.java.getResourceAsStream("/vk_type_overrides.json")) as JsonObject)
+				.mapValues { it.value as String }
 	}
 
 	@TaskAction
@@ -75,15 +80,7 @@ open class GenerateVulkan : DefaultTask() {
 		val vkTypeMap = (registry.enums + registry.structs + registry.handles + registry.funcPointers + registry.flags + primitives)
 				.associateBy { it.name }
 
-		// i.e VkInstance -> com.kgl.vulkan.handles.Instance
-		val kglClassMap: Map<String, TypeName> = buildMap {
-			for (handle in registry.handles) {
-				put(handle.name, ClassName("com.kgl.vulkan.handles", handle.name.removePrefix("Vk")))
-			}
-			for (primitive in primitives) {
-				put(primitive.name, primitive.nameClass)
-			}
-
+		val outputStructs: Set<VkStruct> = run {
 			val outputStructs = mutableSetOf<VkStruct>()
 			fun crawlOutputStruct(struct: VkStruct) {
 				outputStructs += struct
@@ -94,15 +91,29 @@ open class GenerateVulkan : DefaultTask() {
 					}
 				}
 			}
-			registry.commands.asSequence()
-					.flatMap { command -> command.params.takeLastWhile { it.type.isWritable }.asSequence() }
-					.map { vkTypeMap[it.type.name] }
-					.plus(registry.funcPointers.asSequence()
-							.flatMap { it.params.asSequence() }
-							.map { vkTypeMap[it.type.name] })
-					.filterIsInstance<VkStruct>()
-					.forEach { crawlOutputStruct(it) }
 
+			val rootOutputStructs = registry.commands.asSequence()
+					.flatMap { command -> command.params.takeLastWhile { it.type.isWritable }.asSequence() }
+					.plus(registry.funcPointers.asSequence().flatMap { it.params.asSequence() })
+					.map { vkTypeMap[it.type.name] }
+					.filterIsInstance<VkStruct>()
+
+			rootOutputStructs.forEach(::crawlOutputStruct)
+
+			val names = rootOutputStructs.map { it.name }.toSet()
+			registry.structs.filter { it.structExtends.any(names::contains) }.forEach(::crawlOutputStruct)
+
+			outputStructs
+		}
+
+		// i.e VkInstance -> com.kgl.vulkan.handles.Instance
+		val kglClassMap: Map<String, TypeName> = buildMap {
+			for (handle in registry.handles) {
+				put(handle.name, ClassName("com.kgl.vulkan.handles", handle.name.removePrefix("Vk")))
+			}
+			for (primitive in primitives) {
+				put(primitive.name, primitive.nameClass)
+			}
 			for (struct in outputStructs) {
 				put(struct.name, ClassName("com.kgl.vulkan.structs", struct.name.removePrefix("Vk")))
 			}
@@ -235,7 +246,22 @@ open class GenerateVulkan : DefaultTask() {
 			for (code in element.getElementsByTag("code")) {
 				val typeSpec = vkTypeMap[code.text()]
 				if (typeSpec != null) {
-					code.replaceWith(TextNode("[${typeSpec.name}]"))
+					val kglClass = kglClassMap[typeSpec.name] as? ClassName
+					if (kglClass != null) {
+						code.replaceWith(TextNode("[${typeSpec.name}][${kglClass.canonicalName}]"))
+					}
+				} else if (code.text() == "NULL") {
+					code.replaceWith(TextNode("`null`"))
+				}
+			}
+
+			for (link in element.getElementsByTag("a")) {
+				val typeSpec = vkTypeMap[link.text().removePrefix("#")]
+				if (typeSpec != null) {
+					val kglClass = kglClassMap[typeSpec.name] as? ClassName
+					if (kglClass != null) {
+						link.replaceWith(TextNode("[${kglClass.simpleName}][${kglClass.canonicalName}]"))
+					}
 				}
 			}
 
@@ -676,9 +702,434 @@ open class GenerateVulkan : DefaultTask() {
 			errorsFile.native.build().writeTo(nativeDir.get().asFile)
 		}
 
+		fun generateOutputStructs() {
+			val arrayClassesMap = primitives.associate {
+				it.name to it.nameClass.peerClass("${it.nameClass.simpleName}Array")
+			}
+
+			// Returns representation of type in KGL.
+			// If collectionType is specified then the type will be wrapped if applicable
+			fun IVkParam.getKGLClass(collectionType: ClassName = COLLECTION): TypeName {
+				val typeName = registry.structAliases[type.name] ?: type.name
+				return when (type.asteriskCount) {
+					0 -> {
+						val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
+						when {
+							type.count.isEmpty() -> mainType
+							type.name == "char" -> STRING
+							else -> arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
+						}
+					}
+					1 -> {
+						when(typeName) {
+							"char" -> STRING
+							"void" -> if (len.isNotEmpty()) IO_BUFFER else LONG
+							else -> {
+								val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
+								arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
+							}
+						}
+					}
+					2 -> {
+						when (typeName) {
+							"char" -> if (type.isWritable) {
+								STRING
+							} else {
+								collectionType.parameterizedBy(STRING)
+							}
+							else -> TODO("$type has no KGL representation.")
+						}
+					}
+					else -> TODO("$type has no KGL representation.")
+				}
+			}
+			fun IVkParam.isArray(): Boolean {
+				val typeName = registry.structAliases[type.name] ?: type.name
+				return when (type.asteriskCount) {
+					0 -> type.count.isNotEmpty() && type.name != "char"
+					1 -> typeName != "char" && typeName != "void"
+					2 -> when (typeName) {
+						"char" -> !type.isWritable
+						else -> TODO("$type has no KGL representation.")
+					}
+					else -> TODO("$type has no KGL representation.")
+				}
+			}
+
+			for (struct in outputStructs) {
+				// Skip platform specific structs for now.
+				if (extensionInvMap[struct.name]?.platform != null) continue
+
+				val structClass = kglClassMap[struct.name] as ClassName
+
+
+				val jvmStructFile = FileSpec.builder("com.kgl.vulkan.structs", structClass.simpleName)
+				val nativeStructFile = FileSpec.builder("com.kgl.vulkan.structs", structClass.simpleName)
+
+				val commonStruct = TypeSpec.classBuilder(structClass).addModifiers(KModifier.DATA)
+				val commonConstructor = FunSpec.constructorBuilder()
+
+				val lengthMembers = struct.members.flatMap { it.len }
+
+				val fromFun = buildPlatformFunction({ FunSpec.builder("from") }) { platform ->
+					receiver(structClass.nestedClass("Companion"))
+					returns(structClass)
+
+					addParameter("ptr", ClassName(if (platform == Platform.JVM) LWJGLVulkanPackage else "cvulkan", struct.name))
+
+					addCode(buildCodeBlock {
+						add("return %T(", structClass)
+
+						var isPastFirst = false
+
+						for (member in struct.members) {
+							// Skip length members
+							if (member.name in lengthMembers) continue
+
+							val memberAbsoluteName = "${struct.name}.${member.name}"
+
+							// Skip unnecessary members.
+							if (memberAbsoluteName in hiddenEntries) continue
+
+							val type = vkTypeMap[member.type.name]
+							if (type is VkFlag && type.requires == null) continue
+
+							val isVkVersion = typeOverrides[memberAbsoluteName] == "VkVersion"
+
+							val propertyClass = when {
+								isVkVersion -> VK_VERSION
+								member.name == "pNext" -> BASE_OUT_STRUCTURE.copy(nullable = true)
+								else -> member.getKGLClass(LIST).copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
+							}
+
+							if (member.type.count.isNotBlank()) {
+								if (member.type.count.startsWith("VK_")) {
+									nativeStructFile.addImport("cvulkan", member.type.count)
+									val ext = extensionInvMap[member.type.count]
+									jvmStructFile.addImport(ext?.getLWJGLClass() ?: VK11, member.type.count)
+								}
+							}
+
+							if (isPastFirst) {
+								add(", ")
+							}
+
+							if (member.name == "pNext") {
+								add(buildString {
+									append("%T.from(ptr.pNext")
+									if (platform == Platform.JVM) append("()")
+									append(")")
+								}, BASE_OUT_STRUCTURE)
+							} else {
+								when (type) {
+									is VkPrimitive -> {
+										if (member.isArray()) {
+											add(buildString {
+												append("ptr.")
+												append(member.name)
+												if (platform == Platform.JVM) append("()")
+												if (propertyClass.isNullable) {
+													append("?")
+												} else if (member.type.asteriskCount > 0) {
+													append("!!")
+												}
+												append(".let { target -> %T(")
+												if (member.type.count.isNotEmpty()) {
+													append(member.type.count)
+												} else {
+													append("ptr.")
+													if (member.len.isNotEmpty()) {
+														append(member.len.first())
+													} else if (member.name.endsWith("s")) {
+														append(member.name.removeSuffix("s"))
+														append("Count")
+													} else TODO("Cannot find count!")
+													append("()")
+													append(".toInt()")
+												}
+												append(") { target[it]")
+												if (platform == Platform.JVM && type.fromJVMVkType.isNotBlank()) {
+													append('.')
+													append(type.fromJVMVkType)
+												}
+												append(" } }")
+											}, propertyClass.copy(nullable = false))
+										} else {
+											val code = buildString {
+												append("ptr.")
+												append(member.name)
+												if (platform == Platform.JVM) {
+													if (propertyClass is ClassName && propertyClass.simpleName == "String") {
+														append("String")
+													}
+													append("()")
+													if (type.fromJVMVkType.isNotBlank()) {
+														append('.')
+														append(type.fromJVMVkType)
+													}
+												} else {
+													if (type.name == "void") {
+														if (member.len.isEmpty()) {
+															append(".toLong()")
+														}
+													} else if (type.name == "VkBool32") {
+														append(".toBoolean()")
+													} else if (propertyClass is ClassName && propertyClass.simpleName == "String") {
+														if (propertyClass.isNullable) {
+															append("?")
+														} else if (member.type.asteriskCount > 0) {
+															append("!!")
+														}
+														append(".toKString()")
+													}
+												}
+											}
+											if (isVkVersion) {
+												add("%T($code)", VK_VERSION)
+											} else {
+												add(code)
+											}
+										}
+									}
+									is VkStruct -> {
+										if (propertyClass is ParameterizedTypeName) {
+											add(buildString {
+												append("ptr.")
+												append(member.name)
+												if (platform == Platform.JVM) append("()")
+												if (propertyClass.isNullable) {
+													append("?")
+												} else if (member.type.asteriskCount > 0) {
+													append("!!")
+												}
+												append(".let { target -> %T(ptr.")
+												if (member.len.isNotEmpty()) {
+													append(member.len.first())
+												} else if (member.name.endsWith("s")) {
+													append(member.name.removeSuffix("s"))
+													append("Count")
+												}
+												if (platform == Platform.NATIVE) append(".toInt")
+												append("()) { %T.from(target[it]) } }")
+											}, propertyClass.copy(nullable = false), propertyClass.typeArguments[0])
+										} else {
+											add(buildString {
+												append("%T.from(ptr.")
+												append(member.name)
+												if (platform == Platform.JVM) append("()")
+												append(")")
+											}, propertyClass as ClassName)
+										}
+									}
+									is VkEnum -> {
+										add(buildString {
+											append("%T.from(ptr.")
+											append(member.name)
+											if (platform == Platform.JVM) append("()")
+											append(")")
+										}, propertyClass as ClassName)
+									}
+									is VkFlag -> {
+										add(buildString {
+											append("%T.fromMultiple(ptr.")
+											append(member.name)
+											if (platform == Platform.JVM) append("()")
+											append(")")
+										}, (propertyClass as ParameterizedTypeName).typeArguments[0] as ClassName)
+									}
+									is VkHandle -> {
+										if (propertyClass is ParameterizedTypeName) {
+											add(buildString {
+												append("ptr.")
+												append(member.name)
+												if (platform == Platform.JVM) append("()")
+												if (propertyClass.isNullable) {
+													append("?")
+												} else if (member.type.asteriskCount > 0) {
+													append("!!")
+												}
+												append(".let { target -> %T(ptr.")
+												if (member.len.isNotEmpty()) {
+													append(member.len.first())
+												} else if (member.name.endsWith("s")) {
+													append(member.name.removeSuffix("s"))
+													append("Count")
+												}
+												if (platform == Platform.NATIVE) append(".toInt")
+												append("()) { target[it]; TODO() } }")
+											}, propertyClass.copy(nullable = false))
+										} else {
+											add("TODO()")
+										}
+									}
+									null -> TODO(struct.name + "->" + member.name + " has no KGL representation")
+								}
+							}
+
+							isPastFirst = true
+						}
+						add(")")
+					})
+				}
+
+				val manPageDoc = apiSpecDoc.select("div.sect2:has(h3#_${struct.name.toLowerCase()}3)").single()
+				val divs = manPageDoc.select("div.sect3")
+
+				val summary = divs[0].select("div.paragraph").single().toKDocText()
+				val description = divs[2]
+				val memberDescriptionMap = description.select("> div.ulist:first-of-type > ul > li > p")
+						.associateBy({ it.children().first { it.tagName() == "code" }.text() }, { it.toKDocText() })
+				val paragraphs = description.select("div.paragraph").map { it.toKDocText() }
+
+				val seeAlso = divs[4].select("div.paragraph > p > a")
+
+				for (member in struct.members) {
+					// Skip length members
+					if (member.name in lengthMembers) continue
+
+					val memberAbsoluteName = "${struct.name}.${member.name}"
+
+					// Skip unnecessary members.
+					if (memberAbsoluteName in hiddenEntries) continue
+
+					val type = vkTypeMap[member.type.name]
+
+					if (type is VkFlag && type.requires == null) continue
+
+					val isVkVersion = typeOverrides[memberAbsoluteName] == "VkVersion"
+
+					val propertyClass = when {
+						isVkVersion -> VK_VERSION
+						member.name == "pNext" -> BASE_OUT_STRUCTURE.copy(nullable = true)
+						else -> member.getKGLClass(LIST).copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
+					}
+
+					val memberNameKt = if (member.name[0] == 'p' && member.name[1].isUpperCase()) {
+						member.name.removePrefix("p").decapitalize()
+					} else {
+						member.name
+					}
+
+					commonConstructor.addParameter(memberNameKt, propertyClass)
+					commonStruct.addProperty(PropertySpec.builder(memberNameKt, propertyClass)
+							.initializer(memberNameKt)
+							.apply {
+								if (member.name == "pNext" || member.name == "sType") {
+									addModifiers(KModifier.OVERRIDE)
+								}
+
+								val desc = memberDescriptionMap[member.name]
+								if (desc != null) {
+									addKdoc(desc)
+								}
+							}
+							.build())
+				}
+
+				commonStruct.primaryConstructor(commonConstructor.build())
+						.addType(TypeSpec.companionObjectBuilder().build())
+						.addKdoc(summary)
+				paragraphs.forEach { commonStruct.addKdoc(it) }
+				seeAlso.forEach {
+					val kglClass = kglClassMap[it.text()]
+					if (kglClass != null) {
+						commonStruct.addKdoc("@see %T\n", kglClass)
+					}
+				}
+
+				if (struct.members.any { it.name == "pNext" || it.name == "sType" }) {
+					commonStruct.superclass(BASE_OUT_STRUCTURE)
+				}
+
+				FileSpec.get("com.kgl.vulkan.structs", commonStruct.build()).writeTo(commonDir.get().asFile)
+
+				jvmStructFile.addFunction(fromFun.jvm!!)
+						.build()
+						.writeTo(jvmDir.get().asFile)
+
+				nativeStructFile.addImport("com.kgl.vulkan.utils", "toBoolean")
+						.addImport("kotlinx.cinterop", "get")
+						.addImport("kotlinx.cinterop", "pointed")
+						.addImport("kotlinx.cinterop", "toLong")
+						.addImport("kotlinx.cinterop", "toKString")
+						.addFunction(fromFun.native!!)
+						.build()
+						.writeTo(nativeDir.get().asFile)
+			}
+
+
+			// Struct pNext stuff
+			val baseOutFrom = buildPlatformFunction({ FunSpec.builder("from") }) { platform ->
+				receiver(BASE_OUT_STRUCTURE.nestedClass("Companion"))
+				returns(BASE_OUT_STRUCTURE.copy(nullable = true))
+				addParameter("ptr", if (platform == Platform.JVM) LONG else C_OPAQUE_POINTER.copy(nullable = true))
+
+				if (platform == Platform.JVM) {
+					addStatement("val base = %T.createSafe(ptr) ?: return null", ClassName(LWJGLVulkanPackage, "VkBaseOutStructure"))
+				} else {
+					addStatement("if (ptr == null) return null")
+					addStatement("val base = ptr.%M<%T>().%M",
+							KtxC.REINTERPRET,
+							ClassName("cvulkan", "VkBaseOutStructure"),
+							KtxC.POINTED)
+				}
+
+				beginControlFlow(buildString {
+					append("return when(base.sType")
+					if (platform == Platform.JVM) append("()")
+					append(")")
+				})
+
+				for (struct in outputStructs) {
+					val extension = extensionInvMap[struct.name]
+
+					// Skip platform specific structs for now.
+					if (extension?.platform != null) continue
+
+					val sTypeMember = struct.members.singleOrNull { it.name == "sType" } ?: continue
+
+					val structClassKt = kglClassMap.getValue(struct.name)
+
+					if (platform == Platform.JVM) {
+						addStatement(
+								"%T.${sTypeMember.values[0]} -> %T.from(%T.create(ptr))",
+								extension?.getLWJGLClass() ?: VK11,
+								structClassKt,
+								ClassName(LWJGLVulkanPackage, struct.name)
+						)
+					} else {
+						addStatement(
+								"%M -> %T.from(ptr.%M<%T>().%M)",
+								MemberName("cvulkan", sTypeMember.values[0]),
+								structClassKt,
+								KtxC.REINTERPRET,
+								ClassName("cvulkan", struct.name),
+								KtxC.POINTED
+						)
+					}
+				}
+
+				addStatement(buildString {
+					append("else -> throw Error(%S + base.sType")
+					if (platform == Platform.JVM) append("()")
+					append(")")
+				}, "Could not find structure with sType = ")
+				endControlFlow()
+			}
+
+			FileSpec.builder("com.kgl.vulkan.structs", "BaseOutStructure")
+					.addFunction(baseOutFrom.jvm!!)
+					.build().writeTo(jvmDir.get().asFile)
+
+			FileSpec.builder("com.kgl.vulkan.structs", "BaseOutStructure")
+					.addFunction(baseOutFrom.native!!)
+					.build().writeTo(nativeDir.get().asFile)
+		}
+
 		generateDispatchTables()
 		generateEnums()
 		generateAPIConstants()
 		generateExceptions()
+		generateOutputStructs()
 	}
 }

@@ -1,4 +1,7 @@
 [
   "VK_STENCIL_FRONT_AND_BACK",
-  "VK_COLORSPACE_SRGB_NONLINEAR_KHR"
+  "VK_COLORSPACE_SRGB_NONLINEAR_KHR",
+  "VkPhysicalDeviceMemoryProperties.memoryTypeCount",
+  "VkPhysicalDeviceMemoryProperties.memoryHeapCount",
+  "VkPhysicalDeviceGroupProperties.physicalDeviceCount"
 ]

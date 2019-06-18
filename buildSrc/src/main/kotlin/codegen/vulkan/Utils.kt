@@ -16,6 +16,7 @@
 package codegen.vulkan
 
 import codegen.CTypeDecl
+import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeSpec
 
@@ -34,6 +35,14 @@ fun buildTypeSpec(init: () -> TypeSpec.Builder, block: TypeSpec.Builder.(platfor
 			init().addModifiers(KModifier.EXPECT).apply { block(Platform.COMMON) }.build(),
 			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build(),
 			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
+	)
+}
+
+fun buildPlatformFunction(init: () -> FunSpec.Builder, block: FunSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<FunSpec?> {
+	return MultiPlatform(
+			null,
+			init().apply { block(Platform.JVM) }.build(),
+			init().apply { block(Platform.NATIVE) }.build()
 	)
 }
 

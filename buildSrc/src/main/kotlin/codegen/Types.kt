@@ -41,4 +41,5 @@ internal val MEMORY_STACK = ClassName("org.lwjgl.system", "MemoryStack")
 
 object KtxC {
 	val REINTERPRET = MemberName("kotlinx.cinterop", "reinterpret")
+	val POINTED = MemberName("kotlinx.cinterop", "pointed")
 }

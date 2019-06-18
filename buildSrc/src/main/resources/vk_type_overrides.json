@@ -1,0 +1,10 @@
+{
+  "VkApplicationInfo.applicationVersion": "VkVersion",
+  "VkApplicationInfo.engineVersion": "VkVersion",
+  "VkApplicationInfo.apiVersion": "VkVersion",
+  "VkPhysicalDeviceProperties.apiVersion" : "VkVersion",
+  "VkLayerProperties.specVersion" : "VkVersion",
+  "VkPhysicalDeviceLimits.pointSizeRange" : "ClosedRange<Float>",
+  "VkPhysicalDeviceLimits.lineWidthRange" : "ClosedRange<Float>",
+  "VkPhysicalDeviceLimits.viewportBoundsRange" : "ClosedRange<Float>"
+}

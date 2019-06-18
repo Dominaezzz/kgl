@@ -140,6 +140,11 @@ class Registry(vkXML: Document) {
 			}
 			.toList()
 
+	val structAliases = typeNodes.asSequence()
+			.filter { it.getAttribute("category") == "struct" }
+			.filter { it.hasAttribute("alias") }
+			.associate { it.getAttribute("name")!! to it.getAttribute("alias")!! }
+
 	val unions = typeNodes.asSequence()
 			.filter { it.getAttribute("category") == "union" }
 			.filterNot { it.hasAttribute("alias") }

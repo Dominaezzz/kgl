@@ -15,20 +15,11 @@
  */
 package com.kgl.vulkan.structs
 
-import com.kgl.vulkan.enums.DisplayPlaneAlphaKHR
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.StructureType
 
-data class DisplayPlaneCapabilitiesKHR(
-		val supportedAlpha: VkFlag<DisplayPlaneAlphaKHR>?,
-		val minSrcPosition: Offset2D,
-		val maxSrcPosition: Offset2D,
-		val minSrcExtent: Extent2D,
-		val maxSrcExtent: Extent2D,
-		val minDstPosition: Offset2D,
-		val maxDstPosition: Offset2D,
-		val minDstExtent: Extent2D,
-		val maxDstExtent: Extent2D
-) {
+abstract class BaseOutStructure {
+	abstract val sType: StructureType
+	abstract val next: BaseOutStructure?
+
 	companion object
 }
-
