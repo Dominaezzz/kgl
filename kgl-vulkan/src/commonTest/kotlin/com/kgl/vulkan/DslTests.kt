@@ -176,9 +176,7 @@ class DslTests {
 
 				stages {
 					// TODO: Inline `VkPipelineShaderStageCreateInfo[stage, name]`
-					stage(ShaderStage.VERTEX, shaderModule) {
-						name = "main"
-
+					stage(ShaderStage.VERTEX, shaderModule, "main") {
 						specializationInfo(null) {
 							mapEntries {
 								entry(0U, 0U, 0U)
@@ -186,9 +184,7 @@ class DslTests {
 						}
 					}
 
-					stage(ShaderStage.FRAGMENT, shaderModule) {
-						name = "main"
-					}
+					stage(ShaderStage.FRAGMENT, shaderModule, "main")
 				}
 				vertexInputState {
 					vertexBindingDescriptions {
@@ -312,10 +308,10 @@ class DslTests {
 			}
 
 			clearValues {
-				clearValue {
+				value {
 					color(1.0f, 0.5f, 1.0f, 1.0f)
 				}
-				clearValue {
+				value {
 					depthStencil(1.0f, 0U)
 				}
 			}

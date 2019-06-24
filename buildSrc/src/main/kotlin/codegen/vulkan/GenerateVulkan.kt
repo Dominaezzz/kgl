@@ -62,6 +62,92 @@ open class GenerateVulkan : DefaultTask() {
 				.mapValues { it.value as String }
 	}
 
+	private val structInitMembers: Map<String, Set<String>> by lazy {
+		(Parser.default()
+				.parse(this::class.java.getResourceAsStream("/vk_struct_init_params.json")) as JsonObject)
+				.mapValues { (it.value as JsonArray<*>).map { it as String }.toSet() }
+	}
+
+	private val availableStructInits: Map<String, List<List<ParameterSpec>>> by lazy {
+		fun param(name: String, type: TypeName, vararg modifiers: KModifier): ParameterSpec {
+			val param = ParameterSpec.builder(name, type, *modifiers)
+			if (type.isNullable) param.defaultValue("null")
+			return param.build()
+		}
+		fun lambdaParam(builderName: String, withDefault: Boolean = false): ParameterSpec {
+			val buildClass = ClassName("com.kgl.vulkan.dsls", builderName)
+			val param = ParameterSpec.builder(
+					"block", LambdaTypeName.get(buildClass, returnType = UNIT)
+			)
+			if (withDefault) param.defaultValue("{}")
+			return param.build()
+		}
+		fun handle(name: String) = ClassName("com.kgl.vulkan.handles", name)
+
+		mapOf(
+				"VkDescriptorSetLayoutBinding" to listOf(
+						listOf(
+								param("immutableSamplers", COLLECTION.parameterizedBy(handle("Sampler"))),
+								lambdaParam("DescriptorSetLayoutBindingBuilder", withDefault = true)
+						),
+						listOf(
+								param("descriptorCount", UINT),
+								lambdaParam("DescriptorSetLayoutBindingBuilder")
+						)
+				),
+				"VkSubmitInfo" to listOf(
+						listOf(
+								param("waitSemaphores", COLLECTION.parameterizedBy(
+										PAIR.parameterizedBy(
+												handle("Semaphore"),
+												VK_FLAG.parameterizedBy(
+														ClassName("com.kgl.vulkan.enums", "PipelineStage")
+												)
+										)
+								).copy(nullable = true)),
+								param("commandBuffers", COLLECTION.parameterizedBy(handle("CommandBuffer")).copy(nullable = true)),
+								param("signalSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
+								lambdaParam("SubmitInfoBuilder", withDefault = true)
+						)
+				),
+				"VkSubpassDescription" to listOf(
+						listOf(
+								param(
+										"preserveAttachments",
+										ClassName("kotlin", "UIntArray").copy(nullable = true)
+								),
+								lambdaParam("SubpassDescriptionBuilder")
+						)
+				),
+				"VkSubpassDescription2KHR" to listOf(
+						listOf(
+								param("preserveAttachments", ClassName("kotlin", "UIntArray")),
+								lambdaParam("SubpassDescription2KHRBuilder")
+						)
+				),
+				"VkWriteDescriptorSet" to listOf(
+						listOf(
+								param("dstSet", handle("DescriptorSet")),
+								param(
+										"texelBufferView",
+										COLLECTION.parameterizedBy(handle("BufferView") )
+												.copy(nullable = true)),
+								lambdaParam("WriteDescriptorSetBuilder")
+						)
+				),
+				"VkClearValue" to listOf(
+						listOf(lambdaParam("ClearValueBuilder"))
+				),
+				"VkDeviceQueueCreateInfo" to listOf(
+						listOf(
+								param("queueFamilyIndex", UINT),
+								param("queuePriorities", FLOAT, KModifier.VARARG),
+								lambdaParam("DeviceQueueCreateInfoBuilder", true)
+						)
+				)
+		)
+	}
+
 	@TaskAction
 	fun generate() {
 		// Clear output directory.
@@ -77,7 +163,7 @@ open class GenerateVulkan : DefaultTask() {
 
 		val apiSpecDoc = Jsoup.parse(docsDir.file("out/apispec.html").get().asFile, Charsets.UTF_8.name())
 
-		val vkTypeMap = (registry.enums + registry.structs + registry.handles + registry.funcPointers + registry.flags + primitives)
+		val vkTypeMap = (registry.enums + registry.structs + registry.unions + registry.handles + registry.funcPointers + registry.flags + primitives)
 				.associateBy { it.name }
 
 		val outputStructs: Set<VkStruct> = run {
@@ -1126,10 +1212,638 @@ open class GenerateVulkan : DefaultTask() {
 					.build().writeTo(nativeDir.get().asFile)
 		}
 
+		fun generateInputStructBuilders() {
+			val inputStructs = mutableListOf<VkStruct>()
+			val resolvedStructs = mutableSetOf<String>()
+			val requiredArrayBuilders = mutableSetOf<String>()
+
+			val structDependencies = mutableMapOf<String, Set<String>>()
+			fun crawlInputStruct(struct: VkStruct) {
+				if (struct.name in structDependencies) return
+
+				val deps = mutableSetOf<String>()
+				for (member in struct.members) {
+					val type = vkTypeMap[member.type.name]
+					if (type is VkStruct) {
+						crawlInputStruct(type)
+						deps += type.name
+						if (member.type.asteriskCount > 0 && member.len.isNotEmpty()) {
+							requiredArrayBuilders += type.name
+						}
+					}
+					if (type is VkUnion) {
+						if (member.type.asteriskCount > 0 && member.len.isNotEmpty()) {
+							requiredArrayBuilders += type.name
+						}
+					}
+				}
+				structDependencies[struct.name] = deps
+			}
+			registry.commands.asSequence().flatMap { it.params.asSequence() }
+					.filter { it.type.isConst }
+					.forEach {
+						val type = vkTypeMap[it.type.name]
+						if (type is VkStruct) {
+							crawlInputStruct(type)
+							if (it.len.isNotEmpty()) {
+								requiredArrayBuilders += type.name
+							}
+						}
+					}
+
+			while (resolvedStructs.size < structDependencies.size) {
+				var resolvedNoStruct = true
+				for ((struct, deps) in structDependencies) {
+					if (struct !in resolvedStructs && resolvedStructs.containsAll(deps)) {
+						inputStructs += vkTypeMap[struct] as VkStruct
+						resolvedStructs += struct
+						resolvedNoStruct = false
+					}
+				}
+
+				if (resolvedNoStruct) TODO("Struct dependency graph couldn't be resolved")
+			}
+
+			fun getContainingLWJGLClass(symbolName: String) : ClassName {
+				return extensionInvMap[symbolName]?.getLWJGLClass() ?: VK11
+			}
+
+			val structInits = availableStructInits.toMutableMap()
+
+			structLoop@for (struct in inputStructs) {
+				if (extensionInvMap[struct.name]?.platform != null) {
+					val platform = extensionInvMap[struct.name]?.platform
+					println("Skipping `${struct.name}` because it is exclusive to $platform.")
+					continue
+				}
+
+				if (struct.name in hiddenEntries) continue
+
+				val maxLengthGroupSize = struct.members.flatMap { it.len }
+						.filter { it != NULL_TERMINATED }
+						.groupBy { it }
+						.map { it.value.size }
+						.max() ?: 0
+				if (maxLengthGroupSize > 1) {
+					println("Skipping `${struct.name}` because length member is shared.")
+					continue
+				}
+
+				val lengthMembers = struct.members.flatMap { it.len }.toSet()
+				val visibleMembers = struct.members.filter { it.name !in lengthMembers }
+
+				val structBuilderName = struct.name.removePrefix("Vk") + "Builder"
+
+				val initFun = try {
+					buildFunSpec({ FunSpec.builder("init").addModifiers(KModifier.INTERNAL) }) { platform ->
+						struct.members.singleOrNull { it.name == "sType" }?.also { member ->
+							val value = member.values[0]
+							if (platform == Platform.JVM) {
+								addStatement("target.sType(%T.$value)", getContainingLWJGLClass(value))
+							} else {
+								addStatement("target.sType = %M", MemberName("cvulkan", value))
+							}
+						}
+
+						if (struct.members.any { it.name == "pNext" }) {
+							addStatement(if (platform == Platform.JVM) {
+								"target.pNext(0)"
+							} else {
+								"target.pNext = null"
+							})
+						}
+
+						struct.members.singleOrNull { it.name == "flags" }?.also { member ->
+							val memberType = vkTypeMap[member.type.name]
+							if (memberType is VkFlag && memberType.requires == null) {
+								addStatement(if (platform == Platform.JVM) {
+									"target.flags(0)"
+								} else {
+									"target.flags = 0U"
+								})
+							}
+						}
+
+						for (member in visibleMembers) {
+							if (member.name == "sType" || member.name == "pNext") continue
+
+							val memberType = vkTypeMap[member.type.name]
+							checkNotNull(memberType)
+
+							val memberNameKt = member.name
+									.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
+									.decapitalize()
+
+							if (memberType is VkStruct || memberType is VkUnion) continue
+
+							val initRequested = structInitMembers[struct.name]?.contains(member.name) == true
+							val isString = member.type.asteriskCount == 1 && member.type.name == "char"
+							val isBlob = member.type.asteriskCount == 1 && member.type.name == "void"
+							val isCollection = member.type.asteriskCount > 0 && !isString && !isBlob
+							val mustInit = isCollection || isBlob || memberType is VkHandle
+
+							if (!mustInit && !initRequested) continue
+
+							if (isCollection) {
+								val typeCollection = if (memberType is VkPrimitive) {
+									if (member.type.name == "char") {
+										COLLECTION.parameterizedBy(STRING)
+									} else {
+										memberType.nameClass.run { peerClass(simpleName + "Array") }
+									}
+								} else {
+									COLLECTION.parameterizedBy(kglClassMap.getValue(memberType.name))
+								}
+
+								val lengthParam = struct.members.singleOrNull { it.name == member.len[0] }
+								val isOptional = member.optional || lengthParam?.optional == true
+
+								addParameter(memberNameKt, typeCollection.copy(nullable = isOptional))
+
+								if (platform == Platform.JVM) {
+									addStatement(if (isOptional) {
+										"target.${member.name}($memberNameKt?.%M())"
+									} else {
+										"target.${member.name}($memberNameKt.%M())"
+									}, KglUtils.TO_VKTYPE)
+								} else {
+									if (isOptional && lengthParam == null) {
+										addStatement("target.${member.name} = $memberNameKt?.%M()", KglUtils.TO_VKTYPE)
+									} else {
+										if (isOptional) beginControlFlow("if ($memberNameKt != null)")
+										addStatement("target.${member.name} = $memberNameKt.%M()", KglUtils.TO_VKTYPE)
+										addStatement("target.${member.len[0]} = $memberNameKt.size.toUInt()")
+										if (isOptional) {
+											nextControlFlow("else")
+											addStatement("target.${member.len[0]} = 0u")
+											endControlFlow()
+										}
+									}
+								}
+								continue
+							}
+
+							if (memberType is VkEnum || memberType is VkFlag || memberType is VkHandle) {
+								val kglClass = kglClassMap.getValue(memberType.name)
+
+								addParameter(memberNameKt, kglClass.copy(nullable = member.optional))
+								val innerProp = if (memberType is VkHandle) "ptr" else "value"
+								addStatement(buildString {
+									append("target.")
+									append(member.name.escapeKt())
+									if (platform == Platform.JVM) {
+										append("(")
+										append(memberNameKt)
+										if (member.optional) append('?')
+										append('.')
+										append(innerProp)
+										if (member.optional && !(memberType is VkHandle && !memberType.isNonDispatchable)) {
+											append(" ?: 0")
+										}
+										append(')')
+									} else {
+										append(" = ")
+										append(memberNameKt)
+										if (member.optional) append('?')
+										append('.')
+										append(innerProp)
+										if (member.optional && memberType !is VkHandle) append(" ?: 0U")
+									}
+								})
+							}
+							if (memberType is VkPrimitive) {
+								if (isBlob) {
+									val lengthParamName = member.len.getOrNull(0)
+									val lengthParam = if (lengthParamName != null) {
+										struct.members.singleOrNull { it.name == lengthParamName }
+									} else {
+										null
+									}
+									val isOptional = member.optional || lengthParam?.optional == true
+									if (lengthParam != null) {
+										addParameter(memberNameKt, IO_BUFFER.copy(nullable = isOptional))
+
+										val assert = if (isOptional) "?" else ""
+										beginControlFlow("$memberNameKt$assert.readDirect {")
+										if (platform == Platform.JVM) {
+											addStatement("target.${member.name}(it)")
+										} else {
+											addStatement("target.${member.name} = it")
+											addStatement("target.${member.len[0]} = $memberNameKt.readRemaining.toULong()")
+											addStatement("$memberNameKt.readRemaining")
+										}
+										endControlFlow()
+									} else {
+										TODO("Cannot handle `void*` without length yet.")
+									}
+								} else if (isString) {
+									check(member.len[0] == NULL_TERMINATED) {
+										"DSL string fields must be null terminated."
+									}
+
+									val isOptional = member.optional
+									addParameter(memberNameKt, STRING.copy(nullable = isOptional))
+
+									val getValue = if (isOptional) {
+										"$memberNameKt?.%M()"
+									} else {
+										"$memberNameKt.%M()"
+									}
+									if (platform == Platform.JVM) {
+										addStatement("target.${member.name.escapeKt()}($getValue)", KglUtils.TO_VKTYPE)
+									} else {
+										addStatement("target.${member.name.escapeKt()} = $getValue", KglUtils.TO_VKTYPE)
+									}
+								} else {
+									addParameter(memberNameKt, memberType.nameClass)
+									addStatement(buildString {
+										append("target.")
+										append(member.name.escapeKt())
+										if (platform == Platform.JVM) {
+											append("(")
+											append(memberNameKt)
+											if (memberType.toJVMVkType.isNotBlank()) {
+												append('.')
+												append(memberType.toJVMVkType)
+											}
+											append(')')
+										} else {
+											append(" = ")
+											append(memberNameKt)
+											if (memberType.toNativeVkType.isNotBlank()) {
+												append('.')
+												append(memberType.toNativeVkType)
+											}
+										}
+									})
+								}
+							}
+							if (memberType is VkFuncPointer) TODO("Cannot handle function pointers yet.")
+						}
+					}
+				} catch (e: NotImplementedError) {
+					println("Skipping `${struct.name}` because ${e.message}.")
+					continue@structLoop
+				}
+
+				val builder = buildTypeSpec({ TypeSpec.classBuilder(structBuilderName) }) { platform ->
+					if (platform != Platform.COMMON) {
+						val vkStructClass = ClassName(if (platform == Platform.JVM) {
+							LWJGLVulkanPackage
+						} else {
+							"cvulkan"
+						}, struct.name)
+
+						primaryConstructor(FunSpec.constructorBuilder().addParameter("target", vkStructClass).build())
+						addProperty(PropertySpec.builder("target", vkStructClass, KModifier.INTERNAL).initializer("target").build())
+					} else {
+						addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
+					}
+
+					addFunction(when (platform) {
+						Platform.COMMON -> initFun.common
+						Platform.JVM -> initFun.jvm
+						Platform.NATIVE -> initFun.native
+					})
+				}.map { it.toBuilder() }
+
+				var requiredCount = 0
+
+				for (member in visibleMembers) {
+					if (member.name == "sType") continue
+
+					val memberType = vkTypeMap[member.type.name]
+					checkNotNull(memberType)
+
+					val memberNameKt = member.name
+							.replace("CreateInfo", "")
+							.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
+							.decapitalize()
+
+					if (memberType is VkStruct || memberType is VkUnion) {
+						val subBuilderName: String = memberType.name.removePrefix("Vk") + "Builder"
+						val commonParamss = structInits[memberType.name]
+						if (commonParamss == null) {
+							println("Skipping `${struct.name}` because ${memberType.name} was skipped.")
+							continue@structLoop
+						}
+						check(commonParamss.isNotEmpty())
+
+						val subBuilderTypeName = ClassName("com.kgl.vulkan.dsls", subBuilderName)
+
+						if (!member.type.count.isBlank()) {
+							for (commonParams in commonParamss) {
+								val hasLambda = commonParams.lastOrNull()?.let { it.type is LambdaTypeName } == true
+								val platformParams = commonParams.map {
+									ParameterSpec.builder(it.name, it.type, *it.modifiers.toTypedArray()).build()
+								}
+								val passedParams = platformParams.dropLast(if (hasLambda) 1 else 0)
+
+								for (i in 0 until member.type.count.toInt()) {
+									val functionName = memberNameKt.removeSuffix("s") + i
+									val function = buildFunSpec({ FunSpec.builder(functionName) }, auto = false) {
+										if (it == Platform.COMMON) {
+											addParameters(commonParams)
+										} else {
+											addParameters(platformParams)
+											addStatement(if (it == Platform.JVM) {
+												"val subTarget = target.${member.name}($i)"
+											} else {
+												"val subTarget = target.${member.name}[$i]"
+											})
+											addStatement("val builder = %T(subTarget)", subBuilderTypeName)
+											addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+											if (hasLambda) addStatement("builder.apply(block)")
+										}
+									}
+									builder.doForEach(function) { addFunction(it) }
+								}
+							}
+						} else {
+							if (member.type.asteriskCount > 0 && member.len.isNotEmpty() && member.len[0] != "1") {
+								val builderType = ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "sBuilder")
+								val subBuilderType = ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "Builder")
+
+								val lambdaTypeName = LambdaTypeName.get(builderType, returnType = UNIT)
+								val function = buildFunSpec({ FunSpec.builder(memberNameKt) }) {
+									addParameter("block", lambdaTypeName)
+
+									if (it == Platform.JVM) {
+										addStatement("val targets = %T().apply(block).targets", builderType)
+										addStatement(
+												"target.${member.name}(targets.%M(%T::callocStack, ::%T))",
+												KglUtils.MAP_TO_STACK_ARRAY,
+												ClassName(LWJGLVulkanPackage, member.type.name),
+												subBuilderType
+										)
+										// TODO: INIT JVM COUNT!!!!!
+									} else {
+										addStatement("val targets = %T().apply(block).targets", builderType)
+										addStatement("target.${member.name} = targets.%M(::%T)",
+												KglUtils.MAP_TO_STACK_ARRAY, subBuilderType)
+										val lengthParam = member.len.firstOrNull { it != NULL_TERMINATED }
+										if (lengthParam != null) {
+											addStatement("target.$lengthParam = targets.size.toUInt()")
+										}
+									}
+								}
+
+								builder.doForEach(function) { addFunction(it) }
+							} else {
+								for (commonParams in commonParamss) {
+									val hasLambda = commonParams.lastOrNull()?.let { it.type is LambdaTypeName } == true
+									val platformParams = commonParams.map {
+										ParameterSpec.builder(it.name, it.type, *it.modifiers.toTypedArray()).build()
+									}
+									val passedParams = platformParams.dropLast(if (hasLambda) 1 else 0)
+
+									val function = buildFunSpec({ FunSpec.builder(memberNameKt) }, auto = false) {
+										if (it == Platform.COMMON) {
+											addParameters(commonParams)
+										} else {
+											addParameters(platformParams)
+											if (member.type.asteriskCount == 0) {
+												addStatement(buildString {
+													append("val subTarget = target.")
+													append(member.name)
+													if (it == Platform.JVM) append("()")
+												})
+											} else if (it == Platform.JVM) {
+												addStatement("val subTarget = %T.callocStack()", ClassName(LWJGLVulkanPackage, member.type.name))
+												addStatement("target.${member.name}(subTarget)")
+											} else {
+												addStatement("val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
+														KtxC.ALLOC, ClassName("cvulkan", member.type.name))
+												addStatement("target.${member.name} = subTarget.%M", KtxC.PTR)
+											}
+
+											addStatement("val builder = %T(subTarget)", subBuilderTypeName)
+											addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+											if (hasLambda) addStatement("builder.apply(block)")
+										}
+									}
+									builder.doForEach(function) { addFunction(it) }
+								}
+							}
+						}
+
+						if (!member.optional) requiredCount++
+						continue
+					}
+					if (memberType is VkFuncPointer) {
+						println("Skipping `${struct.name}` because function pointer.")
+						continue@structLoop
+					}
+
+					if (member.type.count.isNotBlank()) {
+						if (memberType is VkPrimitive) {
+							val function = buildFunSpec({ FunSpec.builder(memberNameKt) }) {
+								for (i in 0 until member.type.count.toInt()) {
+									val argName = "arg$i"
+									addParameter(argName, memberType.nameClass)
+
+									if (it == Platform.JVM) {
+										addStatement("target.${member.name}($i, $argName)")
+									} else if (it == Platform.NATIVE) {
+										addStatement("target.${member.name}[$i] = $argName")
+									}
+								}
+							}
+
+							builder.doForEach(function) { addFunction(it) }
+							// if (!member.optional) requiredCount++
+							continue
+						} else {
+							println("Skipping `${struct.name}` because has non-primitve C-Style array member.")
+							continue@structLoop
+						}
+					}
+
+					val initRequested = structInitMembers[struct.name]?.contains(member.name) == true
+					val isString = member.type.asteriskCount == 1 && member.type.name == "char"
+					val isBlob = member.type.asteriskCount == 1 && member.type.name == "void"
+					val isCollection = member.type.asteriskCount > 0 && !isString && !isBlob
+					val mustInit = isCollection || isBlob || memberType is VkHandle
+
+					if (mustInit || initRequested) continue
+
+					if (memberType is VkFlag) {
+						// If there are no flagbits yet, skip generation.
+						if (memberType.requires == null) continue
+
+						val flagClassKt = kglClassMap.getValue(memberType.name)
+						val enumClassKt = kglClassMap.getValue(memberType.requires)
+						val property = buildPropertySpec({ PropertySpec.builder(memberNameKt, flagClassKt.copy(nullable = true)) }) {
+							mutable()
+							val getter = FunSpec.getterBuilder()
+							val setter = FunSpec.setterBuilder().addParameter("value", flagClassKt)
+							if (it == Platform.JVM) {
+								getter.addStatement("return %T.fromMultiple(target.${member.name}())", enumClassKt)
+								setter.addStatement("target.${member.name}(value?.value ?: 0)")
+							} else {
+								getter.addStatement("return %T.fromMultiple(target.${member.name})", enumClassKt)
+								setter.addStatement("target.${member.name} = value?.value ?: 0u")
+							}
+							getter(getter.build())
+							setter(setter.build())
+						}
+						builder.doForEach(property) { addProperty(it) }
+					}
+					if (memberType is VkEnum) {
+						val enumClassKt = kglClassMap.getValue(memberType.name)
+						val property = buildPropertySpec({ PropertySpec.builder(memberNameKt, enumClassKt.copy(nullable = true)) }) {
+							mutable()
+							val getter = FunSpec.getterBuilder()
+							val setter = FunSpec.setterBuilder().addParameter("value", enumClassKt)
+							if (it == Platform.JVM) {
+								getter.addStatement("return %T.from(target.${member.name}())", enumClassKt)
+								setter.addStatement("target.${member.name}(value?.value ?: 0)")
+							} else {
+								getter.addStatement("return %T.from(target.${member.name})", enumClassKt)
+								setter.addStatement("target.${member.name} = value?.value ?: 0u")
+							}
+							getter(getter.build())
+							setter(setter.build())
+						}
+						builder.doForEach(property) { addProperty(it) }
+					}
+					if (memberType is VkPrimitive) {
+						val property = if (member.type.asteriskCount == 1 && member.type.name == "char") {
+							buildPropertySpec({ PropertySpec.builder(memberNameKt, STRING.copy(nullable = true)) }) {
+								mutable()
+								val getter = FunSpec.getterBuilder()
+								val setter = FunSpec.setterBuilder().addParameter("value", STRING)
+								if (it == Platform.JVM) {
+									getter.addStatement("return target.${member.name.escapeKt()}String()")
+									setter.addStatement("target.${member.name.escapeKt()}(value?.%M())", KglUtils.TO_VKTYPE)
+								} else {
+									getter.addStatement("return target.${member.name.escapeKt()}?.%M()", KtxC.TO_KSTRING)
+									setter.addStatement("target.${member.name.escapeKt()} = value?.%M()", KglUtils.TO_VKTYPE)
+								}
+								getter(getter.build())
+								setter(setter.build())
+							}
+						} else {
+							val isVkVersion = typeOverrides["${struct.name}.${member.name}"] == "VkVersion"
+
+							val memberTypeKt = if (isVkVersion) VK_VERSION else memberType.nameClass
+
+							buildPropertySpec({ PropertySpec.builder(memberNameKt, memberTypeKt) }) { platform ->
+								mutable()
+								getter(FunSpec.getterBuilder().addStatement(buildString {
+									append("return ")
+									if (isVkVersion) append("VkVersion(")
+									append("target.")
+									append(member.name.escapeKt())
+									if (platform == Platform.JVM) append("()")
+									val vkType = memberType.run { if (platform == Platform.JVM) fromJVMVkType else fromNativeVkType }
+									if (vkType.isNotBlank()) {
+										append('.')
+										append(vkType)
+									}
+									if (isVkVersion) append(")")
+								}).build())
+								setter(FunSpec.setterBuilder().addParameter("value", memberTypeKt).addStatement(buildString {
+									append("target.")
+									append(member.name.escapeKt())
+									if (platform == Platform.JVM) append("(") else append(" = ")
+									append("value")
+									if (isVkVersion) append(".value")
+									val vkType = memberType.run { if (platform == Platform.JVM) toJVMVkType else toNativeVkType }
+									if (vkType.isNotBlank()) {
+										append('.')
+										append(vkType)
+									}
+									if (platform == Platform.JVM) append(")")
+								}).build())
+							}
+						}
+						builder.doForEach(property) { addProperty(it) }
+					}
+				}
+
+				val hasPNext = struct.members.any { it.name == "pNext" }
+
+				val initParams = initFun.common.parameters.mapTo(mutableListOf()) {
+					if (it.type.isNullable) it.toBuilder().defaultValue("null").build() else it
+				}
+				val lambdaType = LambdaTypeName.get(ClassName("com.kgl.vulkan.dsls", structBuilderName), returnType = UNIT)
+				if (requiredCount > 0) {
+					initParams.add(ParameterSpec.builder("block", lambdaType).build())
+				} else if (hasPNext || builder.common.propertySpecs.isNotEmpty() || builder.common.funSpecs.count { it.name != "init" } > 0) {
+					initParams.add(ParameterSpec.builder("block", lambdaType).defaultValue("{}").build())
+				}
+
+				structInits.putIfAbsent(struct.name, listOf(initParams))
+
+				FileSpec.get("com.kgl.vulkan.dsls", builder.common.build()).writeTo(commonDir.get().asFile)
+				FileSpec.get("com.kgl.vulkan.dsls", builder.jvm.build()).writeTo(jvmDir.get().asFile)
+				FileSpec.builder("com.kgl.vulkan.dsls", structBuilderName)
+						.addType(builder.native.build())
+						.addImport("com.kgl.vulkan.utils", "toVkBool")
+						.addImport("com.kgl.vulkan.utils", "toBoolean")
+						.addImport("kotlinx.cinterop", "get")
+						.addImport("kotlinx.cinterop", "set")
+						.build()
+						.writeTo(nativeDir.get().asFile)
+			}
+
+			for (structName in requiredArrayBuilders) {
+				val commonParamss = structInits[structName] ?: continue
+				if (commonParamss.isEmpty()) continue
+
+				val structBuilderClass = ClassName("com.kgl.vulkan.dsls", structName.removePrefix("Vk") + "Builder")
+
+				val extension = extensionInvMap[structName]
+				val cleanStructName = (if (extension != null) {
+					structName.removeSuffix(extension.author)
+				} else {
+					structName
+				}).removeSuffix("CreateInfo")
+
+				val functionName = run {
+					val startIndex = cleanStructName.dropLastWhile { it.isDigit() || it.isUpperCase() }
+							.indexOfLast { it.isUpperCase() }
+					check(startIndex >= 0) { "Cannot name $structName for struct array builder function." }
+
+					cleanStructName.substring(startIndex).decapitalize()
+				}
+
+				val builder = with(TypeSpec.classBuilder(structName.removePrefix("Vk") + "sBuilder")) {
+					val lamdaType = LambdaTypeName.get(parameters = *arrayOf(structBuilderClass), returnType = UNIT)
+					addProperty(PropertySpec.builder("targets", MUTABLE_LIST.parameterizedBy(lamdaType), KModifier.INTERNAL)
+							.initializer("mutableListOf()").build())
+					addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
+
+					for (commonParams in commonParamss) {
+						val hasLambda = commonParams.lastOrNull()?.let { it.type is LambdaTypeName } == true
+						val platformParams = commonParams.map {
+							ParameterSpec.builder(it.name, it.type, *it.modifiers.toTypedArray()).build()
+						}
+						val passedParams = platformParams.dropLast(if (hasLambda) 1 else 0)
+
+						addFunction(FunSpec.builder(functionName).run {
+							addParameters(commonParams)
+
+							beginControlFlow("targets += {")
+							addStatement(passedParams.joinToString(", ", prefix = "it.init(", postfix = ")") { it.name })
+							if (hasLambda) addStatement("it.apply(block)")
+							endControlFlow()
+							build()
+						})
+					}
+					build()
+				}
+
+				FileSpec.get("com.kgl.vulkan.dsls", builder).writeTo(commonDir.get().asFile)
+			}
+		}
+
 		generateDispatchTables()
 		generateEnums()
 		generateAPIConstants()
 		generateExceptions()
 		generateOutputStructs()
+		generateInputStructBuilders()
 	}
 }

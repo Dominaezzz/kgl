@@ -16,6 +16,7 @@
 package codegen.vulkan
 
 import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.MemberName
 
 
 val VK_ENUM = ClassName("com.kgl.vulkan.utils", "VkEnum")
@@ -24,9 +25,15 @@ val VK_HANDLE = ClassName("com.kgl.vulkan.utils", "VkHandle")
 val VK_HANDLE_JVM = ClassName("com.kgl.vulkan.utils", "VkHandleJVM")
 val VK_HANDLE_NATIVE = ClassName("com.kgl.vulkan.utils", "VkHandleNative")
 val VK_VERSION = ClassName("com.kgl.vulkan.utils", "VkVersion")
+val STRUCT_MARKER = ClassName("com.kgl.vulkan.utils", "StructMarker")
 
 val BASE_OUT_STRUCTURE = ClassName("com.kgl.vulkan.structs", "BaseOutStructure")
 
 const val LWJGLVulkanPackage = "org.lwjgl.vulkan"
 val VK10 = ClassName(LWJGLVulkanPackage, "VK10")
 val VK11 = ClassName(LWJGLVulkanPackage, "VK11")
+
+object KglUtils {
+	val TO_VKTYPE = MemberName("com.kgl.vulkan.utils", "toVkType")
+	val MAP_TO_STACK_ARRAY = MemberName("com.kgl.vulkan.utils", "mapToStackArray")
+}

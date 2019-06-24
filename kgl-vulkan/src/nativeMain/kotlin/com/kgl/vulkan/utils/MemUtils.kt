@@ -46,7 +46,7 @@ internal inline fun <reified U : CPointed, reified T : CPointer<U>> Collection<V
 	return mapToCArray(scope) { value = it.ptr }
 }
 
-internal inline fun <reified U : CPointed, reified T : CPointer<U>> Array<in VkHandleNative<T>>.mapToCArray(scope: NativePlacement): CArrayPointer<CPointerVar<U>> {
+internal inline fun <reified U : CPointed, reified T : CPointer<U>> Array<VkHandleNative<T>>.mapToCArray(scope: NativePlacement): CArrayPointer<CPointerVar<U>> {
 	return mapToCArray(scope) { value = it.ptr }
 }
 

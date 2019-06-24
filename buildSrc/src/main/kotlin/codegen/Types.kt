@@ -36,10 +36,14 @@ internal val ARRAY = ClassName("kotlin", "Array")
 internal val COLLECTION = ClassName("kotlin.collections", "Collection")
 internal val LIST = ClassName("kotlin.collections", "List")
 internal val MUTABLE_LIST = ClassName("kotlin.collections", "MutableList")
+internal val PAIR = ClassName("kotlin", "Pair")
 
 internal val MEMORY_STACK = ClassName("org.lwjgl.system", "MemoryStack")
 
 object KtxC {
 	val REINTERPRET = MemberName("kotlinx.cinterop", "reinterpret")
 	val POINTED = MemberName("kotlinx.cinterop", "pointed")
+	val PTR = MemberName("kotlinx.cinterop", "ptr")
+	val TO_KSTRING = MemberName("kotlinx.cinterop", "toKString")
+	val ALLOC = MemberName("kotlinx.cinterop", "alloc")
 }

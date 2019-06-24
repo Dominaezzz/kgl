@@ -19,9 +19,7 @@ package com.kgl.vulkan.utils
 
 import com.kgl.core.VirtualStack
 import cvulkan.VkBool32
-import cvulkan.VkClearValue
 import kotlinx.cinterop.*
-import kotlinx.io.core.IoBuffer
 
 
 internal inline fun Boolean.toVkType(): VkBool32 = this.toVkBool()
@@ -52,16 +50,6 @@ internal inline fun UShortArray.toVkType(): CPointer<UShortVar> = refTo(0).getPo
 internal inline fun UIntArray.toVkType(): CPointer<UIntVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
 internal inline fun ULongArray.toVkType(): CPointer<ULongVar> = refTo(0).getPointer(VirtualStack.currentFrame!!)
 
-internal inline fun IoBuffer.toVkType(): COpaquePointer {
-	TODO("Needs to be redesigned")
-	var buffer: COpaquePointer? = null
-	readDirect {
-		buffer = it
-		readRemaining
-	}
-	return buffer ?: throw Error("Could not read directly from IOBuffer")
-}
-
 internal inline fun String.toVkType(): CPointer<ByteVar> = cstr.getPointer(VirtualStack.currentFrame!!)
 internal inline fun String?.toVkType(): CPointer<ByteVar>? = this?.toVkType()
 internal inline fun Array<String>.toVkType(): CPointer<CPointerVar<ByteVar>> {
@@ -91,10 +79,15 @@ internal inline fun <reified U : CPointed, reified T : CPointer<U>> Collection<V
 	return mapToCArray(VirtualStack) { value = it.ptr }
 }
 
-internal inline fun <reified U : CPointed, reified T : CPointer<U>> Array<in VkHandleNative<T>>.toVkType(): CArrayPointer<CPointerVar<U>> {
+internal inline fun <reified U : CPointed, reified T : CPointer<U>> Array<VkHandleNative<T>>.toVkType(): CArrayPointer<CPointerVar<U>> {
 	return mapToCArray(VirtualStack) { value = it.ptr }
 }
 
-internal inline fun <reified T : CVariable> List<T.() -> Unit>.mapToStackArray(): CArrayPointer<T> {
-	return mapToCArray(VirtualStack) { it() }
+internal inline fun <reified TStruct : CVariable, TBuilder> List<(TBuilder) -> Unit>.mapToStackArray(createBuilder: (TStruct) -> TBuilder): CArrayPointer<TStruct> {
+	return mapToCArray(VirtualStack) { it(createBuilder(this)) }
+}
+
+internal inline fun <reified TStruct : CVariable, TBuilder> List<(TBuilder) -> Unit>.mapToJaggedArray(createBuilder: (TStruct) -> TBuilder): CArrayPointer<CPointerVar<TStruct>> {
+	val array = mapToStackArray(createBuilder)
+	return VirtualStack.allocArray(size) { value = array[it].ptr }
 }

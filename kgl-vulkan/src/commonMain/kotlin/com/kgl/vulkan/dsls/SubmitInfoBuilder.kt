@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.enums.PipelineStage
+import com.kgl.vulkan.handles.CommandBuffer
+import com.kgl.vulkan.handles.Semaphore
+import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.utils.VkFlag
 
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
-
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
-
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
+@StructMarker
+expect class SubmitInfoBuilder {
+	internal fun init(
+			waitSemaphores: Collection<Pair<Semaphore, VkFlag<PipelineStage>>>?,
+			commandBuffers: Collection<CommandBuffer>?,
+			signalSemaphores: Collection<Semaphore>?
+	)
 }
-

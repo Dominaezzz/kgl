@@ -1,0 +1,33 @@
+{
+  "VkAccelerationStructureMemoryRequirementsInfoNV" : ["type", "accelerationStructure"],
+  "VkDeviceQueueCreateInfo" : ["queueFamilyIndex"],
+  "VkCommandPoolCreateInfo" : ["queueFamilyIndex"],
+  "VkCommandBufferAllocateInfo" : ["level", "commandBufferCount"],
+  "VkPipelineShaderStageCreateInfo" : ["stage", "pName"],
+  "VkImageViewCreateInfo" : ["viewType", "format"],
+  "VkBufferViewCreateInfo" : ["buffer", "format", "offset", "range"],
+  "VkDescriptorPoolCreateInfo" : ["maxSets"],
+
+  "VkPushConstantRange" : ["stageFlags", "offset", "size"],
+  "VkMappedMemoryRange" : ["memory", "offset", "size"],
+  "VkSpecializationMapEntry" : ["constantID", "offset", "size"],
+  "VkBufferCopy" : [""],
+  "VkDescriptorPoolSize" : ["type", "descriptorCount"],
+
+  "VkVertexBindingDescription" : [],
+  "VkVertexAttributeDescription" : [],
+  "VkVertexInputAttributeDescription" : ["location", "binding", "format", "offset"],
+
+  "VkDescriptorImageInfo" : ["sampler", "imageView", "imageLayout"],
+  "VkDescriptorBufferInfo" : ["buffer", "offset", "range"],
+  "VkBufferMemoryBarrier" : ["buffer", "offset", "size"],
+  "VkIndirectCommandsTokenNVX" : ["tokenType", "buffer", "offset"],
+  "VkRectLayerKHR" : [],
+  "VkConditionalRenderingBeginInfoEXT" : ["buffer", "offset", "flags"],
+  "VkOffset2D" : ["x", "y"],
+  "VkOffset3D" : ["x", "y", "z"],
+  "VkExtent2D" : ["width", "height"],
+  "VkExtent3D" : ["width", "height", "depth"],
+  "VkClearDepthStencilValue" : ["depth", "stencil"],
+  "VkXYColorEXT" : ["x", "y"]
+}

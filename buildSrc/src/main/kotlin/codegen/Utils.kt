@@ -22,6 +22,11 @@ internal fun getTypeDeclRegex(type: String, name: String) : Regex {
 	return Regex("""^(const )?(?:struct )?($type)\s*(\*(?:(?:\s?const)?\*)?)?\s*$name(?:\[([0-9]+|[A-Z_]+)])?$""")
 }
 
+internal fun String.escapeKt(): String = when (this) {
+	"object" -> "`object`"
+	else -> this
+}
+
 internal fun toType(typeDecl: String, type: String, name: String): CTypeDecl {
 	val matchResult = getTypeDeclRegex(type, name).matchEntire(typeDecl) ?: TODO("$typeDecl failed TypeDecl regex")
 	val (const, actualType, stars, count) = matchResult.destructured

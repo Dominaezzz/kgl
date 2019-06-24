@@ -13,17 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.utils
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
-
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
-
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
-
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
-}
-
+@DslMarker
+annotation class StructMarker

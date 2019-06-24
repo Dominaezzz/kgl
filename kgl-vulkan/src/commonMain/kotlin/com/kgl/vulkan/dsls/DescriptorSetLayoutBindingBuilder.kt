@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.enums.DescriptorType
+import com.kgl.vulkan.enums.ShaderStage
+import com.kgl.vulkan.handles.Sampler
+import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.utils.VkFlag
 
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
+@StructMarker
+expect class DescriptorSetLayoutBindingBuilder {
+	var binding: UInt
 
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
+	var descriptorType: DescriptorType?
 
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
+	var stageFlags: VkFlag<ShaderStage>?
+
+	internal fun init(immutableSamplers: Collection<Sampler>)
+
+	internal fun init(descriptorCount: UInt)
 }
-

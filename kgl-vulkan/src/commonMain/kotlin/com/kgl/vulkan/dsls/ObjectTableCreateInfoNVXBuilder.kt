@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
 import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.enums.ObjectEntryUsageNVX
+import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.utils.VkFlag
 
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
+@StructMarker
+expect class ObjectTableCreateInfoNVXBuilder {
+	var maxUniformBuffersPerDescriptor: UInt
 
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
+	var maxStorageBuffersPerDescriptor: UInt
 
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
+	var maxStorageImagesPerDescriptor: UInt
+
+	var maxSampledImagesPerDescriptor: UInt
+
+	var maxPipelineLayouts: UInt
+
+	internal fun init(
+			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+			objectEntryCounts: UIntArray,
+			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>
+	)
 }
-

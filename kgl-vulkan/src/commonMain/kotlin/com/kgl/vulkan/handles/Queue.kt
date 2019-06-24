@@ -15,10 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.vulkan.dsls.BindSparseInfosBuilder
 import com.kgl.vulkan.dsls.DebugUtilsLabelEXTBuilder
 import com.kgl.vulkan.dsls.PresentInfoKHRBuilder
-import com.kgl.vulkan.dsls.QueueBindSparseBuilder
-import com.kgl.vulkan.dsls.QueueSubmitBuilder
+import com.kgl.vulkan.dsls.SubmitInfosBuilder
 import com.kgl.vulkan.structs.CheckpointDataNV
 import com.kgl.vulkan.utils.VkHandle
 
@@ -28,13 +28,13 @@ expect class Queue : VkHandle {
 
 	val checkpointDataNV: List<CheckpointDataNV>
 
-	fun submit(fence: Fence?, block: QueueSubmitBuilder.() -> Unit)
+	fun submit(fence: Fence?, block: SubmitInfosBuilder.() -> Unit)
 
 	fun presentKHR(swapchains: Collection<Pair<SwapchainKHR, UInt>>, waitSemaphores: Collection<Semaphore>? = null, block: PresentInfoKHRBuilder.() -> Unit = {}): Boolean
 
 	fun waitIdle()
 
-	fun bindSparse(fence: Fence?, block: QueueBindSparseBuilder.() -> Unit)
+	fun bindSparse(fence: Fence?, block: BindSparseInfosBuilder.() -> Unit)
 
 	fun beginDebugUtilsLabelEXT(block: DebugUtilsLabelEXTBuilder.() -> Unit = {})
 

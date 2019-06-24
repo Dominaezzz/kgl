@@ -41,11 +41,13 @@ actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descrip
 	}
 
 	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer) {
-		TODO()
 		VirtualStack.push()
 		try {
-			dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
-					descriptorUpdateTemplate.toVkType(), data.toVkType())
+			data.readDirect {
+				dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
+						descriptorUpdateTemplate.toVkType(), it)
+				data.readRemaining
+			}
 		} finally {
 			VirtualStack.pop()
 		}

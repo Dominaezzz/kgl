@@ -13,17 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.enums.DebugReportEXT
+import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
+import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.utils.VkFlag
 
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
+typealias DebugReportCallbackEXT = (
+		flags: VkFlag<DebugReportEXT>,
+		objectType: DebugReportObjectTypeEXT,
+		`object`: ULong,
+		location: ULong,
+		messageCode: Int,
+		layerPrefix: String,
+		message: String
+) -> Unit
 
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
+@StructMarker
+expect class DebugReportCallbackCreateInfoEXTBuilder {
+	var flags: VkFlag<DebugReportEXT>?
 
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
+	fun callback(callback: DebugReportCallbackEXT)
+
+	internal fun init()
 }
-

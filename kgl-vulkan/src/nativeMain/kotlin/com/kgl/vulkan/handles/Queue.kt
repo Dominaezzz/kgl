@@ -16,10 +16,7 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.DebugUtilsLabelEXTBuilder
-import com.kgl.vulkan.dsls.PresentInfoKHRBuilder
-import com.kgl.vulkan.dsls.QueueBindSparseBuilder
-import com.kgl.vulkan.dsls.QueueSubmitBuilder
+import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.structs.CheckpointDataNV
 import com.kgl.vulkan.structs.from
 import com.kgl.vulkan.utils.*
@@ -50,12 +47,12 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		TODO()
 	}
 
-	actual fun submit(fence: Fence?, block: QueueSubmitBuilder.() -> Unit) {
+	actual fun submit(fence: Fence?, block: SubmitInfosBuilder.() -> Unit) {
 		val queue = this
 		VirtualStack.push()
 		try {
-			val targets = QueueSubmitBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray()
+			val targets = SubmitInfosBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(::SubmitInfoBuilder)
 			val result = dispatchTable.vkQueueSubmit(queue.toVkType(), targets.size.toUInt(), targetArray,
 					fence.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)
@@ -94,12 +91,12 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		}
 	}
 
-	actual fun bindSparse(fence: Fence?, block: QueueBindSparseBuilder.() -> Unit) {
+	actual fun bindSparse(fence: Fence?, block: BindSparseInfosBuilder.() -> Unit) {
 		val queue = this
 		VirtualStack.push()
 		try {
-			val targets = QueueBindSparseBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray()
+			val targets = BindSparseInfosBuilder().apply(block).targets
+			val targetArray = targets.mapToStackArray(::BindSparseInfoBuilder)
 			val result = dispatchTable.vkQueueBindSparse(queue.toVkType(), targets.size.toUInt(), targetArray,
 					fence.toVkType())
 			if (result != VK_SUCCESS) handleVkResult(result)

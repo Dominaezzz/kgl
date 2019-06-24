@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.handles
+package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.toVkType
+import org.lwjgl.vulkan.VK11
+import org.lwjgl.vulkan.VkShaderModuleCreateInfo
 
-expect class ObjectTableNVX : VkHandle {
-	val device: Device
-
-	fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit)
-
-	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
+actual class ShaderModuleCreateInfoBuilder(internal val target: VkShaderModuleCreateInfo) {
+	internal actual fun init(code: UByteArray) {
+		target.sType(VK11.VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO)
+		target.pNext(0)
+		target.flags(0)
+		target.pCode(code.toVkType())
+	}
 }
-

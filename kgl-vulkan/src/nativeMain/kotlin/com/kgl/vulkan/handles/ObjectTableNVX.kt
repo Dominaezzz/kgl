@@ -16,7 +16,8 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.RegisterObjectsNVXBuilder
+import com.kgl.vulkan.dsls.ObjectTableEntryNVXBuilder
+import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
 import com.kgl.vulkan.enums.ObjectEntryTypeNVX
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_SUCCESS
@@ -37,17 +38,16 @@ actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val devic
 		}
 	}
 
-	actual fun registerObjects(objectIndices: UIntArray, block: RegisterObjectsNVXBuilder.() -> Unit) {
-		TODO()
+	actual fun registerObjects(objectIndices: UIntArray, block: ObjectTableEntryNVXsBuilder.() -> Unit) {
 		val objectTable = this
 		val device = objectTable.device
 		VirtualStack.push()
 		try {
-			val targets = RegisterObjectsNVXBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray()
-//			val result = dispatchTable.vkRegisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
-//					targets.size.toUInt(), targetArray, objectIndices.toVkType())
-//			if (result != VK_SUCCESS) handleVkResult(result)
+			val targets = ObjectTableEntryNVXsBuilder().apply(block).targets
+			val targetArray = targets.mapToJaggedArray(::ObjectTableEntryNVXBuilder)
+			val result = dispatchTable.vkRegisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
+					targets.size.toUInt(), targetArray, objectIndices.toVkType())
+			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}

@@ -17,7 +17,6 @@
  */
 package com.kgl.vulkan.utils
 
-import kotlinx.io.core.IoBuffer
 import org.lwjgl.PointerBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.Pointer
@@ -130,15 +129,6 @@ internal inline fun <reified T : Pointer> VkHandleJVM<T>.toVkType(): T = ptr
 
 internal inline fun VkHandleJVM<Long>?.toVkType(): Long = this?.ptr ?: 0
 
-internal inline fun IoBuffer.toVkType(): ByteBuffer {
-	TODO("Needs to be redesigned!")
-	var buffer: ByteBuffer? = null
-	readDirect {
-		buffer = it
-	}
-	return buffer ?: throw Error("Could not read directly from IOBuffer")
-}
-
 @JvmName("toNativeType__")
 internal inline fun <reified T : Pointer> Collection<VkHandleJVM<T>>.toVkType(): PointerBuffer {
 	return MemoryStack.stackGet().mallocPointer(size).also {
@@ -159,12 +149,21 @@ internal inline fun <reified T : Pointer> Array<out VkHandleJVM<T>>.toVkType(): 
 	}
 }
 
-internal inline fun <reified T : Struct, reified TBuffer : StructBuffer<T, TBuffer>> Collection<(T) -> Unit>.mapToStackArray(
-		mallocStack: (Int, MemoryStack) -> TBuffer
+internal inline fun <reified TStruct : Struct, reified TBuffer : StructBuffer<TStruct, TBuffer>, TBuilder> Collection<(TBuilder) -> Unit>.mapToStackArray(
+		mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
 ): TBuffer {
 	return mallocStack(size, MemoryStack.stackGet()).also {
 		forEachIndexed { index, item ->
-			item(it[index])
+			item(createBuilder(it[index]))
 		}
 	}
+}
+
+internal inline fun <reified TStruct : Struct, reified TBuffer : StructBuffer<TStruct, TBuffer>, TBuilder> Collection<(TBuilder) -> Unit>.mapToJaggedArray(
+		mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
+): PointerBuffer {
+	val array = mapToStackArray(mallocStack, createBuilder)
+	val result = MemoryStack.stackGet().mallocPointer(size)
+	for (i in indices) result.put(i, array[i])
+	return result
 }

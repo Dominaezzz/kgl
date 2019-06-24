@@ -18,6 +18,7 @@ package codegen.vulkan
 import codegen.CTypeDecl
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
+import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.TypeSpec
 
 
@@ -36,6 +37,32 @@ fun buildTypeSpec(init: () -> TypeSpec.Builder, block: TypeSpec.Builder.(platfor
 			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build(),
 			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
 	)
+}
+
+fun buildFunSpec(init: () -> FunSpec.Builder, auto: Boolean = true, block: FunSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<FunSpec> {
+	val jvm = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build()
+	val native = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
+
+	val commonBuilder = init().addModifiers(KModifier.EXPECT)
+	if (auto) {
+		commonBuilder.addParameters(native.parameters)
+		native.receiverType?.also(commonBuilder::receiver)
+		native.returnType?.also(commonBuilder::returns)
+		commonBuilder.addModifiers(native.modifiers - KModifier.ACTUAL)
+	} else {
+		commonBuilder.block(Platform.COMMON)
+	}
+	return MultiPlatform(commonBuilder.build(), jvm, native)
+}
+
+fun buildPropertySpec(init: () -> PropertySpec.Builder, block: PropertySpec.Builder.(platform: Platform) -> Unit): MultiPlatform<PropertySpec> {
+	val jvm = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build()
+	val native = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
+
+	val commonBuilder = init().addModifiers(KModifier.EXPECT)
+	commonBuilder.mutable(native.mutable)
+
+	return MultiPlatform(commonBuilder.build(), jvm, native)
 }
 
 fun buildPlatformFunction(init: () -> FunSpec.Builder, block: FunSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<FunSpec?> {

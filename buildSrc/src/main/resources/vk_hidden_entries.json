@@ -3,5 +3,7 @@
   "VK_COLORSPACE_SRGB_NONLINEAR_KHR",
   "VkPhysicalDeviceMemoryProperties.memoryTypeCount",
   "VkPhysicalDeviceMemoryProperties.memoryHeapCount",
-  "VkPhysicalDeviceGroupProperties.physicalDeviceCount"
+  "VkPhysicalDeviceGroupProperties.physicalDeviceCount",
+  "VkDescriptorSetLayoutBinding",
+  "VkShaderModuleCreateInfo"
 ]

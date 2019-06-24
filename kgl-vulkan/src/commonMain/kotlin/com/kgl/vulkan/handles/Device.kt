@@ -38,9 +38,9 @@ expect class Device : VkHandle {
 
 	fun allocateMemory(block: MemoryAllocateInfoBuilder.() -> Unit = {}): DeviceMemory
 
-	fun flushMappedMemoryRanges(block: FlushMappedMemoryRangesBuilder.() -> Unit)
+	fun flushMappedMemoryRanges(block: MappedMemoryRangesBuilder.() -> Unit)
 
-	fun invalidateMappedMemoryRanges(block: InvalidateMappedMemoryRangesBuilder.() -> Unit)
+	fun invalidateMappedMemoryRanges(block: MappedMemoryRangesBuilder.() -> Unit)
 
 	fun createFence(block: FenceCreateInfoBuilder.() -> Unit = {}): Fence
 
@@ -64,11 +64,11 @@ expect class Device : VkHandle {
 
 	fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>? = null, block: PipelineLayoutCreateInfoBuilder.() -> Unit = {}): PipelineLayout
 
-	fun createGraphicsPipelines(pipelineCache: PipelineCache? = null, block: CreateGraphicsPipelinesBuilder.() -> Unit): List<Pipeline>
+	fun createGraphicsPipelines(pipelineCache: PipelineCache? = null, block: GraphicsPipelineCreateInfosBuilder.() -> Unit): List<Pipeline>
 
-	fun createComputePipelines(pipelineCache: PipelineCache? = null, block: CreateComputePipelinesBuilder.() -> Unit): List<Pipeline>
+	fun createComputePipelines(pipelineCache: PipelineCache? = null, block: ComputePipelineCreateInfosBuilder.() -> Unit): List<Pipeline>
 
-	fun createRayTracingPipelinesNV(pipelineCache: PipelineCache? = null, block: CreateRayTracingPipelinesNVBuilder.() -> Unit): List<Pipeline>
+	fun createRayTracingPipelinesNV(pipelineCache: PipelineCache? = null, block: RayTracingPipelineCreateInfoNVsBuilder.() -> Unit): List<Pipeline>
 
 	fun createSampler(block: SamplerCreateInfoBuilder.() -> Unit = {}): Sampler
 
@@ -114,13 +114,13 @@ expect class Device : VkHandle {
 
 	fun getGroupPeerMemoryFeatures(heapIndex: UInt, localDeviceIndex: UInt, remoteDeviceIndex: UInt): VkFlag<PeerMemoryFeature>
 
-	fun bindBufferMemory2(block: BindBufferMemory2Builder.() -> Unit)
+	fun bindBufferMemory2(block: BindBufferMemoryInfosBuilder.() -> Unit)
 
-	fun bindImageMemory2(block: BindImageMemory2Builder.() -> Unit)
+	fun bindImageMemory2(block: BindImageMemoryInfosBuilder.() -> Unit)
 
 	fun getGroupSurfacePresentModesKHR(surface: SurfaceKHR): VkFlag<DeviceGroupPresentModeKHR>
 
-	fun setHdrMetadataEXT(swapchains: Collection<SwapchainKHR>, block: SetHdrMetadataEXTBuilder.() -> Unit)
+	fun setHdrMetadataEXT(swapchains: Collection<SwapchainKHR>, block: HdrMetadataEXTsBuilder.() -> Unit)
 
 	fun createSamplerYcbcrConversion(block: SamplerYcbcrConversionCreateInfoBuilder.() -> Unit): SamplerYcbcrConversion
 
@@ -134,13 +134,13 @@ expect class Device : VkHandle {
 
 	fun setDebugUtilsObjectTagEXT(tag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
 
-	fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: IoBuffer): MemoryHostPointerPropertiesEXT
+	fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: Long): MemoryHostPointerPropertiesEXT
 
 	fun createRenderPass2KHR(correlatedViewMasks: UIntArray, block: RenderPassCreateInfo2KHRBuilder.() -> Unit): RenderPass
 
 	fun createAccelerationStructureNV(block: AccelerationStructureCreateInfoNVBuilder.() -> Unit): AccelerationStructureNV
 
-	fun bindAccelerationStructureMemoryNV(block: BindAccelerationStructureMemoryNVBuilder.() -> Unit)
+	fun bindAccelerationStructureMemoryNV(block: BindAccelerationStructureMemoryInfoNVsBuilder.() -> Unit)
 
 	fun updateDescriptorSets(block: UpdateDescriptorSetsBuilder.() -> Unit)
 }

@@ -32,9 +32,9 @@ expect class CommandBuffer : VkHandle {
 
 	fun bindPipeline(pipelineBindPoint: PipelineBindPoint, pipeline: Pipeline)
 
-	fun setViewport(firstViewport: UInt, block: CmdSetViewportBuilder.() -> Unit)
+	fun setViewport(firstViewport: UInt, block: ViewportsBuilder.() -> Unit)
 
-	fun setScissor(firstScissor: UInt, block: CmdSetScissorBuilder.() -> Unit)
+	fun setScissor(firstScissor: UInt, block: Rect2DsBuilder.() -> Unit)
 
 	fun setLineWidth(lineWidth: Float)
 
@@ -80,9 +80,9 @@ expect class CommandBuffer : VkHandle {
 
 	fun dispatchIndirect(buffer: Buffer, offset: ULong)
 
-	fun copyBuffer(srcBuffer: Buffer, dstBuffer: Buffer, block: CmdCopyBufferBuilder.() -> Unit)
+	fun copyBuffer(srcBuffer: Buffer, dstBuffer: Buffer, block: BufferCopysBuilder.() -> Unit)
 
-	fun copyImage(srcImage: Image, srcImageLayout: ImageLayout, dstImage: Image, dstImageLayout: ImageLayout, block: CmdCopyImageBuilder.() -> Unit)
+	fun copyImage(srcImage: Image, srcImageLayout: ImageLayout, dstImage: Image, dstImageLayout: ImageLayout, block: ImageCopysBuilder.() -> Unit)
 
 	fun blitImage(
 			srcImage: Image,
@@ -90,12 +90,12 @@ expect class CommandBuffer : VkHandle {
 			dstImage: Image,
 			dstImageLayout: ImageLayout,
 			filter: Filter,
-			block: CmdBlitImageBuilder.() -> Unit
+			block: ImageBlitsBuilder.() -> Unit
 	)
 
-	fun copyBufferToImage(srcBuffer: Buffer, dstImage: Image, dstImageLayout: ImageLayout, block: CmdCopyBufferToImageBuilder.() -> Unit)
+	fun copyBufferToImage(srcBuffer: Buffer, dstImage: Image, dstImageLayout: ImageLayout, block: BufferImageCopysBuilder.() -> Unit)
 
-	fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: CmdCopyImageToBufferBuilder.() -> Unit)
+	fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: BufferImageCopysBuilder.() -> Unit)
 
 	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: IoBuffer)
 
@@ -106,12 +106,12 @@ expect class CommandBuffer : VkHandle {
 			srcImageLayout: ImageLayout,
 			dstImage: Image,
 			dstImageLayout: ImageLayout,
-			block: CmdResolveImageBuilder.() -> Unit
+			block: ImageResolvesBuilder.() -> Unit
 	)
 
-	fun pipelineBarrier(srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, dependencies: VkFlag<Dependency>? = null, block: MemoryBarriersBuilder.() -> Unit)
+	fun pipelineBarrier(srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, dependencies: VkFlag<Dependency>? = null, block: BarrierBuilder.() -> Unit)
 
-	fun waitEvents(events: Collection<Event>, srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, block: MemoryBarriersBuilder.() -> Unit)
+	fun waitEvents(events: Collection<Event>, srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, block: BarrierBuilder.() -> Unit)
 
 	fun setEvent(event: Event, stageMask: VkFlag<PipelineStage>)
 
@@ -207,7 +207,7 @@ expect class CommandBuffer : VkHandle {
 			pipelineBindPoint: PipelineBindPoint,
 			layout: PipelineLayout,
 			set: UInt,
-			block: CmdPushDescriptorSetKHRBuilder.() -> Unit
+			block: WriteDescriptorSetsBuilder.() -> Unit
 	)
 
 	fun setDeviceMask(deviceMask: UInt)
@@ -228,9 +228,9 @@ expect class CommandBuffer : VkHandle {
 			data: IoBuffer
 	)
 
-	fun setViewportWScalingNV(firstViewport: UInt, block: CmdSetViewportWScalingNVBuilder.() -> Unit)
+	fun setViewportWScalingNV(firstViewport: UInt, block: ViewportWScalingNVsBuilder.() -> Unit)
 
-	fun setDiscardRectangleEXT(firstDiscardRectangle: UInt, block: CmdSetDiscardRectangleEXTBuilder.() -> Unit)
+	fun setDiscardRectangleEXT(firstDiscardRectangle: UInt, block: Rect2DsBuilder.() -> Unit)
 
 	fun setSampleLocationsEXT(block: SampleLocationsInfoEXTBuilder.() -> Unit)
 
@@ -305,13 +305,13 @@ expect class CommandBuffer : VkHandle {
 			vertexStride: UInt
 	)
 
-	fun setExclusiveScissorNV(firstExclusiveScissor: UInt, block: CmdSetExclusiveScissorNVBuilder.() -> Unit)
+	fun setExclusiveScissorNV(firstExclusiveScissor: UInt, block: Rect2DsBuilder.() -> Unit)
 
 	fun bindShadingRateImageNV(imageView: ImageView, imageLayout: ImageLayout)
 
-	fun setViewportShadingRatePaletteNV(firstViewport: UInt, block: CmdSetViewportShadingRatePaletteNVBuilder.() -> Unit)
+	fun setViewportShadingRatePaletteNV(firstViewport: UInt, block: ShadingRatePaletteNVsBuilder.() -> Unit)
 
-	fun setCoarseSampleOrderNV(sampleOrderType: CoarseSampleOrderTypeNV, block: CmdSetCoarseSampleOrderNVBuilder.() -> Unit)
+	fun setCoarseSampleOrderNV(sampleOrderType: CoarseSampleOrderTypeNV, block: CoarseSampleOrderCustomNVsBuilder.() -> Unit)
 
 	fun drawMeshTasksNV(taskCount: UInt, firstTask: UInt)
 
