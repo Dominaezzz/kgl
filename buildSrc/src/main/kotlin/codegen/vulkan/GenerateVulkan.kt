@@ -1487,6 +1487,8 @@ open class GenerateVulkan : DefaultTask() {
 				}
 
 				val builder = buildTypeSpec({ TypeSpec.classBuilder(structBuilderName) }) { platform ->
+					addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
+
 					if (platform != Platform.COMMON) {
 						val vkStructClass = ClassName(if (platform == Platform.JVM) {
 							LWJGLVulkanPackage
@@ -1496,8 +1498,6 @@ open class GenerateVulkan : DefaultTask() {
 
 						primaryConstructor(FunSpec.constructorBuilder().addParameter("target", vkStructClass).build())
 						addProperty(PropertySpec.builder("target", vkStructClass, KModifier.INTERNAL).initializer("target").build())
-					} else {
-						addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
 					}
 
 					addFunction(when (platform) {
