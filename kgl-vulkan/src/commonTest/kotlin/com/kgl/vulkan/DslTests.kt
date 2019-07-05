@@ -323,8 +323,8 @@ class DslTests {
 
 		queue.submit(null) {
 			// TODO: Bespoke.
-			info(listOf(), listOf(), listOf())
-			info()
+			submit(listOf(), listOf(), listOf())
+			submit()
 		}
 	}
 }

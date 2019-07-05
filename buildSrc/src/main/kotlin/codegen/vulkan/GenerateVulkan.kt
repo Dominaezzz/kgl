@@ -1799,7 +1799,7 @@ open class GenerateVulkan : DefaultTask() {
 					structName.removeSuffix(extension.author)
 				} else {
 					structName
-				}).removeSuffix("CreateInfo")
+				}).removeSuffix("CreateInfo").removeSuffix("Info")
 
 				val functionName = run {
 					val startIndex = cleanStructName.dropLastWhile { it.isDigit() || it.isUpperCase() }
