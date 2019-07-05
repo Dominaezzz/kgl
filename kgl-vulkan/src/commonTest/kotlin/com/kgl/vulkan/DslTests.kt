@@ -235,7 +235,7 @@ class DslTests {
 					depthBiasClamp = 0.0f
 					depthBiasSlopeFactor = 0.0f
 				}
-				multisampleState(uintArrayOf()) {
+				multisampleState {
 					sampleShadingEnable = false
 					rasterizationSamples = SampleCount.`1`
 					minSampleShading = 1.0f
