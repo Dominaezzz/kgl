@@ -76,7 +76,7 @@ steps:
       workingDirectory: ''
       gradleWrapperFile: 'gradlew'
       gradleOptions: '-Xmx3072m'
-      tasks: 'bintrayUpload'
+      tasks: 'publish'
     condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
     displayName: 'Publish artifacts to Bintray'
     env:

@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream
 
 plugins {
 	kotlin("multiplatform") version ("1.3.31") apply false
-	id("com.jfrog.bintray") version ("1.8.4-jetbrains-3") apply false
 	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
@@ -64,6 +63,62 @@ subprojects {
 							}
 						})
 					}
+		}
+
+		apply<MavenPlugin>()
+		apply<MavenPublishPlugin>()
+
+		configure<PublishingExtension> {
+			val vcs: String by project
+			val bintrayOrg: String by project
+			val bintrayRepository: String by project
+
+			repositories {
+				maven("https://api.bintray.com/maven/$bintrayOrg/$bintrayRepository/kgl/;publish=0;override=1") {
+					credentials {
+						username = System.getenv("BINTRAY_USER")
+						password = System.getenv("BINTRAY_API_KEY")
+					}
+				}
+			}
+
+			publications.withType<MavenPublication> {
+				pom {
+					withXml {
+						with(asNode()) {
+							appendNode("name", project.name)
+							appendNode("description", project.description)
+							appendNode("url", project.properties["vcs"])
+						}
+					}
+					licenses {
+						license {
+							name.set("The Apache Software License, Version 2.0")
+							url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+							distribution.set("repo")
+						}
+					}
+					developers {
+						developer {
+							id.set("Dominaezzz")
+							name.set("Dominic Fischer")
+						}
+					}
+					scm {
+						connection.set("$vcs.git")
+						developerConnection.set("$vcs.git")
+						url.set(vcs)
+					}
+				}
+
+				artifactId = if (name == "kotlinMultiplatform") {
+					// for our root metadata publication, set artifactId with a package name
+					project.name
+				} else {
+					// for targets, set artifactId with a package and target name (e.g. iosX64)
+					"${project.name}-$name"
+				}
+			}
 		}
 	}
 }
