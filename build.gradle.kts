@@ -74,7 +74,7 @@ subprojects {
 			val bintrayRepository: String by project
 
 			repositories {
-				maven("https://api.bintray.com/maven/$bintrayOrg/$bintrayRepository/kgl/;publish=0;override=1") {
+				maven("https://api.bintray.com/maven/$bintrayOrg/$bintrayRepository/kgl/;publish=1;override=1") {
 					credentials {
 						username = System.getenv("BINTRAY_USER")
 						password = System.getenv("BINTRAY_API_KEY")
