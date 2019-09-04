@@ -6,6 +6,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
 	kotlin("multiplatform")
 	id("de.undercouch.download")
+	`maven-publish`
 }
 
 val glfwVersion = "3.2.1"
@@ -113,8 +114,4 @@ kotlin {
 			}
 		}
 	}
-}
-
-apply {
-	from(rootProject.file("gradle/publish.gradle"))
 }

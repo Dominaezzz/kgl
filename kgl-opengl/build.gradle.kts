@@ -7,6 +7,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 plugins {
 	kotlin("multiplatform")
 	id("de.undercouch.download")
+	`maven-publish`
 }
 
 val downloadRegistry by tasks.registering(Download::class) {
@@ -122,8 +123,4 @@ kotlin {
 			compileKotlinTask.dependsOn(generateOpenGL)
 		}
 	}
-}
-
-apply {
-   from(rootProject.file("gradle/publish.gradle"))
 }

@@ -4,6 +4,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	kotlin("multiplatform")
+	`maven-publish`
 }
 
 kotlin {
@@ -86,8 +87,4 @@ kotlin {
 			}
 		}
 	}
-}
-
-apply {
-	from(rootProject.file("gradle/publish.gradle"))
 }
