@@ -110,7 +110,3 @@ kotlin {
 		}
 	}
 }
-
-apply {
-   from(rootProject.file("gradle/publish.gradle"))
-}
