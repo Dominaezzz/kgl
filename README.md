@@ -14,6 +14,22 @@ It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
 
 You can find some kgl-vulkan samples [here](https://github.com/Dominaezzz/kgl-vulkan-samples) and kgl-opengl samples [here](https://github.com/Dominaezzz/kgl-opengl-samples).
 
+## Usage
+```kotlin
+repositories {
+    maven("https://dl.bintray.com/dominaezzz/kotlin-native")
+    jcenter()
+}
+
+dependencies {
+    api("com.kgl:kgl-core:$kglVersion")
+    api("com.kgl:kgl-glfw:$kglVersion")
+    api("com.kgl:kgl-opengl:$kglVersion")
+    api("com.kgl:kgl-vulkan:$kglVersion")
+    api("com.kgl:kgl-glfw-vulkan:$kglVersion")
+}
+```
+
 ## Design
 The main goal of this library is to hide the verbosity of working with vulkan.
 
