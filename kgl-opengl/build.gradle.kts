@@ -88,7 +88,7 @@ kotlin {
 			}
 		}
 	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macosx64") {
 		compilations["main"].apply {
 			defaultSourceSet {
 				kotlin.srcDir(generateOpenGL.map { it.macosDir })
