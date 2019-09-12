@@ -41,9 +41,9 @@ kotlin {
 		}
 	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingwx64")
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linuxx64")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macosx64")
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {

@@ -88,9 +88,9 @@ kotlin {
 		}
 	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingwx64")
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linuxx64")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macosx64")
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
@@ -108,7 +108,7 @@ kotlin {
 
 				defaultSourceSet {
 					kotlin.srcDir(generateVulkan.map { it.nativeDir })
-					kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
+					kotlin.srcDir("src/${name.removeSuffix("x64")}Main/kotlin")
 
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")

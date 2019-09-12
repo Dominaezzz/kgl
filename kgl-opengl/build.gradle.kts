@@ -74,21 +74,21 @@ kotlin {
 		}
 	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64 {
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingwx64") {
 		compilations["main"].apply {
 			defaultSourceSet {
 				kotlin.srcDir(generateOpenGL.map { it.mingwDir })
 			}
 		}
 	}
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64 {
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linuxx64") {
 		compilations["main"].apply {
 			defaultSourceSet {
 				kotlin.srcDir(generateOpenGL.map { it.linuxDir })
 			}
 		}
 	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macosx64") {
 		compilations["main"].apply {
 			defaultSourceSet {
 				kotlin.srcDir(generateOpenGL.map { it.macosDir })
@@ -102,7 +102,7 @@ kotlin {
 				includeDirs("src/nativeInterop/opengl")
 			}
 			defaultSourceSet {
-				kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
+				kotlin.srcDir("src/${name.removeSuffix("x64")}Main/kotlin")
 				kotlin.srcDir("src/nativeMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
