@@ -101,7 +101,7 @@ kotlin {
 	}
 
 	if (Config.OS.isWindows || !Config.isIdeaActive) {
-		mingwX64 {
+		mingwX64("mingwx64") {
 			compilations["main"].cinterops["cglfw"].apply {
 				tasks.named(interopProcessingTaskName) {
 					dependsOn(unzipBinaries)
