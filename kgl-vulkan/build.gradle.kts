@@ -93,6 +93,8 @@ kotlin {
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macosx64")
 
 	targets.withType<KotlinNativeTarget> {
+		val targetName = name
+
 		compilations {
 			"main" {
 				compileKotlinTask.dependsOn(generateVulkan)
@@ -108,7 +110,7 @@ kotlin {
 
 				defaultSourceSet {
 					kotlin.srcDir(generateVulkan.map { it.nativeDir })
-					kotlin.srcDir("src/${name.removeSuffix("x64")}Main/kotlin")
+					kotlin.srcDir("src/${targetName.removeSuffix("x64")}Main/kotlin")
 
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")

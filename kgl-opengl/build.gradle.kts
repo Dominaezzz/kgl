@@ -97,12 +97,13 @@ kotlin {
 	}
 
 	targets.withType<KotlinNativeTarget> {
+		val targetName = name
 		compilations["main"].apply {
 			cinterops.create("copengl") {
 				includeDirs("src/nativeInterop/opengl")
 			}
 			defaultSourceSet {
-				kotlin.srcDir("src/${name.removeSuffix("x64")}Main/kotlin")
+				kotlin.srcDir("src/${targetName.removeSuffix("x64")}Main/kotlin")
 				kotlin.srcDir("src/nativeMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
