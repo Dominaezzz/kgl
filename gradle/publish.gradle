@@ -27,14 +27,6 @@ publishing {
 	publications.all { publication ->
 		// apply changes to pom.xml files, see pom.gradle
 		pom.withXml(configureMavenCentralMetadata)
-
-		if (publication.name == 'kotlinMultiplatform') {
-			// for our root metadata publication, set artifactId with a package and project name
-			publication.artifactId = "$project.name"
-		} else {
-			// for targets, set artifactId with a package, project name and target name (e.g. iosX64)
-			publication.artifactId = "$project.name-$publication.name"
-		}
 	}
 
 	// Patch publications with fake javadoc 
