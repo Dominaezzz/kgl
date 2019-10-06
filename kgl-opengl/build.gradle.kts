@@ -17,6 +17,16 @@ val downloadRegistry by tasks.registering(Download::class) {
 	overwrite(false)
 }
 
+val downloadedHeadersDir = buildDir.resolve("cache/headers")
+
+val downloadHeaders by tasks.registering(Download::class) {
+	val glXmlCommit = "89acc93eaa6acd97159fb069e66acb92f12d7b87"
+
+	src("https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/$glXmlCommit/api/GL/glcorearb.h")
+	dest(downloadedHeadersDir.resolve("GL/glcorearb.h"))
+	overwrite(false)
+}
+
 val generateOpenGL by tasks.registering(GenerateOpenGL::class) {
 	registryFile.set(downloadRegistry.map { RegularFile { it.dest } })
 	outputDir.set(buildDir.resolve("generated-src"))
@@ -99,7 +109,10 @@ kotlin {
 	targets.withType<KotlinNativeTarget> {
 		compilations["main"].apply {
 			cinterops.create("copengl") {
-				includeDirs("src/nativeInterop/opengl")
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(downloadHeaders)
+				}
+				includeDirs("src/nativeInterop/opengl", downloadedHeadersDir)
 			}
 			defaultSourceSet {
 				kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
