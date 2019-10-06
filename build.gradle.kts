@@ -1,3 +1,4 @@
+import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -75,11 +76,22 @@ subprojects {
 
 			repositories {
 				maven("https://api.bintray.com/maven/$bintrayOrg/$bintrayRepository/kgl/;publish=1;override=1") {
+					name = "bintray"
 					credentials {
 						username = System.getenv("BINTRAY_USER")
 						password = System.getenv("BINTRAY_API_KEY")
 					}
 				}
+			}
+
+			// Create empty jar for sources classifier to satisfy maven requirements
+			val stubSources by tasks.registering(Jar::class) {
+				archiveClassifier.set("sources")
+			}
+
+			// Create empty jar for javadoc classifier to satisfy maven requirements
+			val stubJavadoc by tasks.registering(Jar::class) {
+				archiveClassifier.set("javadoc")
 			}
 
 			publications.withType<MavenPublication> {
@@ -110,6 +122,24 @@ subprojects {
 						url.set(vcs)
 					}
 				}
+			}
+
+			the<KotlinMultiplatformExtension>().targets.all {
+				val targetPublication = publications.findByName(name)
+				if (targetPublication is MavenPublication) {
+					// Patch publications with fake javadoc
+					targetPublication.artifact(stubJavadoc.get())
+
+					if (targetPublication is DefaultMavenPublication && platformType.name != "native") {
+						// Remove gradle metadata publishing from all targets which are not native
+						targetPublication.setModuleDescriptorGenerator(null)
+					}
+				}
+			}
+
+			// TODO :kludge this is required for K/N publishing
+			tasks.named("publish") {
+				dependsOn("publishToMavenLocal")
 			}
 		}
 	}
