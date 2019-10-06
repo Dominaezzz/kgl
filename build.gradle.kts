@@ -84,11 +84,6 @@ subprojects {
 				}
 			}
 
-			// Create empty jar for sources classifier to satisfy maven requirements
-			val stubSources by tasks.registering(Jar::class) {
-				archiveClassifier.set("sources")
-			}
-
 			// Create empty jar for javadoc classifier to satisfy maven requirements
 			val stubJavadoc by tasks.registering(Jar::class) {
 				archiveClassifier.set("javadoc")
@@ -122,18 +117,16 @@ subprojects {
 						url.set(vcs)
 					}
 				}
-			}
 
-			the<KotlinMultiplatformExtension>().targets.all {
-				val targetPublication = publications.findByName(name)
-				if (targetPublication is MavenPublication) {
-					// Patch publications with fake javadoc
-					targetPublication.artifact(stubJavadoc.get())
+				// Add empty javadocs (no need for MPP root publication which publishes only pom file)
+				if (name != "kotlinMultiplatform") {
+					artifact(stubJavadoc.get())
+				}
 
-					if (targetPublication is DefaultMavenPublication && platformType.name != "native") {
-						// Remove gradle metadata publishing from all targets which are not native
-						targetPublication.setModuleDescriptorGenerator(null)
-					}
+				// Disable metadata everywhere, but in native modules
+				if (name == "metadata" || name == "jvm" || name == "js") {
+					this as DefaultMavenPublication
+					setModuleDescriptorGenerator(null)
 				}
 			}
 
