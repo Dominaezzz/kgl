@@ -45,6 +45,7 @@ kotlin {
 			"main" {
 				dependencies {
 					implementation(kotlin("stdlib-js"))
+					api("org.jetbrains.kotlinx:kotlinx-io-js:${Versions.KOTLINX_IO}")
 				}
 			}
 			"test" {
