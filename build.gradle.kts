@@ -1,4 +1,3 @@
-import org.gradle.api.publish.maven.internal.publication.DefaultMavenPublication
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -65,9 +64,6 @@ subprojects {
 						})
 					}
 		}
-
-		apply<MavenPlugin>()
-		apply<MavenPublishPlugin>()
 
 		configure<PublishingExtension> {
 			val vcs: String by project
