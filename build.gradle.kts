@@ -85,19 +85,21 @@ subprojects {
 			}
 
 			// Create empty jar for javadoc classifier to satisfy maven requirements
-			val stubJavadoc by tasks.registering(Jar::class) {
+			val javadocJar by tasks.registering(Jar::class) {
 				archiveClassifier.set("javadoc")
+			}
+			val sourcesJar by tasks.registering(Jar::class) {
+				archiveClassifier.set("sources")
 			}
 
 			publications.withType<MavenPublication> {
+				artifact(javadocJar.get())
+				if (name == "kotlinMultiplatform") artifact(sourcesJar.get())
+
 				pom {
-					withXml {
-						with(asNode()) {
-							appendNode("name", project.name)
-							appendNode("description", project.description)
-							appendNode("url", project.properties["vcs"])
-						}
-					}
+					name.set(project.name)
+					description.set(project.description)
+					url.set(vcs)
 					licenses {
 						license {
 							name.set("The Apache Software License, Version 2.0")
@@ -117,22 +119,6 @@ subprojects {
 						url.set(vcs)
 					}
 				}
-
-				// Add empty javadocs (no need for MPP root publication which publishes only pom file)
-				if (name != "kotlinMultiplatform") {
-					artifact(stubJavadoc.get())
-				}
-
-				// Disable metadata everywhere, but in native modules
-				if (name == "metadata" || name == "jvm" || name == "js") {
-					this as DefaultMavenPublication
-					setModuleDescriptorGenerator(null)
-				}
-			}
-
-			// TODO :kludge this is required for K/N publishing
-			tasks.named("publish") {
-				dependsOn("publishToMavenLocal")
 			}
 		}
 	}
