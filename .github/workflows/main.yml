@@ -28,24 +28,12 @@ jobs:
         run: brew install glfw --HEAD
         if: matrix.os == 'macos-latest'
 
-      - name: 'Install build dependencies'
-        run: |
-          case $THE_OS in
-              "windows-latest")
-                  choco install ruby python3 make
-                  gem install asciidoctor
-              ;;
-              "ubuntu-16.04")
-                  sudo apt install -y asciidoctor
-              ;;
-              "macos-latest")
-                  brew install asciidoctor
-              ;;
-              *) echo "Unknown OS!";;
-          esac
-        shell: bash
-        env:
-          THE_OS: ${{ matrix.os }}
+      - uses: actions/setup-ruby@v1
+        with:
+          ruby-version: '2.x'
+
+      - name: 'Install AsciiDoctor'
+        run: gem install asciidoctor
 
       - uses: actions/setup-java@v1
         with:
