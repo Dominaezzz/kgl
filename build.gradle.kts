@@ -1,3 +1,4 @@
+import config.Config
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -8,16 +9,18 @@ plugins {
 	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
+val stdout = ByteArrayOutputStream()
+exec {
+	commandLine("git", "describe", "--tags")
+	standardOutput = stdout
+}
+
+group = "com.kgl"
+version = stdout.toString().trim()
+
 subprojects {
-	group = "com.kgl"
-
-	val stdout = ByteArrayOutputStream()
-	exec {
-		commandLine("git", "describe", "--tags")
-		standardOutput = stdout
-	}
-
-	version = stdout.toString().trim()
+	group = rootProject.group
+	version = rootProject.version
 
 	repositories {
 		mavenCentral()
@@ -35,34 +38,22 @@ subprojects {
 			}
 
 			// Hack until https://youtrack.jetbrains.com/issue/KT-30498
-			targets.filterIsInstance<KotlinNativeTarget>()
-					.filter { it.konanTarget != HostManager.host }
-					.forEach { target ->
-						target.compilations.all {
-							cinterops.all {
-								project.tasks[interopProcessingTaskName].enabled = false
+			targets.withType<KotlinNativeTarget> {
+				// Disable cross-platform build
+				if (konanTarget != HostManager.host) {
+					compilations.all {
+						cinterops.all {
+							tasks.named(interopProcessingTaskName).configure {
+								enabled = false
 							}
-							compileKotlinTask.enabled = false
 						}
-						target.binaries.all {
-							linkTask.enabled = false
-						}
-
-						target.mavenPublication(Action {
-							val publicationToDisable = this
-
-							tasks.withType<AbstractPublishToMaven> {
-								onlyIf {
-									publication != publicationToDisable
-								}
-							}
-							tasks.withType<GenerateModuleMetadata> {
-								onlyIf {
-									publication.get() != publicationToDisable
-								}
-							}
-						})
+						compileKotlinTask.enabled = false
 					}
+					binaries.all {
+						linkTask.enabled = false
+					}
+				}
+			}
 		}
 
 		configure<PublishingExtension> {
@@ -80,18 +71,7 @@ subprojects {
 				}
 			}
 
-			// Create empty jar for javadoc classifier to satisfy maven requirements
-			val javadocJar by tasks.registering(Jar::class) {
-				archiveClassifier.set("javadoc")
-			}
-			val sourcesJar by tasks.registering(Jar::class) {
-				archiveClassifier.set("sources")
-			}
-
 			publications.withType<MavenPublication> {
-				artifact(javadocJar.get())
-				if (name == "kotlinMultiplatform") artifact(sourcesJar.get())
-
 				pom {
 					name.set(project.name)
 					description.set(project.description)
@@ -116,6 +96,23 @@ subprojects {
 					}
 				}
 			}
+		}
+
+		val publishTasks = tasks.withType<PublishToMavenRepository>()
+				.matching {
+					when {
+						Config.OS.isWindows -> it.name.startsWith("publishMingw")
+						Config.OS.isMacOsX -> it.name.startsWith("publishMacos") || it.name.startsWith("publishIos")
+						Config.OS.isLinux -> it.name.startsWith("publishLinux") ||
+								it.name.startsWith("publishJs") ||
+								it.name.startsWith("publishJvm") ||
+								it.name.startsWith("publishMetadata") ||
+								it.name.startsWith("publishKotlinMultiplatform")
+						else -> TODO()
+					}
+				}
+		tasks.register("smartPublish") {
+			dependsOn(publishTasks)
 		}
 	}
 }
