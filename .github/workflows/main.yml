@@ -13,8 +13,10 @@ jobs:
       - name: 'Build GLFW from source'
         run: |
           sudo apt install libvulkan-dev doxygen xorg-dev libglu1-mesa-dev
-          git clone https://github.com/glfw/glfw.git
-          cd glfw
+
+          curl -L https://github.com/glfw/glfw/releases/download/3.3/glfw-3.3.zip -s -o glfw-3.3.zip
+          unzip glfw-3.3.zip
+          cd glfw-3.3
           cmake .
           make
           sudo make install
