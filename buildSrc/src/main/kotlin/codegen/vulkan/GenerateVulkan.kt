@@ -31,6 +31,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.nodes.TextNode
 import javax.xml.parsers.DocumentBuilderFactory
 
+@Suppress("UnstableApiUsage")
 open class GenerateVulkan : DefaultTask() {
 	@InputDirectory
 	val docsDir = project.objects.directoryProperty()
