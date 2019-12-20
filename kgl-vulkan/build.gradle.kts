@@ -58,7 +58,7 @@ val makeHtmlDocs by tasks.registering(Task::class) {
 			if (Config.OS.isWindows) {
 				// Requires unix environment to build.
 				executable = "C:\\Program Files\\Git\\bin\\sh.exe"
-				args("-c", "make PYTHON=python EXTENSIONS=$extensionsConcat manhtml")
+				args("-c", "make PYTHON=python EXTENSIONS='$extensionsConcat' manhtml")
 			} else {
 				commandLine("make", "EXTENSIONS=$extensionsConcat", "manhtml")
 			}
