@@ -69,24 +69,24 @@ actual object Glfw {
 	actual fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit) {
 		TODO()
 	}
-}
 
-actual fun pollEvents() {
-	glfwPollEvents()
-}
+	actual fun pollEvents() {
+		glfwPollEvents()
+	}
 
-actual fun waitEvents() {
-	glfwWaitEvents()
-}
+	actual fun waitEvents() {
+		glfwWaitEvents()
+	}
 
-actual fun waitEvents(timeout: Double) {
-	glfwWaitEventsTimeout(timeout)
-}
+	actual fun waitEvents(timeout: Double) {
+		glfwWaitEventsTimeout(timeout)
+	}
 
-actual fun postEmptyEvent() {
-	glfwPostEmptyEvent()
-}
+	actual fun postEmptyEvent() {
+		glfwPostEmptyEvent()
+	}
 
-actual fun setSwapInterval(interval: Int) {
-	glfwSwapInterval(interval)
+	actual fun setSwapInterval(interval: Int) {
+		glfwSwapInterval(interval)
+	}
 }

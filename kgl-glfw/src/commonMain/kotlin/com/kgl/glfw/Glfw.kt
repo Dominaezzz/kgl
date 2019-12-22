@@ -33,10 +33,10 @@ expect object Glfw {
 	fun setErrorCallback(callback: ((Int, String) -> Unit)? = null)
 	fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit)
 	fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit)
-}
 
-expect fun pollEvents()
-expect fun waitEvents()
-expect fun waitEvents(timeout: Double)
-expect fun postEmptyEvent()
-expect fun setSwapInterval(interval: Int)
+	fun pollEvents()
+	fun waitEvents()
+	fun waitEvents(timeout: Double)
+	fun postEmptyEvent()
+	fun setSwapInterval(interval: Int)
+}
