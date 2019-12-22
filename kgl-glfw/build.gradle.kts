@@ -91,21 +91,9 @@ kotlin {
 	val vulkanUnzipDocs = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs")
 	val vulkanHeaderDir = vulkanUnzipDocs.map { it.destinationDir.resolve("include") }
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64 {
-		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
-				"-include-binary", glfwWin64Dir.resolve("lib-mingw-w64/libglfw3.a").absolutePath
-		)
-	}
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64 {
-		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
-				"-include-binary", file("/usr/local/lib/libglfw3.a").absolutePath
-		)
-	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
-		compilations["test"].kotlinOptions.freeCompilerArgs = listOf(
-				"-include-binary", glfwMacosDir.resolve("lib-macos/libglfw3.a").absolutePath
-		)
-	}
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
@@ -128,6 +116,9 @@ kotlin {
 				defaultSourceSet {
 					kotlin.srcDir("src/nativeTest/kotlin")
 					resources.srcDir("src/nativeTest/resources")
+				}
+				dependencies {
+					implementation(project(":kgl-glfw-static"))
 				}
 			}
 		}
