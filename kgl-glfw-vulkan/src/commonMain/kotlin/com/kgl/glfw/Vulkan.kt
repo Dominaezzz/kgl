@@ -19,7 +19,7 @@ import com.kgl.vulkan.handles.Instance
 import com.kgl.vulkan.handles.PhysicalDevice
 import com.kgl.vulkan.handles.SurfaceKHR
 
-expect val isVulkanSupported: Boolean
-expect val requiredInstanceExtensions: Array<String>?
+expect val Glfw.isVulkanSupported: Boolean
+expect val Glfw.requiredInstanceExtensions: Array<String>?
 expect fun PhysicalDevice.getPresentationSupport(queueFamilyIndex: UInt): Boolean
 expect fun Instance.createWindowSurface(window: Window): SurfaceKHR

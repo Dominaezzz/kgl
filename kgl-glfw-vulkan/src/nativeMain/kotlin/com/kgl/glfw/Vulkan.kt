@@ -23,9 +23,9 @@ import com.kgl.vulkan.handles.SurfaceKHR
 import com.kgl.vulkan.utils.handleVkResult
 import kotlinx.cinterop.*
 
-actual val isVulkanSupported: Boolean get() = glfwVulkanSupported() == GLFW_TRUE
+actual val Glfw.isVulkanSupported: Boolean get() = glfwVulkanSupported() == GLFW_TRUE
 
-actual val requiredInstanceExtensions: Array<String>?
+actual val Glfw.requiredInstanceExtensions: Array<String>?
 	get() {
 		VirtualStack.push()
 		try {

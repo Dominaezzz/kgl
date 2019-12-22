@@ -23,8 +23,8 @@ import org.lwjgl.glfw.GLFWVulkan.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10.VK_SUCCESS
 
-actual val isVulkanSupported: Boolean get() = glfwVulkanSupported()
-actual val requiredInstanceExtensions: Array<String>?
+actual val Glfw.isVulkanSupported: Boolean get() = glfwVulkanSupported()
+actual val Glfw.requiredInstanceExtensions: Array<String>?
 	get() {
 		val output = glfwGetRequiredInstanceExtensions() ?: return null
 		return Array(output.limit()) { output.getStringUTF8(it) }

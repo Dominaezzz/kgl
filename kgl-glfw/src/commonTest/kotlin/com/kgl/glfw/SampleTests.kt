@@ -34,7 +34,7 @@ class SampleTests {
 		}
 
 		while (!window.shouldClose) {
-			pollEvents()
+			Glfw.pollEvents()
 		}
 
 		window.close()
@@ -51,7 +51,7 @@ class SampleTests {
 
 		repeat(10000) {
 			window.shouldClose
-			pollEvents()
+			Glfw.pollEvents()
 		}
 
 		val end = Glfw.time
