@@ -143,8 +143,7 @@ actual enum class KeyboardKey(internal val value: Int) {
 	RIGHT_CONTROL(GLFW_KEY_RIGHT_CONTROL),
 	RIGHT_ALT(GLFW_KEY_RIGHT_ALT),
 	RIGHT_SUPER(GLFW_KEY_RIGHT_SUPER),
-	MENU(GLFW_KEY_MENU),
-	LAST(GLFW_KEY_LAST);
+	MENU(GLFW_KEY_MENU);
 
 	companion object {
 		private val lookUp = enumValues<KeyboardKey>().associateBy { it.value }

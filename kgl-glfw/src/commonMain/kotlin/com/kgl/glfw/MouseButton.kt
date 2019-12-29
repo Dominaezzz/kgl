@@ -23,9 +23,11 @@ expect enum class MouseButton {
 	_5,
 	_6,
 	_7,
-	_8,
-	LAST,
-	LEFT,
-	RIGHT,
-	MIDDLE
+	_8;
+
+	companion object
 }
+
+inline val MouseButton.Companion.LEFT get() = MouseButton._1
+inline val MouseButton.Companion.RIGHT get() = MouseButton._2
+inline val MouseButton.Companion.MIDDLE get() = MouseButton._3

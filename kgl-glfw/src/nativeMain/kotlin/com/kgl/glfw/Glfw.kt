@@ -18,8 +18,10 @@ package com.kgl.glfw
 import cglfw.*
 import cnames.structs.GLFWmonitor
 import com.kgl.core.VirtualStack
+import kotlin.native.concurrent.ThreadLocal
 import kotlinx.cinterop.*
 
+@ThreadLocal
 actual object Glfw {
 	actual var time: Double
 		get() = glfwGetTime()
@@ -55,14 +57,31 @@ actual object Glfw {
 			}
 		}
 
+	actual val version: GlfwVersion
+		get() {
+			VirtualStack.push()
+			try {
+				val major = VirtualStack.alloc<IntVar>()
+				val minor = VirtualStack.alloc<IntVar>()
+				val rev = VirtualStack.alloc<IntVar>()
+				glfwGetVersion(major.ptr, minor.ptr, rev.ptr)
+				return GlfwVersion(major.value, minor.value, rev.value)
+			} finally {
+				VirtualStack.pop()
+			}
+		}
+	actual val versionString: String get() = glfwGetVersionString()!!.toKString()
+
 	actual fun init(): Boolean = glfwInit() == GLFW_TRUE
 	actual fun terminate() {
 		glfwTerminate()
 	}
 
-	private var errorCallback: ((Int, String) -> Unit)? = null
+	private var errorCallback: ErrorCallback? = null
+	private var joystickCallback: JoystickCallback? = null
+	private var monitorCallback: MonitorCallback? = null
 
-	actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
+	actual fun setErrorCallback(callback: ErrorCallback?) {
 		val wasNotPreviouslySet = errorCallback == null
 		errorCallback = callback
 
@@ -77,12 +96,34 @@ actual object Glfw {
 		}
 	}
 
-	actual fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit) {
-		TODO()
+	actual fun setJoystickCallback(callback: JoystickCallback?) {
+		val wasNotPreviouslySet = joystickCallback == null
+		joystickCallback = callback
+
+		if (callback != null) {
+			if (wasNotPreviouslySet) {
+				glfwSetJoystickCallback(staticCFunction { jid, event ->
+					Glfw.joystickCallback?.invoke(Joystick.values()[jid], event == GLFW_CONNECTED)
+				})
+			}
+		} else {
+			glfwSetJoystickCallback(null)
+		}
 	}
 
-	actual fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit) {
-		TODO()
+	actual fun setMonitorCallback(callback: MonitorCallback?) {
+		val wasNotPreviouslySet = monitorCallback == null
+		monitorCallback = callback
+
+		if (callback != null) {
+			if (wasNotPreviouslySet) {
+				glfwSetMonitorCallback(staticCFunction { monitor, event ->
+					Glfw.monitorCallback?.invoke(Monitor(monitor!!), event == GLFW_CONNECTED)
+				})
+			}
+		} else {
+			glfwSetMonitorCallback(null)
+		}
 	}
 
 	actual fun pollEvents() {
@@ -101,7 +142,26 @@ actual object Glfw {
 		glfwPostEmptyEvent()
 	}
 
+	actual fun updateGamepadMappings(mapping: String): Boolean {
+		return glfwUpdateGamepadMappings(mapping) == GLFW_TRUE
+	}
+
+	actual fun isExtensionSupported(extension: String): Boolean {
+		return glfwExtensionSupported(extension) == GLFW_TRUE
+	}
+
 	actual fun setSwapInterval(interval: Int) {
 		glfwSwapInterval(interval)
+	}
+
+	actual val isRawMouseMotionSupported: Boolean
+		get() = glfwRawMouseMotionSupported() == GLFW_TRUE
+
+	actual fun getKeyName(key: KeyboardKey): String? = glfwGetKeyName(key.value, 0)?.toKString()
+
+	actual fun getKeyName(scancode: Int): String? = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode)?.toKString()
+
+	actual fun getKeyScancode(key: KeyboardKey): Int {
+		return glfwGetKeyScancode(key.value)
 	}
 }

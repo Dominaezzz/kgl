@@ -17,6 +17,7 @@ package com.kgl.glfw
 
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 
 actual object Glfw {
@@ -47,12 +48,22 @@ actual object Glfw {
 			}
 		}
 
+	actual val version: GlfwVersion
+		get() = MemoryStack.stackPush().use {
+			val major = it.mallocInt(1)
+			val minor = it.mallocInt(1)
+			val rev = it.mallocInt(1)
+			glfwGetVersion(major, minor, rev)
+			GlfwVersion(major[0], minor[0], rev[0])
+		}
+	actual val versionString: String get() = glfwGetVersionString()
+
 	actual fun init(): Boolean = glfwInit()
 	actual fun terminate() {
 		glfwTerminate()
 	}
 
-	actual fun setErrorCallback(callback: ((Int, String) -> Unit)?) {
+	actual fun setErrorCallback(callback: ErrorCallback?) {
 		if (callback != null) {
 			glfwSetErrorCallback { error, description ->
 				callback(error, MemoryUtil.memUTF8(description))
@@ -62,12 +73,24 @@ actual object Glfw {
 		}?.free()
 	}
 
-	actual fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit) {
-		TODO()
+	actual fun setJoystickCallback(callback: JoystickCallback?) {
+		if (callback != null) {
+			glfwSetJoystickCallback { jid, event ->
+				callback(Joystick.values()[jid], event == GLFW_CONNECTED)
+			}
+		} else {
+			glfwSetJoystickCallback(null)
+		}?.free()
 	}
 
-	actual fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit) {
-		TODO()
+	actual fun setMonitorCallback(callback: MonitorCallback?) {
+		if (callback != null) {
+			glfwSetMonitorCallback { monitor, event ->
+				callback(Monitor(monitor), event == GLFW_CONNECTED)
+			}
+		} else {
+			glfwSetMonitorCallback(null)
+		}?.free()
 	}
 
 	actual fun pollEvents() {
@@ -86,7 +109,28 @@ actual object Glfw {
 		glfwPostEmptyEvent()
 	}
 
+	actual fun updateGamepadMappings(mapping: String): Boolean {
+		return MemoryStack.stackPush().use {
+			glfwUpdateGamepadMappings(it.ASCII(mapping))
+		}
+	}
+
+	actual fun isExtensionSupported(extension: String): Boolean {
+		return glfwExtensionSupported(extension)
+	}
+
 	actual fun setSwapInterval(interval: Int) {
 		glfwSwapInterval(interval)
+	}
+
+	actual val isRawMouseMotionSupported: Boolean
+		get() = glfwRawMouseMotionSupported()
+
+	actual fun getKeyName(key: KeyboardKey): String? = glfwGetKeyName(key.value, 0)
+
+	actual fun getKeyName(scancode: Int): String? = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode)
+
+	actual fun getKeyScancode(key: KeyboardKey): Int {
+		return glfwGetKeyScancode(key.value)
 	}
 }

@@ -35,6 +35,22 @@ actual class Monitor(val ptr: Long) {
 			glfwGetMonitorPhysicalSize(ptr, width, height)
 			width[0] to height[0]
 		}
+	actual val contentScale: Pair<Float, Float>
+		get() = MemoryStack.stackPush().use {
+			val width = it.mallocFloat(1)
+			val height = it.mallocFloat(1)
+			glfwGetMonitorContentScale(ptr, width, height)
+			width[0] to height[0]
+		}
+	actual val workarea: Workarea
+		get() = MemoryStack.stackPush().use {
+			val xpos = it.mallocInt(1)
+			val ypos = it.mallocInt(1)
+			val width = it.mallocInt(1)
+			val height = it.mallocInt(1)
+			glfwGetMonitorWorkarea(ptr, xpos, ypos, width, height)
+			Workarea(xpos[0], ypos[0], width[0], height[0])
+		}
 	actual val videoMode: VideoMode get() = VideoMode(glfwGetVideoMode(ptr)!!)
 	actual val videoModes: List<VideoMode>
 		get() {

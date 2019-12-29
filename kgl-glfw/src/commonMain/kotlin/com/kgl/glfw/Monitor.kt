@@ -19,6 +19,8 @@ expect class Monitor {
 	val name: String
 	val position: Pair<Int, Int>
 	val physicalSize: Pair<Int, Int>
+	val contentScale: Pair<Float, Float>
+	val workarea: Workarea
 	val videoMode: VideoMode
 	val videoModes: List<VideoMode>
 	var gammaRamp: GammaRamp

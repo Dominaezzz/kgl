@@ -17,18 +17,30 @@ package com.kgl.glfw
 
 import com.kgl.core.Flag
 import kotlinx.io.core.Closeable
-import kotlin.native.concurrent.ThreadLocal
 
 expect class Window : Closeable {
 	var position: Pair<Int, Int>
 	var size: Pair<Int, Int>
 	val frameBufferSize: Pair<Int, Int>
+	val frameSize: FrameSize
+	val contentScale: Pair<Float, Float>
 	var clipboardString: String?
 	var shouldClose: Boolean
 	var isIconified: Boolean
 	var isVisible: Boolean
+	var isDecorated: Boolean
+	var isResizable: Boolean
+	var isFloating: Boolean
+	var isAutoIconify: Boolean
+	var isFocusOnShow: Boolean
 	val monitor: Monitor?
 	var cursorPosition: Pair<Double, Double>
+	var cursorMode: CursorMode
+	var opacity: Float
+	var stickyKeysEnabled: Boolean
+	var stickyMouseButtonsEnabled: Boolean
+	var lockKeyModsEnabled: Boolean
+	var rawMouseButtonEnabled: Boolean
 
 	fun swapBuffers()
 	fun setMonitor(monitor: Monitor, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int)
@@ -37,30 +49,31 @@ expect class Window : Closeable {
 	fun setAspectRatio(number: Int, denom: Int)
 	fun setIcon(images: Array<Image>)
 	fun maximize()
+	fun focus()
+	fun requestAttention()
 
 	fun setCursor(cursor: Cursor?)
 	fun getKey(key: KeyboardKey): Action
-	fun getKeyName(key: KeyboardKey): String?
-	fun getKeyName(scancode: Int): String?
 	fun getMouseButton(button: MouseButton): Action
 
-	fun setPosCallback(callback: ((Window, Int, Int) -> Unit)?)
-	fun setSizeCallback(callback: ((Window, Int, Int) -> Unit)?)
-	fun setCloseCallback(callback: ((Window) -> Unit)?)
-	fun setRefreshCallback(callback: ((Window) -> Unit)?)
-	fun setFocusCallback(callback: ((Window, Boolean) -> Unit)?)
-	fun setIconifyCallback(callback: ((Window, Boolean) -> Unit)?)
-	fun setScrollCallback(callback: ((Window, Double, Double) -> Unit)?)
-	fun setCursorEnterCallback(callback: ((Window, Boolean) -> Unit)?)
-	fun setCursorPosCallback(callback: ((Window, Double, Double) -> Unit)?)
-	fun setFrameBufferCallback(callback: ((Window, Int, Int) -> Unit)?)
-	fun setDropCallback(callback: ((Window, Array<String>) -> Unit)?)
-	fun setKeyCallback(callback: ((Window, KeyboardKey, Int, Action, Flag<Mod>) -> Unit)?)
-	fun setMouseButtonCallback(callback: ((Window, MouseButton, Action, Flag<Mod>) -> Unit)?)
-	fun setCharCallback(callback: ((Window, UInt) -> Unit)?)
-	fun setCharModsCallback(callback: ((Window, UInt, Flag<Mod>) -> Unit)?)
+	fun setPosCallback(callback: WindowPosCallback?)
+	fun setSizeCallback(callback: WindowSizeCallback?)
+	fun setCloseCallback(callback: WindowCloseCallback?)
+	fun setRefreshCallback(callback: WindowRefreshCallback?)
+	fun setFocusCallback(callback: WindowFocusCallback?)
+	fun setIconifyCallback(callback: WindowIconifyCallback?)
+	fun setMaximizeCallback(callback: WindowMaximizeCallback?)
+	fun setContentScaleCallback(callback: WindowContentScaleCallback?)
+	fun setScrollCallback(callback: ScrollCallback?)
+	fun setCursorEnterCallback(callback: CursorEnterCallback?)
+	fun setCursorPosCallback(callback: CursorPosCallback?)
+	fun setFrameBufferCallback(callback: FrameBufferCallback?)
+	fun setDropCallback(callback: DropCallback?)
+	fun setKeyCallback(callback: KeyCallback?)
+	fun setMouseButtonCallback(callback: MouseButtonCallback?)
+	fun setCharCallback(callback: CharCallback?)
+	fun setCharModsCallback(callback: CharModsCallback?)
 
-	@ThreadLocal
 	companion object {
 		inline operator fun invoke(
 				width: Int,
@@ -102,7 +115,7 @@ expect class Window : Closeable {
 		var visible: Boolean
 		var decorated: Boolean
 		var focused: Boolean
-		var autoIconfiy: Boolean
+		var autoIconify: Boolean
 		var floating: Boolean
 		var maximized: Boolean
 

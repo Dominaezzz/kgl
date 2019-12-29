@@ -15,28 +15,44 @@
  */
 package com.kgl.glfw
 
-import kotlin.native.concurrent.ThreadLocal
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
-@ThreadLocal
 expect object Glfw {
 	var time: Double
 	val timerValue: ULong
 	val timerFrequency: ULong
 
-	var currentContext: Window?
 	val primaryMonitor: Monitor?
 	val monitors: List<Monitor>
+
+	val version: GlfwVersion
+	val versionString: String
 
 	fun init(): Boolean
 	fun terminate()
 
-	fun setErrorCallback(callback: ((Int, String) -> Unit)? = null)
-	fun setJoystickCallback(callback: (Joystick, Boolean) -> Unit)
-	fun setMonitorCallback(callback: (Monitor, Boolean) -> Unit)
+	fun setErrorCallback(callback: ErrorCallback? = null)
+	fun setJoystickCallback(callback: JoystickCallback? = null)
+	fun setMonitorCallback(callback: MonitorCallback? = null)
 
 	fun pollEvents()
 	fun waitEvents()
 	fun waitEvents(timeout: Double)
 	fun postEmptyEvent()
+
+	fun updateGamepadMappings(mapping: String): Boolean
+
+	var currentContext: Window?
+	fun isExtensionSupported(extension: String): Boolean
 	fun setSwapInterval(interval: Int)
+	val isRawMouseMotionSupported: Boolean
+	fun getKeyName(key: KeyboardKey): String?
+	fun getKeyName(scancode: Int): String?
+	fun getKeyScancode(key: KeyboardKey): Int
+}
+
+@ExperimentalTime
+fun Glfw.waitEvents(timeout: Duration) {
+	waitEvents(timeout.inSeconds)
 }

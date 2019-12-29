@@ -16,7 +16,7 @@
 package com.kgl.glfw
 
 expect enum class Action {
-	Press,
 	Release,
+	Press,
 	Repeat
 }

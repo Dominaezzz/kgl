@@ -18,12 +18,11 @@ package com.kgl.glfw
 import org.lwjgl.glfw.GLFW.*
 
 actual enum class Action(internal val value: Int) {
-	Press(GLFW_PRESS),
 	Release(GLFW_RELEASE),
+	Press(GLFW_PRESS),
 	Repeat(GLFW_REPEAT);
 
 	companion object {
-		private val lookUp = enumValues<Action>().associateBy { it.value }
-		internal fun from(value: Int): Action = lookUp[value]!!
+		internal fun from(value: Int): Action = values()[value]
 	}
 }

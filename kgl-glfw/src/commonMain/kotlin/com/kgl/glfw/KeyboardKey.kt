@@ -141,6 +141,5 @@ expect enum class KeyboardKey {
 	RIGHT_CONTROL,
 	RIGHT_ALT,
 	RIGHT_SUPER,
-	MENU,
-	LAST
+	MENU
 }

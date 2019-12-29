@@ -15,6 +15,8 @@
  */
 package com.kgl.glfw
 
+import com.kgl.core.Flag
+
 expect enum class Joystick {
 	_1,
 	_2,
@@ -38,3 +40,8 @@ expect val Joystick.deviceName: String?
 expect val Joystick.isPresent: Boolean
 expect val Joystick.axes: List<Float>?
 expect val Joystick.buttons: List<Action>?
+expect val Joystick.hats: List<Flag<Hat>?>?
+expect val Joystick.guid: String?
+expect val Joystick.isGamepad: Boolean
+expect val Joystick.gamepadName: String?
+expect val Joystick.gamepadState: GamepadState?

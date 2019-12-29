@@ -55,6 +55,24 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 			width[0] to height[0]
 		}
 
+	actual val contentScale: Pair<Float, Float>
+		get() = MemoryStack.stackPush().use {
+			val width = it.mallocFloat(1)
+			val height = it.mallocFloat(1)
+			glfwGetWindowContentScale(ptr, width, height)
+			width[0] to height[0]
+		}
+
+	actual val frameSize: FrameSize
+		get() = MemoryStack.stackPush().use {
+			val left = it.mallocInt(1)
+			val top = it.mallocInt(1)
+			val right = it.mallocInt(1)
+			val bottom = it.mallocInt(1)
+			glfwGetWindowFrameSize(ptr, left, top, right, bottom)
+			FrameSize(left[0], top[0], right[0], bottom[0])
+		}
+
 	actual var clipboardString: String?
 		get() = glfwGetClipboardString(ptr)
 		set(value) {
@@ -87,6 +105,36 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 			}
 		}
 
+	actual var isDecorated: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_DECORATED) == GLFW_TRUE
+		set(value) {
+			glfwSetWindowAttrib(ptr, GLFW_DECORATED, if (value) GLFW_TRUE else GLFW_FALSE)
+		}
+
+	actual var isResizable: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_RESIZABLE) == GLFW_TRUE
+		set(value) {
+			glfwSetWindowAttrib(ptr, GLFW_RESIZABLE, if (value) GLFW_TRUE else GLFW_FALSE)
+		}
+
+	actual var isFloating: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_FLOATING) == GLFW_TRUE
+		set(value) {
+			glfwSetWindowAttrib(ptr, GLFW_FLOATING, if (value) GLFW_TRUE else GLFW_FALSE)
+		}
+
+	actual var isAutoIconify: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_AUTO_ICONIFY) == GLFW_TRUE
+		set(value) {
+			glfwSetWindowAttrib(ptr, GLFW_AUTO_ICONIFY, if (value) GLFW_TRUE else GLFW_FALSE)
+		}
+
+	actual var isFocusOnShow: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_FOCUS_ON_SHOW) == GLFW_TRUE
+		set(value) {
+			glfwSetWindowAttrib(ptr, GLFW_FOCUS_ON_SHOW, if (value) GLFW_TRUE else GLFW_FALSE)
+		}
+
 	actual val monitor: Monitor? get() = glfwGetWindowMonitor(ptr).takeIf { it != 0L }?.let { Monitor(it) }
 
 	actual var cursorPosition: Pair<Double, Double>
@@ -99,6 +147,30 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		set(value) {
 			glfwSetCursorPos(ptr, value.first, value.second)
 		}
+
+	actual var opacity: Float
+		get() = glfwGetWindowOpacity(ptr)
+		set(value) { glfwSetWindowOpacity(ptr, value) }
+
+	actual var cursorMode: CursorMode
+		get() = CursorMode.from(glfwGetInputMode(ptr, GLFW_CURSOR))
+		set(value) { glfwSetInputMode(ptr, GLFW_CURSOR, value.value) }
+
+	actual var stickyKeysEnabled: Boolean
+		get() = glfwGetInputMode(ptr, GLFW_STICKY_KEYS) == GLFW_TRUE
+		set(value) { glfwSetInputMode(ptr, GLFW_STICKY_KEYS, if (value) GLFW_TRUE else GLFW_FALSE) }
+
+	actual var stickyMouseButtonsEnabled: Boolean
+		get() = glfwGetInputMode(ptr, GLFW_STICKY_MOUSE_BUTTONS) == GLFW_TRUE
+		set(value) { glfwSetInputMode(ptr, GLFW_STICKY_MOUSE_BUTTONS, if (value) GLFW_TRUE else GLFW_FALSE) }
+
+	actual var lockKeyModsEnabled: Boolean
+		get() = glfwGetInputMode(ptr, GLFW_LOCK_KEY_MODS) == GLFW_TRUE
+		set(value) { glfwSetInputMode(ptr, GLFW_LOCK_KEY_MODS, if (value) GLFW_TRUE else GLFW_FALSE) }
+
+	actual var rawMouseButtonEnabled: Boolean
+		get() = glfwGetInputMode(ptr, GLFW_RAW_MOUSE_MOTION) == GLFW_TRUE
+		set(value) { glfwSetInputMode(ptr, GLFW_RAW_MOUSE_MOTION, if (value) GLFW_TRUE else GLFW_FALSE) }
 
 	actual fun setMonitor(monitor: Monitor, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int) {
 		glfwSetWindowMonitor(ptr, monitor.ptr, xpos, ypos, width, height, refreshRate)
@@ -135,19 +207,23 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		glfwMaximizeWindow(ptr)
 	}
 
+	actual fun focus() {
+		glfwFocusWindow(ptr)
+	}
+
+	actual fun requestAttention() {
+		glfwRequestWindowAttention(ptr)
+	}
+
 	actual fun setCursor(cursor: Cursor?) {
 		glfwSetCursor(ptr, cursor?.ptr ?: 0)
 	}
 
 	actual fun getKey(key: KeyboardKey): Action = Action.from(glfwGetKey(ptr, key.value))
 
-	actual fun getKeyName(key: KeyboardKey): String? = glfwGetKeyName(key.value, 0)
-
-	actual fun getKeyName(scancode: Int): String? = glfwGetKeyName(GLFW_KEY_UNKNOWN, scancode)
-
 	actual fun getMouseButton(button: MouseButton): Action = Action.from(glfwGetMouseButton(ptr, button.value))
 
-	actual fun setPosCallback(callback: ((Window, Int, Int) -> Unit)?) {
+	actual fun setPosCallback(callback: WindowPosCallback?) {
 		if (callback != null) {
 			glfwSetWindowPosCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -157,7 +233,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setSizeCallback(callback: ((Window, Int, Int) -> Unit)?) {
+	actual fun setSizeCallback(callback: WindowSizeCallback?) {
 		if (callback != null) {
 			glfwSetWindowSizeCallback(ptr) { _, width, height ->
 				callback(this, width, height)
@@ -167,7 +243,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setFrameBufferCallback(callback: ((Window, Int, Int) -> Unit)?) {
+	actual fun setFrameBufferCallback(callback: FrameBufferCallback?) {
 		if (callback != null) {
 			glfwSetFramebufferSizeCallback(ptr) { _, width, height ->
 				callback(this, width, height)
@@ -177,7 +253,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setCloseCallback(callback: ((Window) -> Unit)?) {
+	actual fun setCloseCallback(callback: WindowCloseCallback?) {
 		if (callback != null) {
 			glfwSetWindowCloseCallback(ptr) {
 				callback(this)
@@ -187,7 +263,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setRefreshCallback(callback: ((Window) -> Unit)?) {
+	actual fun setRefreshCallback(callback: WindowRefreshCallback?) {
 		if (callback != null) {
 			glfwSetWindowRefreshCallback(ptr) {
 				callback(this)
@@ -197,7 +273,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setFocusCallback(callback: ((Window, Boolean) -> Unit)?) {
+	actual fun setFocusCallback(callback: WindowFocusCallback?) {
 		if (callback != null) {
 			glfwSetWindowFocusCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -207,7 +283,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setIconifyCallback(callback: ((Window, Boolean) -> Unit)?) {
+	actual fun setIconifyCallback(callback: WindowIconifyCallback?) {
 		if (callback != null) {
 			glfwSetWindowIconifyCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -217,7 +293,27 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setCursorEnterCallback(callback: ((Window, Boolean) -> Unit)?) {
+	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?) {
+		if (callback != null) {
+			glfwSetWindowMaximizeCallback(ptr) { _, maximized ->
+				callback(this, maximized)
+			}
+		} else {
+			glfwSetWindowMaximizeCallback(ptr, null)
+		}?.free()
+	}
+
+	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?) {
+		if (callback != null) {
+			glfwSetWindowContentScaleCallback(ptr) { _, xscale, yscale ->
+				callback(this, xscale, yscale)
+			}
+		} else {
+			glfwSetWindowContentScaleCallback(ptr, null)
+		}?.free()
+	}
+
+	actual fun setCursorEnterCallback(callback: CursorEnterCallback?) {
 		if (callback != null) {
 			glfwSetCursorEnterCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -227,7 +323,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setScrollCallback(callback: ((Window, Double, Double) -> Unit)?) {
+	actual fun setScrollCallback(callback: ScrollCallback?) {
 		if (callback != null) {
 			glfwSetScrollCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -237,7 +333,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setCursorPosCallback(callback: ((Window, Double, Double) -> Unit)?) {
+	actual fun setCursorPosCallback(callback: CursorPosCallback?) {
 		if (callback != null) {
 			glfwSetCursorPosCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -247,7 +343,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setDropCallback(callback: ((Window, Array<String>) -> Unit)?) {
+	actual fun setDropCallback(callback: DropCallback?) {
 		if (callback != null) {
 			glfwSetDropCallback(ptr) { _, count, names ->
 				val pNames = PointerBuffer.create(names, count)
@@ -258,7 +354,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setKeyCallback(callback: ((Window, KeyboardKey, Int, Action, Flag<Mod>) -> Unit)?) {
+	actual fun setKeyCallback(callback: KeyCallback?) {
 		if (callback != null) {
 			glfwSetKeyCallback(ptr) { _, key, scancode, action, mods ->
 				callback(this, KeyboardKey.from(key), scancode, Action.from(action), Flag(mods))
@@ -268,7 +364,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setMouseButtonCallback(callback: ((Window, MouseButton, Action, Flag<Mod>) -> Unit)?) {
+	actual fun setMouseButtonCallback(callback: MouseButtonCallback?) {
 		if (callback != null) {
 			glfwSetMouseButtonCallback(ptr) { _, button, action, mods ->
 				callback(this, MouseButton.from(button), Action.from(action), Flag(mods))
@@ -278,7 +374,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setCharCallback(callback: ((Window, UInt) -> Unit)?) {
+	actual fun setCharCallback(callback: CharCallback?) {
 		if (callback != null) {
 			glfwSetCharCallback(ptr) { _, codepoint ->
 				callback(this, codepoint.toUInt())
@@ -288,7 +384,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		}?.free()
 	}
 
-	actual fun setCharModsCallback(callback: ((Window, UInt, Flag<Mod>) -> Unit)?) {
+	actual fun setCharModsCallback(callback: CharModsCallback?) {
 		if (callback != null) {
 			glfwSetCharModsCallback(ptr) { _, codepoint, mods ->
 				callback(this, codepoint.toUInt(), Flag(mods))
@@ -491,7 +587,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 				glfwWindowHint(GLFW_FOCUSED, if (value) GLFW_TRUE else GLFW_FALSE)
 			}
 
-		actual var autoIconfiy: Boolean
+		actual var autoIconify: Boolean
 			get() = TODO("Querying window hints is not supported")
 			set(value) {
 				glfwWindowHint(GLFW_AUTO_ICONIFY, if (value) GLFW_TRUE else GLFW_FALSE)

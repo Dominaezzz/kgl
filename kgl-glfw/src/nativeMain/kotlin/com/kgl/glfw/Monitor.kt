@@ -46,6 +46,32 @@ actual class Monitor(val ptr: CPointer<GLFWmonitor>) {
 				VirtualStack.pop()
 			}
 		}
+	actual val contentScale: Pair<Float, Float>
+		get() {
+			VirtualStack.push()
+			return try {
+				val width = VirtualStack.alloc<FloatVar>()
+				val height = VirtualStack.alloc<FloatVar>()
+				glfwGetMonitorContentScale(ptr, width.ptr, height.ptr)
+				width.value to height.value
+			} finally {
+				VirtualStack.pop()
+			}
+		}
+	actual val workarea: Workarea
+		get() {
+			VirtualStack.push()
+			return try {
+				val xpos = VirtualStack.alloc<IntVar>()
+				val ypos = VirtualStack.alloc<IntVar>()
+				val width = VirtualStack.alloc<IntVar>()
+				val height = VirtualStack.alloc<IntVar>()
+				glfwGetMonitorWorkarea(ptr, xpos.ptr, ypos.ptr, width.ptr, height.ptr)
+				Workarea(xpos.value, ypos.value, width.value, height.value)
+			} finally {
+				VirtualStack.pop()
+			}
+		}
 	actual val videoMode: VideoMode get() = VideoMode(glfwGetVideoMode(ptr)!!)
 	actual val videoModes: List<VideoMode>
 		get() {

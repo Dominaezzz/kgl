@@ -17,7 +17,7 @@ package config
 
 object Versions {
 	const val KOTLINX_IO = "0.1.16"
-	const val LWJGL = "3.2.1"
+	const val LWJGL = "3.2.2"
 	val LWJGL_NATIVES = when {
 		Config.OS.isWindows -> "natives-windows"
 		Config.OS.isLinux -> "natives-linux"

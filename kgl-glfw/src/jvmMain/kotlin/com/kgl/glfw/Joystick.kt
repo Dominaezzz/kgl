@@ -15,7 +15,10 @@
  */
 package com.kgl.glfw
 
+import com.kgl.core.Flag
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.glfw.GLFWGamepadState
+import org.lwjgl.system.MemoryStack
 
 actual enum class Joystick(internal val value: Int) {
 	_1(GLFW_JOYSTICK_1),
@@ -57,5 +60,38 @@ actual val Joystick.buttons: List<Action>?
 				override val size: Int = it.limit()
 				override fun get(index: Int): Action = Action.from(it[index].toInt())
 			}
+		}
+	}
+
+actual val Joystick.hats: List<Flag<Hat>?>?
+	get() {
+		return glfwGetJoystickHats(value)?.let {
+			object : AbstractList<Flag<Hat>?>() {
+				override val size: Int = it.limit()
+				override fun get(index: Int): Flag<Hat>? = Flag(it[index].toInt())
+			}
+		}
+	}
+
+actual val Joystick.guid: String? get() = glfwGetJoystickGUID(value)
+
+actual val Joystick.isGamepad: Boolean get() = glfwJoystickIsGamepad(value)
+
+actual val Joystick.gamepadName: String? get() = glfwGetGamepadName(value)
+
+actual val Joystick.gamepadState: GamepadState?
+	get() {
+		MemoryStack.stackPush()
+		try {
+			val state = GLFWGamepadState.mallocStack()
+			if (glfwGetGamepadState(value, state)) {
+				return GamepadState(
+						List(15) { Action.from(state.buttons(it).toInt()) },
+						FloatArray(6) { state.axes(it) }
+				)
+			}
+			return null
+		} finally {
+			MemoryStack.stackPop()
 		}
 	}

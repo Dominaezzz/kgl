@@ -25,13 +25,9 @@ actual enum class MouseButton(internal val value: Int) {
 	_5(GLFW_MOUSE_BUTTON_5),
 	_6(GLFW_MOUSE_BUTTON_6),
 	_7(GLFW_MOUSE_BUTTON_7),
-	_8(GLFW_MOUSE_BUTTON_8),
-	LAST(GLFW_MOUSE_BUTTON_LAST),
-	LEFT(GLFW_MOUSE_BUTTON_LEFT),
-	RIGHT(GLFW_MOUSE_BUTTON_RIGHT),
-	MIDDLE(GLFW_MOUSE_BUTTON_MIDDLE);
+	_8(GLFW_MOUSE_BUTTON_8);
 
-	companion object {
+	actual companion object {
 		private val lookUp = enumValues<MouseButton>().associateBy { it.value }
 		internal fun from(value: Int): MouseButton = lookUp[value]!!
 	}

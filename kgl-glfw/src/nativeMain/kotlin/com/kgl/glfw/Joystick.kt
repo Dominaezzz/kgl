@@ -16,6 +16,7 @@
 package com.kgl.glfw
 
 import cglfw.*
+import com.kgl.core.Flag
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
@@ -70,6 +71,45 @@ actual val Joystick.buttons: List<Action>?
 					override fun get(index: Int): Action = Action.from(it[index].toInt())
 				}
 			}
+		} finally {
+			VirtualStack.pop()
+		}
+	}
+
+actual val Joystick.hats: List<Flag<Hat>?>?
+	get() {
+		VirtualStack.push()
+		return try {
+			val count = VirtualStack.alloc<IntVar>()
+			glfwGetJoystickHats(value, count.ptr)?.let {
+				object : AbstractList<Flag<Hat>?>() {
+					override val size: Int = count.value
+					override fun get(index: Int): Flag<Hat>? = Flag(it[index].toInt())
+				}
+			}
+		} finally {
+			VirtualStack.pop()
+		}
+	}
+
+actual val Joystick.guid: String? get() = glfwGetJoystickGUID(value)?.toKString()
+
+actual val Joystick.isGamepad: Boolean get() = glfwJoystickIsGamepad(value) == GLFW_TRUE
+
+actual val Joystick.gamepadName: String? get() = glfwGetGamepadName(value)?.toKString()
+
+actual val Joystick.gamepadState: GamepadState?
+	get() {
+		VirtualStack.push()
+		try {
+			val state = VirtualStack.alloc<GLFWgamepadstate>()
+			if (glfwGetGamepadState(value, state.ptr) == GLFW_TRUE) {
+				return GamepadState(
+						List(15) { Action.from(state.buttons[it].toInt()) },
+						FloatArray(6) { state.axes[it] }
+				)
+			}
+			return null
 		} finally {
 			VirtualStack.pop()
 		}
