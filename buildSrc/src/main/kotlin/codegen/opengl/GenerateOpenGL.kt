@@ -15,6 +15,7 @@
  */
 package codegen.opengl
 
+import codegen.C_OPAQUE_POINTER
 import codegen.THREAD_LOCAL
 import codegen.VIRTUAL_STACK
 import com.squareup.kotlinpoet.*
@@ -148,7 +149,14 @@ open class GenerateOpenGL : DefaultTask() {
 			}
 		}
 
+		val getProcAddressType = LambdaTypeName.get(null, listOf(ParameterSpec.unnamed(STRING)), C_OPAQUE_POINTER.copy(nullable = true))
+
 		val glFunctions = TypeSpec.classBuilder("GLFunctions")
+		glFunctions.addModifiers(KModifier.INTERNAL)
+		glFunctions.primaryConstructor(FunSpec.constructorBuilder()
+				.addParameter("getProcAddress", getProcAddressType)
+				.build())
+
 		for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
 
@@ -158,7 +166,7 @@ open class GenerateOpenGL : DefaultTask() {
 					PropertySpec.builder(
 							command.name,
 							ClassName("copengl", pfnType).copy(nullable = true)
-					).initializer("Loader.kglGetProcAddress(%S)?.reinterpret()", command.name).build()
+					).initializer("getProcAddress(%S)?.reinterpret()", command.name).build()
 			)
 		}
 
@@ -167,7 +175,7 @@ open class GenerateOpenGL : DefaultTask() {
 				"gl",
 				ClassName("com.kgl.opengl", "GLFunctions"),
 				KModifier.INTERNAL
-		).delegate("lazy { GLFunctions() }").addAnnotation(THREAD_LOCAL).build())
+		).delegate("lazy { GLFunctions(Loader::kglGetProcAddress) }").addAnnotation(THREAD_LOCAL).build())
 
 		loop@for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
