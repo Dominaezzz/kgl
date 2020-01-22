@@ -19,31 +19,21 @@ import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
 fun glGetProgramInfoLog(program: UInt): String {
-	VirtualStack.push()
-	try {
-		val output = VirtualStack.alloc<IntVar>()
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, output.ptr)
-		val infoLogLength = output.value
-		val infoLog = VirtualStack.allocArray<ByteVar>(infoLogLength + 1)
-		glGetProgramInfoLog(program, infoLogLength + 1, null, infoLog)
-		return infoLog.toKString()
-	} finally {
-		VirtualStack.push()
+	val infoLogLength = glGetProgrami(program, GL_INFO_LOG_LENGTH)
+	val infoLog = ByteArray(infoLogLength + 1) // +1 for null terminator
+	infoLog.usePinned {
+		glGetProgramInfoLog(program, infoLogLength + 1, null, it.addressOf(0))
 	}
+	return infoLog.decodeToString()
 }
 
 fun glGetShaderInfoLog(shader: UInt): String {
-	VirtualStack.push()
-	try {
-		val output = VirtualStack.alloc<IntVar>()
-		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, output.ptr)
-		val infoLogLength = output.value
-		val infoLog = VirtualStack.allocArray<ByteVar>(infoLogLength + 1)
-		glGetShaderInfoLog(shader, infoLogLength + 1, null, infoLog)
-		return infoLog.toKString()
-	} finally {
-		VirtualStack.pop()
+	val infoLogLength = glGetShaderi(shader, GL_INFO_LOG_LENGTH)
+	val infoLog = ByteArray(infoLogLength + 1)
+	infoLog.usePinned {
+		glGetShaderInfoLog(shader, infoLogLength + 1, null, it.addressOf(0))
 	}
+	return infoLog.decodeToString()
 }
 
 fun glShaderSource(shader: UInt, string: String) {

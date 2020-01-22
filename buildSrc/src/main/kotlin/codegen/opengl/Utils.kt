@@ -28,23 +28,6 @@ internal fun String.escapeKt(): String = when (this) {
 
 internal val Registry.Command.Param.isWritable: Boolean get() = type.asteriskCount > 0 && !type.isConst
 
-internal class GLCallBuilder(private val command: Registry.Command) {
-	private val arguments = mutableMapOf<String, String>()
-
-	operator fun set(paramName: String, argument: String) {
-		arguments[paramName] = argument
-	}
-
-	fun build(): String {
-		return command.params.joinToString(", ",
-				prefix = "gl.${command.name}!!(",
-				postfix = ")"
-		) {
-			arguments[it.name] ?: "TODO()"
-		}
-	}
-}
-
 internal fun CTypeDecl.toKtInteropParamType(): TypeName {
 	return if (name == "void" && asteriskCount == 1) {
 		if (isConst) {

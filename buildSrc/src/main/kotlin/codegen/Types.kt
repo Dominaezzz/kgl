@@ -21,6 +21,7 @@ import com.squareup.kotlinpoet.MemberName
 
 internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
 internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
+internal val BYTE_VAR = ClassName("kotlinx.cinterop", "ByteVar")
 
 internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
 
@@ -36,4 +37,6 @@ object KtxC {
 	val PTR = MemberName("kotlinx.cinterop", "ptr")
 	val TO_KSTRING = MemberName("kotlinx.cinterop", "toKString")
 	val ALLOC = MemberName("kotlinx.cinterop", "alloc")
+	val VALUE = MemberName("kotlinx.cinterop", "value")
+	val CSTR = MemberName("kotlinx.cinterop", "cstr")
 }

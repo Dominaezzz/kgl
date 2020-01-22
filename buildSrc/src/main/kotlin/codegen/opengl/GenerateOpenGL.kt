@@ -18,6 +18,9 @@ package codegen.opengl
 import codegen.C_OPAQUE_POINTER
 import codegen.THREAD_LOCAL
 import codegen.VIRTUAL_STACK
+import codegen.BYTE_VAR
+import codegen.CTypeDecl
+import codegen.KtxC
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.gradle.api.DefaultTask
@@ -180,33 +183,43 @@ open class GenerateOpenGL : DefaultTask() {
 		loop@for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
 
-			val function = FunSpec.builder(command.name)
-			val mainFunctionBody = CodeBlock.builder()
-
-			val callBuilder = GLCallBuilder(command)
-
 			val tryFinallyBlocks = mutableListOf<Pair<CodeBlock, CodeBlock>>()
 			val ioBufferDirectBlocks = mutableListOf<Pair<String, String>>()
 			var requiresArena = false
+			var isReturnNotFriendly = false
 
+			val parameters = mutableListOf<ParameterSpec>()
+			val arguments = mutableMapOf<String, CodeBlock>()
 			for (param in command.params) {
 				val typeKt = param.type.toKtInteropParamType()
 
-				callBuilder[param.name] = if (param.type.asteriskCount > 0 && param.type.isConst) {
+				arguments[param.name] = CodeBlock.of(if (param.type.asteriskCount > 0 && param.type.isConst) {
 					requiresArena = true
 					param.name.escapeKt() + "?.getPointer(VirtualStack.currentFrame!!)"
 				} else {
 					param.name.escapeKt()
-				}
-				function.addParameter(param.name, typeKt)
+				})
+				parameters.add(ParameterSpec(param.name, typeKt))
 			}
 
-			val commandCall = callBuilder.build()
+			val shouldReturnString = command.returnType.matches("GLubyte", 1, true)
+			val shouldReturnBoolean = command.returnType.matches("GLboolean", 0, false)
+			if (shouldReturnString || shouldReturnBoolean) {
+				isReturnNotFriendly = true
+			}
+
+			val function = FunSpec.builder(if (isReturnNotFriendly) "n${command.name}" else command.name)
+					.addParameters(parameters)
+			val commandCall = command.params.map { arguments.getValue(it.name) }
+					.joinToCode(prefix = "gl.${command.name}!!(", suffix = ")\n")
+
+			val mainFunctionBody = CodeBlock.builder()
 			if (command.returnType.name == "void" && command.returnType.asteriskCount == 0) {
-				mainFunctionBody.addStatement(commandCall)
+				mainFunctionBody.add(commandCall)
 				function.returns(UNIT)
 			} else {
-				mainFunctionBody.addStatement("return $commandCall")
+				mainFunctionBody.add("return ")
+				mainFunctionBody.add(commandCall)
 				function.returns(command.returnType.toKtInteropType())
 			}
 
@@ -217,31 +230,154 @@ open class GenerateOpenGL : DefaultTask() {
 				)
 			}
 
-			tryFinallyBlocks.forEach { (pre, _) ->
-				function.addCode(pre)
-				function.beginControlFlow("try")
-			}
-			ioBufferDirectBlocks.forEach { function.beginControlFlow(it.first) }
+			val functionBody = buildCodeBlock {
+				tryFinallyBlocks.forEach { (pre, _) ->
+					add(pre)
+					beginControlFlow("try")
+				}
+				ioBufferDirectBlocks.forEach { beginControlFlow(it.first) }
 
-			function.addCode(mainFunctionBody.build())
+				add(mainFunctionBody.build())
 
-			ioBufferDirectBlocks.forEach {
-				function.addStatement(it.second)
-				function.endControlFlow()
+				ioBufferDirectBlocks.forEach {
+					addStatement(it.second)
+					endControlFlow()
+				}
+				tryFinallyBlocks.reversed().forEach { (_, post) ->
+					nextControlFlow("finally")
+					add(post)
+					endControlFlow()
+				}
 			}
-			tryFinallyBlocks.reversed().forEach { (_, post) ->
-				function.nextControlFlow("finally")
-				function.addCode(post)
-				function.endControlFlow()
+			function.addCode(functionBody)
+			val originalFunction = function.build()
+			glFile.addFunction(originalFunction)
+
+			if (isReturnNotFriendly) {
+				val internalFunCall = parameters.joinToString(prefix = "n${command.name}(", postfix = ")") { it.name }
+				val wrapperFun = FunSpec.builder(command.name)
+				wrapperFun.addParameters(parameters)
+				if (shouldReturnString) {
+					wrapperFun.returns(STRING.copy(nullable = true))
+					wrapperFun.addCode(buildCodeBlock {
+						add("return ")
+						add(internalFunCall)
+						add("?.%M<%T>()?.%M()\n", KtxC.REINTERPRET, BYTE_VAR, KtxC.TO_KSTRING)
+					})
+				}
+				if (shouldReturnBoolean) {
+					wrapperFun.returns(BOOLEAN)
+					wrapperFun.addCode(buildCodeBlock {
+						add("return ")
+						add(internalFunCall)
+						add(".toUInt() == GL_TRUE\n")
+					})
+				}
+				glFile.addFunction(wrapperFun.build())
+			}
+			if (command.name.endsWith('v')) {
+				val lastArg = command.params.last()
+				// val newFunctionName = command.name.replace(overloadRegex, "")
+				val newFunctionName = command.name.dropLast(1).removeSuffix("i_")
+
+				if (command.returnType.matches("void", 0) && !lastArg.type.isConst && lastArg.type.asteriskCount == 1) {
+					val wrapperFun = FunSpec.builder(newFunctionName)
+					wrapperFun.addParameters(parameters.dropLast(1))
+
+					val internalFunCall = (parameters.dropLast(1).map { CodeBlock.of(it.name) } + CodeBlock.of("retValue.%M", KtxC.PTR))
+							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+
+					wrapperFun.returns(ClassName("copengl", lastArg.type.name))
+					wrapperFun.addCode(buildCodeBlock {
+						addStatement("%T.push()", VIRTUAL_STACK)
+						beginControlFlow("try")
+						addStatement("val retValue = %T.%M<%T>()", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						add(internalFunCall)
+						addStatement("return retValue.%M", KtxC.VALUE)
+						nextControlFlow("finally")
+						addStatement("%T.pop()", VIRTUAL_STACK)
+						endControlFlow()
+					})
+					glFile.addFunction(wrapperFun.build())
+				}
+			}
+			if (command.name.endsWith('s') && (command.name.startsWith("glCreate") || command.name.startsWith("glGen"))) {
+				val lastArg = command.params.last()
+				val newFunctionName = if (command.name.endsWith("ies")) {
+					command.name.dropLast(3) + "y"
+				} else {
+					command.name.dropLast(1)
+				}
+
+				if (command.returnType.matches("void", 0) && !lastArg.type.isConst && lastArg.type.asteriskCount == 1) {
+					val wrapperFun = FunSpec.builder(newFunctionName)
+					wrapperFun.returns(ClassName("copengl", lastArg.type.name))
+					wrapperFun.addParameters(parameters.dropLast(2))
+
+					val internalFunCall = (parameters.dropLast(2).map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
+							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+
+					wrapperFun.addCode(buildCodeBlock {
+						addStatement("%T.push()", VIRTUAL_STACK)
+						beginControlFlow("try")
+						addStatement("val retValue = %T.%M<%T>()", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						add(internalFunCall)
+						addStatement("return retValue.%M", KtxC.VALUE)
+						nextControlFlow("finally")
+						addStatement("%T.pop()", VIRTUAL_STACK)
+						endControlFlow()
+					})
+					glFile.addFunction(wrapperFun.build())
+					println(newFunctionName)
+				}
 			}
 
-			glFile.addFunction(function.build())
-		}
+			// Map of param name to a pair of friendlier type and converter.
+			val paramMapping = mutableMapOf<String, Pair<TypeName, CodeBlock>>()
+			for (param in command.params) {
+				if (param.type.matches("GLchar", 1, true)) {
+					paramMapping[param.name] = STRING to CodeBlock.of("${param.name}.%M", KtxC.CSTR)
+				}
+				if (param.type.matches("GLboolean", 0)) {
+					paramMapping[param.name] = BOOLEAN to CodeBlock.of("(if (${param.name}) GL_TRUE else GL_FALSE).toUByte()")
+				}
+			}
+			// If params can be nicer, then make a friendlier wrapper function.
+			if (paramMapping.isNotEmpty()) {
+				val internalFunCall = parameters.map { paramMapping[it.name]?.second ?: CodeBlock.of(it.name) }
+						.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+				val wrapperFun = FunSpec.builder(command.name)
+				wrapperFun.addParameters(parameters.map { param -> paramMapping[param.name]?.let { ParameterSpec(param.name, it.first) } ?: param })
+				originalFunction.returnType?.let { wrapperFun.returns(it) }
+				wrapperFun.addCode(buildCodeBlock {
+					add("return ")
+					add(internalFunCall)
+				})
+				glFile.addFunction(wrapperFun.build())
+			}
+ 		}
 
 		with(glFile.build()) {
 			writeTo(mingwDir.get().asFile)
 			writeTo(linuxDir.get().asFile)
 			writeTo(macosDir.get().asFile)
 		}
+	}
+
+	private val overloadRegex = Regex("([1234])?(b|s|i|i64|f|d|ub|us|ui|ui64|i_)?(v)?$")
+
+	private fun CTypeDecl.matches(name: String, astCount: Int, isConst: Boolean): Boolean {
+		return this.name == name &&
+				this.asteriskCount == astCount &&
+				this.isConst == isConst
+	}
+
+	private fun CTypeDecl.matches(name: String, astCount: Int): Boolean {
+		return this.name == name &&
+				this.asteriskCount == astCount
+	}
+
+	private fun CTypeDecl.matches(name: String): Boolean {
+		return this.name == name
 	}
 }
