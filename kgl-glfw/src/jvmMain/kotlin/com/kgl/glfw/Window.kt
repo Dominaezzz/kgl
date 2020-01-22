@@ -435,6 +435,25 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 	}
 
 	override fun close() {
+		// Free potentially allocated callbacks.
+		glfwSetWindowPosCallback(ptr, null)?.free()
+		glfwSetWindowSizeCallback(ptr, null)?.free()
+		glfwSetFramebufferSizeCallback(ptr, null)?.free()
+		glfwSetWindowCloseCallback(ptr, null)?.free()
+		glfwSetWindowRefreshCallback(ptr, null)?.free()
+		glfwSetWindowFocusCallback(ptr, null)?.free()
+		glfwSetWindowIconifyCallback(ptr, null)?.free()
+		glfwSetWindowMaximizeCallback(ptr, null)?.free()
+		glfwSetWindowContentScaleCallback(ptr, null)?.free()
+		glfwSetCursorEnterCallback(ptr, null)?.free()
+		glfwSetScrollCallback(ptr, null)?.free()
+		glfwSetCursorPosCallback(ptr, null)?.free()
+		glfwSetDropCallback(ptr, null)?.free()
+		glfwSetKeyCallback(ptr, null)?.free()
+		glfwSetMouseButtonCallback(ptr, null)?.free()
+		glfwSetCharCallback(ptr, null)?.free()
+		glfwSetCharModsCallback(ptr, null)?.free()
+
 		glfwDestroyWindow(ptr)
 		glfwTerminate()
 	}
