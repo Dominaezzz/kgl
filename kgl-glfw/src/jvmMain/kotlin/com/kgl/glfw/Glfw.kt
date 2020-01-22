@@ -31,7 +31,7 @@ actual object Glfw {
 	actual val timerFrequency: ULong get() = glfwGetTimerFrequency().toULong()
 
 	actual var currentContext: Window?
-		get() = TODO("Getting current context is not yet supported on JVM") // glfwGetCurrentContext()
+		get() = MemoryUtil.memGlobalRefToObject(glfwGetWindowUserPointer(glfwGetCurrentContext()))
 		set(value) {
 			glfwMakeContextCurrent(value?.ptr ?: 0L)
 		}

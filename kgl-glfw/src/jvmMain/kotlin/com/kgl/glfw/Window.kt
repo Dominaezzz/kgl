@@ -22,8 +22,18 @@ import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
+import org.lwjgl.system.jni.JNINativeInterface
 
 actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeable {
+
+	init {
+		check(glfwGetWindowUserPointer(ptr) == 0L) {
+			"Must not already have a userPointer"
+		}
+
+		val globalRef = JNINativeInterface.NewGlobalRef(this)
+		glfwSetWindowUserPointer(ptr, globalRef)
+	}
 
 	actual var position: Pair<Int, Int>
 		get() = MemoryStack.stackPush().use {
@@ -453,6 +463,9 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		glfwSetMouseButtonCallback(ptr, null)?.free()
 		glfwSetCharCallback(ptr, null)?.free()
 		glfwSetCharModsCallback(ptr, null)?.free()
+
+		val globalRef = glfwGetWindowUserPointer(ptr)
+		JNINativeInterface.DeleteGlobalRef(globalRef)
 
 		glfwDestroyWindow(ptr)
 		glfwTerminate()
