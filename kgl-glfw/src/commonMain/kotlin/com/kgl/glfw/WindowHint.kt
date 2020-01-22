@@ -33,6 +33,8 @@ expect enum class CreationApi {
 }
 
 expect enum class Robustness {
+	LoseContextOnReset,
+	NoResetNotification,
 	None
 }
 

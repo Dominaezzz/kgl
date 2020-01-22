@@ -15,7 +15,6 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.Flag
 import kotlinx.io.core.Closeable
 
 expect class Window : Closeable {
@@ -33,6 +32,19 @@ expect class Window : Closeable {
 	var isFloating: Boolean
 	var isAutoIconify: Boolean
 	var isFocusOnShow: Boolean
+	val isFocused: Boolean
+	val isMaximized: Boolean
+	val isHovered: Boolean
+	val isTransparentFramebuffer: Boolean
+	val clientApi: ClientApi
+	val contextCreationApi: CreationApi
+	val openGLForwardCompat: Boolean
+	val openGLDebugContext: Boolean
+	val openGLProfile: OpenGLProfile
+	val contextReleaseBehaviour: ReleaseBehaviour
+	val contextNoError: Boolean
+	val contextRobustness: Robustness
+
 	val monitor: Monitor?
 	var cursorPosition: Pair<Double, Double>
 	var cursorMode: CursorMode
@@ -118,6 +130,7 @@ expect class Window : Closeable {
 		var autoIconify: Boolean
 		var floating: Boolean
 		var maximized: Boolean
+		var transparentFramebuffer: Boolean
 
 		var refreshRate: Int
 	}

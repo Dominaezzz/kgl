@@ -135,6 +135,42 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 			glfwSetWindowAttrib(ptr, GLFW_FOCUS_ON_SHOW, if (value) GLFW_TRUE else GLFW_FALSE)
 		}
 
+	actual val isFocused: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_FOCUSED) == GLFW_TRUE
+
+	actual val isMaximized: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_MAXIMIZED) == GLFW_TRUE
+
+	actual val isHovered: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_HOVERED) == GLFW_TRUE
+
+	actual val isTransparentFramebuffer: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE
+
+	actual val clientApi: ClientApi
+		get() = ClientApi.from(glfwGetWindowAttrib(ptr, GLFW_CLIENT_API))
+
+	actual val contextCreationApi: CreationApi
+		get() = CreationApi.from(glfwGetWindowAttrib(ptr, GLFW_CONTEXT_CREATION_API))
+
+	actual val openGLForwardCompat: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_OPENGL_FORWARD_COMPAT) == GLFW_TRUE
+
+	actual val openGLDebugContext: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_OPENGL_DEBUG_CONTEXT) == GLFW_TRUE
+
+	actual val openGLProfile: OpenGLProfile
+		get() = OpenGLProfile.from(glfwGetWindowAttrib(ptr, GLFW_OPENGL_PROFILE))
+
+	actual val contextReleaseBehaviour: ReleaseBehaviour
+		get() = ReleaseBehaviour.from(glfwGetWindowAttrib(ptr, GLFW_CONTEXT_RELEASE_BEHAVIOR))
+
+	actual val contextNoError: Boolean
+		get() = glfwGetWindowAttrib(ptr, GLFW_CONTEXT_NO_ERROR) == GLFW_TRUE
+
+	actual val contextRobustness: Robustness
+		get() = Robustness.from(glfwGetWindowAttrib(ptr, GLFW_CONTEXT_ROBUSTNESS))
+
 	actual val monitor: Monitor? get() = glfwGetWindowMonitor(ptr).takeIf { it != 0L }?.let { Monitor(it) }
 
 	actual var cursorPosition: Pair<Double, Double>
@@ -603,6 +639,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 			get() = TODO("Querying window hints is not supported")
 			set(value) {
 				glfwWindowHint(GLFW_MAXIMIZED, if (value) GLFW_TRUE else GLFW_FALSE)
+			}
+
+		actual var transparentFramebuffer: Boolean
+			get() = TODO("Querying window hints is not supported")
+			set(value) {
+				glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
 			}
 
 		actual var refreshRate: Int

@@ -20,26 +20,72 @@ import cglfw.*
 actual enum class OpenGLProfile(internal val value: Int) {
 	Any(GLFW_OPENGL_ANY_PROFILE),
 	Core(GLFW_OPENGL_CORE_PROFILE),
-	Compat(GLFW_OPENGL_COMPAT_PROFILE)
+	Compat(GLFW_OPENGL_COMPAT_PROFILE);
+
+	companion object {
+		internal fun from(value: Int): OpenGLProfile = when(value) {
+			GLFW_OPENGL_ANY_PROFILE -> Any
+			GLFW_OPENGL_CORE_PROFILE -> Core
+			GLFW_OPENGL_COMPAT_PROFILE -> Compat
+			else -> throw NoSuchElementException("Unknown OpenGLProfile value of $value")
+		}
+	}
 }
 
 actual enum class ClientApi(internal val value: Int) {
 	OpenGL(GLFW_OPENGL_API),
 	OpenGLES(GLFW_OPENGL_ES_API),
-	None(GLFW_NO_API)
+	None(GLFW_NO_API);
+
+	companion object {
+		internal fun from(value: Int): ClientApi = when(value) {
+			GLFW_OPENGL_API -> OpenGL
+			GLFW_OPENGL_ES_API -> OpenGLES
+			GLFW_NO_API -> None
+			else -> throw NoSuchElementException("Unknown ClientApi value of $value")
+		}
+	}
 }
 
 actual enum class CreationApi(internal val value: Int) {
 	Native(GLFW_NATIVE_CONTEXT_API),
-	EGL(GLFW_EGL_CONTEXT_API)
+	EGL(GLFW_EGL_CONTEXT_API);
+
+	companion object {
+		internal fun from(value: Int): CreationApi = when(value) {
+			GLFW_NATIVE_CONTEXT_API -> Native
+			GLFW_EGL_CONTEXT_API -> EGL
+			else -> throw NoSuchElementException("Unknown CreationApi value of $value")
+		}
+	}
 }
 
 actual enum class Robustness(internal val value: Int) {
-	None(GLFW_NO_ROBUSTNESS)
+	LoseContextOnReset(GLFW_LOSE_CONTEXT_ON_RESET),
+	NoResetNotification(GLFW_LOSE_CONTEXT_ON_RESET),
+	None(GLFW_NO_ROBUSTNESS);
+
+	companion object {
+		internal fun from(value: Int): Robustness = when(value) {
+			GLFW_LOSE_CONTEXT_ON_RESET -> LoseContextOnReset
+			GLFW_NO_RESET_NOTIFICATION -> NoResetNotification
+			GLFW_NO_ROBUSTNESS -> None
+			else -> throw NoSuchElementException("Unknown Robustness value of $value")
+		}
+	}
 }
 
 actual enum class ReleaseBehaviour(internal val value: Int) {
 	Any(GLFW_ANY_RELEASE_BEHAVIOR),
 	Flush(GLFW_RELEASE_BEHAVIOR_FLUSH),
-	None(GLFW_RELEASE_BEHAVIOR_NONE)
+	None(GLFW_RELEASE_BEHAVIOR_NONE);
+
+	companion object {
+		internal fun from(value: Int): ReleaseBehaviour = when(value) {
+			GLFW_ANY_RELEASE_BEHAVIOR -> Any
+			GLFW_RELEASE_BEHAVIOR_FLUSH -> Flush
+			GLFW_RELEASE_BEHAVIOR_NONE -> None
+			else -> throw NoSuchElementException("Unknown ReleaseBehaviour value of $value")
+		}
+	}
 }
