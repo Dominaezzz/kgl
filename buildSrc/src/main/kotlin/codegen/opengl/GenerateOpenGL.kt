@@ -16,7 +16,6 @@
 package codegen.opengl
 
 import codegen.THREAD_LOCAL
-import codegen.UINT
 import codegen.VIRTUAL_STACK
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
@@ -144,7 +143,7 @@ open class GenerateOpenGL : DefaultTask() {
 				if (name !in coreEnums) continue
 
 				// Add KModifier.CONST once `toUInt()` is constexpr
-				glFile.addProperty(PropertySpec.builder(name, UINT)
+				glFile.addProperty(PropertySpec.builder(name, U_INT)
 						.initializer("copengl.$name.toUInt()").build())
 			}
 		}

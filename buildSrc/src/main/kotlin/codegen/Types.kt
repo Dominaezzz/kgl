@@ -26,16 +26,6 @@ internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
 
 internal val IO_BUFFER = ClassName("kotlinx.io.core", "IoBuffer")
 
-internal val UBYTE = ClassName("kotlin", "UByte")
-internal val USHORT = ClassName("kotlin", "UShort")
-internal val UINT = ClassName("kotlin", "UInt")
-internal val ULONG = ClassName("kotlin", "ULong")
-internal val NOTHING = ClassName("kotlin", "Nothing")
-internal val STRING = ClassName("kotlin", "String")
-internal val ARRAY = ClassName("kotlin", "Array")
-internal val COLLECTION = ClassName("kotlin.collections", "Collection")
-internal val LIST = ClassName("kotlin.collections", "List")
-internal val MUTABLE_LIST = ClassName("kotlin.collections", "MutableList")
 internal val PAIR = ClassName("kotlin", "Pair")
 
 internal val MEMORY_STACK = ClassName("org.lwjgl.system", "MemoryStack")

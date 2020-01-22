@@ -17,8 +17,6 @@ package codegen.opengl
 
 import codegen.*
 import codegen.C_OPAQUE_POINTER
-import codegen.UBYTE
-import codegen.USHORT
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
@@ -101,20 +99,20 @@ internal val primitiveTypes = mapOf(
 
 		"GLboolean" to BOOLEAN,
 		"GLbyte" to BYTE,
-		"GLubyte" to UBYTE,
+		"GLubyte" to U_BYTE,
 		"GLshort" to SHORT,
-		"GLushort" to USHORT,
+		"GLushort" to U_SHORT,
 		"GLint" to INT,
-		"GLuint" to UINT,
+		"GLuint" to U_INT,
 		"GLfixed" to INT,
 		"GLint64" to LONG,
-		"GLuint64" to ULONG,
+		"GLuint64" to U_LONG,
 
 		// "GLsizei" to UINT,
 		"GLsizei" to INT,
 
 		//"GLenum" to INT,
-		"GLenum" to UINT,
+		"GLenum" to U_INT,
 
 		/* These should be able to store sizeof(void*) */
 		"GLintptr" to LONG ,
@@ -122,7 +120,7 @@ internal val primitiveTypes = mapOf(
 		// "GLsizeiptr" to ULONG,
 		"GLsync" to LONG /* Probably should be here since, `typedef struct __GLsync *GLsync;` */,
 
-		"GLbitfield" to UINT,
+		"GLbitfield" to U_INT,
 		// "GLbitfield" to INT,
 
 		//"GLhalf" to null,

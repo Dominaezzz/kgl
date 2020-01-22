@@ -92,7 +92,7 @@ open class GenerateVulkan : DefaultTask() {
 								lambdaParam("DescriptorSetLayoutBindingBuilder", withDefault = true)
 						),
 						listOf(
-								param("descriptorCount", UINT),
+								param("descriptorCount", U_INT),
 								lambdaParam("DescriptorSetLayoutBindingBuilder")
 						)
 				),
@@ -141,7 +141,7 @@ open class GenerateVulkan : DefaultTask() {
 				),
 				"VkDeviceQueueCreateInfo" to listOf(
 						listOf(
-								param("queueFamilyIndex", UINT),
+								param("queueFamilyIndex", U_INT),
 								param("queuePriorities", FLOAT, KModifier.VARARG),
 								lambdaParam("DeviceQueueCreateInfoBuilder", true)
 						)
@@ -500,7 +500,6 @@ open class GenerateVulkan : DefaultTask() {
 
 				fun String.entryKtName() = removeSuffix(entrySuffix)
 						.removePrefix(enumVkPrefix.commonPrefixWith(this))
-						.let { if (it[0].isDigit()) "`$it`" else it }
 
 				val enumEntries = getEnumEntries(enum)
 
@@ -641,8 +640,8 @@ open class GenerateVulkan : DefaultTask() {
 					if (value.startsWith("VK_")) continue
 
 					val constantType = when {
-						value.contains('U') && value.contains('L') -> ULONG
-						value.contains('U') -> UINT
+						value.contains('U') && value.contains('L') -> U_LONG
+						value.contains('U') -> U_INT
 						value.endsWith('f') -> FLOAT
 						value.endsWith('"') -> STRING
 						else -> INT
