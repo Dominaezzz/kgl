@@ -17,12 +17,12 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFW.*
 
-actual enum class Action(internal val value: Int) {
+actual enum class Action(val value: Int) {
 	Release(GLFW_RELEASE),
 	Press(GLFW_PRESS),
 	Repeat(GLFW_REPEAT);
 
 	companion object {
-		internal fun from(value: Int): Action = values()[value]
+		fun from(value: Int): Action = values()[value]
 	}
 }

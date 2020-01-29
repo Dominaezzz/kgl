@@ -21,7 +21,7 @@ import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.system.MemoryStack
 
 actual class Cursor : Closeable {
-	internal val ptr: Long
+	val ptr: Long
 
 	actual constructor(image: Image, xhot: Int, yhot: Int) {
 		ptr = MemoryStack.stackPush().use { stack ->

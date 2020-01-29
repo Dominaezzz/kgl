@@ -17,7 +17,7 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFW.*
 
-actual enum class MouseButton(internal val value: Int) {
+actual enum class MouseButton(val value: Int) {
 	_1(GLFW_MOUSE_BUTTON_1),
 	_2(GLFW_MOUSE_BUTTON_2),
 	_3(GLFW_MOUSE_BUTTON_3),
@@ -29,6 +29,6 @@ actual enum class MouseButton(internal val value: Int) {
 
 	actual companion object {
 		private val lookUp = enumValues<MouseButton>().associateBy { it.value }
-		internal fun from(value: Int): MouseButton = lookUp[value]!!
+		fun from(value: Int): MouseButton = lookUp.getValue(value)
 	}
 }

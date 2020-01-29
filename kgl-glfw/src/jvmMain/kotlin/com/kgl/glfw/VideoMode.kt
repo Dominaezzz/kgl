@@ -17,7 +17,7 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFWVidMode
 
-actual class VideoMode(internal val ptr: GLFWVidMode) {
+actual class VideoMode(val ptr: GLFWVidMode) {
 	actual val width: Int get() = ptr.width()
 	actual val height: Int get() = ptr.height()
 

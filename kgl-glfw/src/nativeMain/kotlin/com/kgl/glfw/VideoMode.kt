@@ -19,7 +19,7 @@ import cglfw.GLFWvidmode
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.pointed
 
-actual class VideoMode(internal val ptr: CPointer<GLFWvidmode>) {
+actual class VideoMode(val ptr: CPointer<GLFWvidmode>) {
 	actual val width: Int get() = ptr.pointed.width
 	actual val height: Int get() = ptr.pointed.height
 	actual val redBits: Int get() = ptr.pointed.redBits

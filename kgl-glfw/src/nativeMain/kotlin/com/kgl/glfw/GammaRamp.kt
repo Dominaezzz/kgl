@@ -20,7 +20,7 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.get
 import kotlinx.cinterop.pointed
 
-actual class GammaRamp(internal val ptr: CPointer<GLFWgammaramp>) {
+actual class GammaRamp(val ptr: CPointer<GLFWgammaramp>) {
 	var red: UShortArray
 		get() = UShortArray(size.toInt()) { ptr.pointed.red!![it] }
 		set(_) {

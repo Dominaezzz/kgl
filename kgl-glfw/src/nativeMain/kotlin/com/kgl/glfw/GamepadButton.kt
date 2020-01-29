@@ -2,7 +2,7 @@ package com.kgl.glfw
 
 import cglfw.*
 
-actual enum class GamepadButton(internal val value: Int) {
+actual enum class GamepadButton(val value: Int) {
 	A(GLFW_GAMEPAD_BUTTON_A),
 	B(GLFW_GAMEPAD_BUTTON_B),
 	X(GLFW_GAMEPAD_BUTTON_X),
@@ -20,6 +20,6 @@ actual enum class GamepadButton(internal val value: Int) {
 	DPAD_LEFT(GLFW_GAMEPAD_BUTTON_DPAD_LEFT);
 
 	actual companion object {
-		internal fun from(value: Int) = values()[value - GLFW_GAMEPAD_BUTTON_A]
+		fun from(value: Int) = values()[value - GLFW_GAMEPAD_BUTTON_A]
 	}
 }

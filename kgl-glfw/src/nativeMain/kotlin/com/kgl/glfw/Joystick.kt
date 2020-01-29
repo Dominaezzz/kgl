@@ -20,7 +20,7 @@ import com.kgl.core.Flag
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
 
-actual enum class Joystick(internal val value: Int) {
+actual enum class Joystick(val value: Int) {
 	_1(GLFW_JOYSTICK_1),
 	_2(GLFW_JOYSTICK_2),
 	_3(GLFW_JOYSTICK_3),

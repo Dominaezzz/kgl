@@ -17,7 +17,7 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFW.*
 
-actual enum class KeyboardKey(internal val value: Int) {
+actual enum class KeyboardKey(val value: Int) {
 	/* The unknown key */
 	UNKNOWN(GLFW_KEY_UNKNOWN),
 
@@ -147,6 +147,6 @@ actual enum class KeyboardKey(internal val value: Int) {
 
 	companion object {
 		private val lookUp = enumValues<KeyboardKey>().associateBy { it.value }
-		internal fun from(value: Int): KeyboardKey = lookUp[value]!!
+		fun from(value: Int): KeyboardKey = lookUp.getValue(value)
 	}
 }

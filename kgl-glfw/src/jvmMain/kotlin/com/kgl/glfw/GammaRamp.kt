@@ -17,7 +17,7 @@ package com.kgl.glfw
 
 import org.lwjgl.glfw.GLFWGammaRamp
 
-actual class GammaRamp(internal val ptr: GLFWGammaRamp) {
+actual class GammaRamp(val ptr: GLFWGammaRamp) {
 //	var red: UShortArray
 //		get() = UShortArray(size.toInt()) { ptr.red!![it] }
 //		set(value) { TODO() }
