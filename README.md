@@ -8,6 +8,7 @@ Kotlin Multiplatform libraries for graphics.
 - [GLFW](https://www.glfw.org)
 - [Vulkan](https://www.khronos.org/vulkan)
 - [OpenGL](https://www.opengl.org)
+- [STB](https://github.com/nothings/stb)
 
 KGL uses LWJGL for the JVM target and the respective native libraries on the native targets.
 It provides a thin OOP wrapper with DSLs to make programming with vulkan easier.
@@ -24,9 +25,11 @@ repositories {
 dependencies {
     api("com.kgl:kgl-core:$kglVersion")
     api("com.kgl:kgl-glfw:$kglVersion")
+    api("com.kgl:kgl-glfw-static:$kglVersion") // For GLFW static binaries
     api("com.kgl:kgl-opengl:$kglVersion")
     api("com.kgl:kgl-vulkan:$kglVersion")
     api("com.kgl:kgl-glfw-vulkan:$kglVersion")
+    api("com.kgl:kgl-stb:$kglVersion")
 }
 ```
 
@@ -242,5 +245,5 @@ window.position = ((mode.width - width) / 2) to ((mode.height - height) / 2)
 - Platform specific extensions have not been implemented yet. Mostly because of [this](https://youtrack.jetbrains.com/issue/KT-27801).
 - Support for pNext has not been implemented yet.
 - Some parts of the api that use an `IoBuffer` have not yet been implemented as it requires bespoke design.
-- Documentation has not been generated yet.
+- Documentation is partially generated.
 - Until the bulk of library is under codegen, only version `1.1.92` will be supported.
