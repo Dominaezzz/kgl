@@ -303,11 +303,7 @@ open class GenerateOpenGL : DefaultTask() {
 			}
 			if (command.name.endsWith('s') && (command.name.startsWith("glCreate") || command.name.startsWith("glGen"))) {
 				val lastArg = command.params.last()
-				val newFunctionName = if (command.name.endsWith("ies")) {
-					command.name.dropLast(3) + "y"
-				} else {
-					command.name.dropLast(1)
-				}
+				val newFunctionName = command.name.toSingular()
 
 				if (command.returnType.matches("void", 0) && !lastArg.type.isConst && lastArg.type.asteriskCount == 1) {
 					val wrapperFun = FunSpec.builder(newFunctionName)
@@ -328,7 +324,32 @@ open class GenerateOpenGL : DefaultTask() {
 						endControlFlow()
 					})
 					glFile.addFunction(wrapperFun.build())
-					println(newFunctionName)
+				}
+			}
+			if (command.name.endsWith('s') && (command.name.startsWith("glDestroy") || command.name.startsWith("glDelete"))) {
+				val lastArg = command.params.last()
+				val newFunctionName = command.name.toSingular()
+
+				if (command.returnType.matches("void", 0) && lastArg.type.isConst && lastArg.type.asteriskCount == 1) {
+					val wrapperFun = FunSpec.builder(newFunctionName)
+					wrapperFun.returns(UNIT)
+					wrapperFun.addParameters(parameters.dropLast(2))
+					val objName = lastArg.name.toSingular()
+					wrapperFun.addParameter(objName, ClassName("copengl", lastArg.type.name))
+
+					val internalFunCall = (parameters.dropLast(2).map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
+							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+
+					wrapperFun.addCode(buildCodeBlock {
+						addStatement("%T.push()", VIRTUAL_STACK)
+						beginControlFlow("try")
+						addStatement("val retValue = %T.%M<%T> { value = $objName }", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						add(internalFunCall)
+						nextControlFlow("finally")
+						addStatement("%T.pop()", VIRTUAL_STACK)
+						endControlFlow()
+					})
+					glFile.addFunction(wrapperFun.build())
 				}
 			}
 
@@ -379,5 +400,13 @@ open class GenerateOpenGL : DefaultTask() {
 
 	private fun CTypeDecl.matches(name: String): Boolean {
 		return this.name == name
+	}
+
+	private fun String.toSingular(): String {
+		return if (endsWith("ies")) {
+			dropLast(3) + "y"
+		} else {
+			dropLast(1)
+		}
 	}
 }
