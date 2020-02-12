@@ -2,20 +2,22 @@ package com.kgl.math
 
 import kotlin.math.sqrt
 
+/**
+ * Provides a [MutableVector2] implementation with Float components.
+ */
 class FloatVector2(private val storage: FloatArray) : AbstractMutableVector2<Float>() {
 
 	constructor(x: Float, y: Float) : this(floatArrayOf(x, y))
-	constructor(f: Float) : this(f, f)
-	constructor() : this(0f)
+	constructor(f: Float = 0f) : this(f, f)
 
 
 	override var x: Float
 		get() = storage[0]
-		set(value) = run { storage[0] = value }
+		set(value) = storage.set(0, value)
 
 	override var y: Float
 		get() = storage[1]
-		set(value) = run { storage[1] = value }
+		set(value) = storage.set(1, value)
 
 	override fun copy(): FloatVector2 = FloatVector2(x, y)
 
