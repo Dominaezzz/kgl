@@ -289,6 +289,12 @@ open class GenerateMath : DefaultTask() {
 						statement("return %T(${components.joinToString { it.second }})", mutableVectorType)
 					}
 
+					function(vectorType.simpleName) {
+						parameter("scalar", componentType)
+						returns(vectorType)
+						statement("return %T(scalar)", mutableVectorType)
+					}
+
 					buildClass(mutableVectorType) {
 						superclass(vectorType)
 
