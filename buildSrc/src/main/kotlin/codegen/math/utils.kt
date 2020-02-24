@@ -33,7 +33,15 @@ fun AnnotationSpec.Builder.member(
 }
 
 @KotlinPoetDsl
-fun FileSpec.Builder.function(name: String, block: FunSpec.Builder.() -> Unit): FunSpec {
+fun FileSpec.Builder.import(packageName: String, name: String) {
+	addImport(packageName, name)
+}
+
+@KotlinPoetDsl
+fun FileSpec.Builder.function(
+	name: String,
+	block: FunSpec.Builder.() -> Unit = {}
+): FunSpec {
 	return FunSpec.builder(name)
 		.apply(block)
 		.build()
@@ -41,8 +49,16 @@ fun FileSpec.Builder.function(name: String, block: FunSpec.Builder.() -> Unit): 
 }
 
 @KotlinPoetDsl
-fun FileSpec.Builder.import(packageName: String, name: String) {
-	addImport(packageName, name)
+fun FileSpec.Builder.extensionFunction(
+	type: TypeName,
+	name: String,
+	block: FunSpec.Builder.() -> Unit = {}
+): FunSpec {
+	return FunSpec.builder(name)
+		.receiver(type)
+		.apply(block)
+		.build()
+		.also { addFunction(it) }
 }
 
 @KotlinPoetDsl
