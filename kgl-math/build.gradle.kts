@@ -1,4 +1,5 @@
 import codegen.math.GenerateMath
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset
 
 plugins {
 	kotlin("multiplatform")
@@ -10,6 +11,40 @@ val generateMath by tasks.registering(GenerateMath::class) {
 }
 
 kotlin {
+	jvm {
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib"))
+				}
+			}
+			"test" {
+				dependencies {
+					implementation(kotlin("test"))
+				}
+			}
+		}
+	}
+
+	js {
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-js"))
+				}
+			}
+			"test" {
+				dependencies {
+					implementation(kotlin("test-js"))
+				}
+			}
+		}
+	}
+
+	presets.withType<KotlinNativeTargetPreset> {
+		targetFromPreset(this)
+	}
+
 	sourceSets {
 		commonMain {
 			kotlin.srcDir(generateMath.map { it.commonDir })
