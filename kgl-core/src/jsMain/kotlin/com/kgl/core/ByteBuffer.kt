@@ -1,10 +1,10 @@
 package com.kgl.core
 
-import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.Int8Array
 import org.khronos.webgl.get
 import org.khronos.webgl.set
 
-actual class ByteBuffer(private val ptr: Uint8Array) : Buffer {
+actual class ByteBuffer(private val ptr: Int8Array) : Buffer {
 	actual val length: Long get() = ptr.length.toLong()
 	actual override val size: ULong get() = length.toULong() * Byte.SIZE_BYTES.toUInt()
 
