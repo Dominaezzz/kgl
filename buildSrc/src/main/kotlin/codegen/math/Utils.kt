@@ -187,11 +187,10 @@ inline fun FunSpec.Builder.parameter(
 }
 
 @KotlinPoetDsl
-inline fun FunSpec.Builder.controlFlow(controlFlow: String, block: FunSpec.Builder.() -> Unit): FunSpec {
-	return beginControlFlow(controlFlow)
+inline fun FunSpec.Builder.controlFlow(controlFlow: String, block: FunSpec.Builder.() -> Unit) {
+	beginControlFlow(controlFlow)
 		.apply(block)
 		.endControlFlow()
-		.build()
 }
 
 @KotlinPoetDsl
