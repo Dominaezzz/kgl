@@ -43,12 +43,13 @@ open class GenerateMath : DefaultTask() {
 		for (componentCount in 2..4) {
 			val components = allComponents.take(componentCount)
 
-			buildFile(packageName, "Vector$componentCount") {
-				import("kotlin.math", "sqrt")
+			typeList.forEach { (type, zero) ->
+				val vectorType = ClassName(packageName, "${type.simpleName}Vector$componentCount")
+				val mutableVectorType = ClassName(packageName, "Mutable${vectorType.simpleName}")
 
-				typeList.forEach { (type, zero) ->
-					val vectorType = ClassName(packageName, "${type.simpleName}Vector$componentCount")
-					val mutableVectorType = ClassName(packageName, "Mutable${vectorType.simpleName}")
+				buildFile(packageName, vectorType.simpleName) {
+					import("kotlin.math", "abs")
+					import("kotlin.math", "sqrt")
 
 					buildClass(vectorType) {
 						modifiers(SEALED)
@@ -101,44 +102,6 @@ open class GenerateMath : DefaultTask() {
 							statement("return %T($args)", vectorType)
 						}
 
-						function("dot") {
-							modifiers(INFIX)
-							parameter("other", vectorType)
-							returns(type)
-							val result = components.joinToString(" + ") { (_, name) -> "$name * other.$name" }
-								.let {
-									when (type) {
-										BYTE, SHORT,
-										U_BYTE, U_SHORT -> "($it).to${type.simpleName}()"
-										else -> it
-									}
-								}
-							statement("return $result")
-						}
-
-						if (componentCount == 3) {
-							function("cross") {
-								modifiers(INFIX)
-								parameter("other", vectorType)
-								returns(vectorType)
-								val args =
-									components
-										.drop(1)
-										.plus(components.take(2))
-										.zipWithNext()
-										.joinToString { (c1, c2) ->
-											val name1 = c1.second
-											val name2 = c2.second
-											when (type) {
-												BYTE, SHORT,
-												U_BYTE, U_SHORT -> "($name1 * other.$name2 - other.$name1 * $name2).to${type.simpleName}()"
-												else -> "$name1 * other.$name2 - other.$name1 * $name2"
-											}
-										}
-								statement("return %T($args)", vectorType)
-							}
-						}
-
 						for ((name, op) in arithmetics) {
 							function(name) {
 								modifiers(OPERATOR)
@@ -154,20 +117,6 @@ open class GenerateMath : DefaultTask() {
 								statement("return %T($args)", vectorType)
 							}
 						}
-					}
-
-					function(vectorType.simpleName) {
-						components.forEach { (_, name) ->
-							parameter(name, type)
-						}
-						returns(vectorType)
-						statement("return %T(${components.joinToString { it.second }})", mutableVectorType)
-					}
-
-					function(vectorType.simpleName) {
-						parameter("scalar", type)
-						returns(vectorType)
-						statement("return %T(scalar)", mutableVectorType)
 					}
 
 					buildClass(mutableVectorType) {
@@ -235,15 +184,69 @@ open class GenerateMath : DefaultTask() {
 						}
 					}
 
+					// extensions
+
+					function(vectorType.simpleName) {
+						components.forEach { (_, name) ->
+							parameter(name, type)
+						}
+						returns(vectorType)
+						statement("return %T(${components.joinToString { it.second }})", mutableVectorType)
+					}
+
+					function(vectorType.simpleName) {
+						parameter("scalar", type)
+						returns(vectorType)
+						statement("return %T(scalar)", mutableVectorType)
+					}
+
 					components.forEach { (i, name) ->
 						extensionFunction(vectorType, "component$i") {
-							modifiers(OPERATOR)
+							modifiers(INLINE, OPERATOR)
 							returns(type)
 							statement("return $name")
 						}
 					}
-				}
-			}.apply { writeTo(commonDir.get().asFile) }
+
+					extensionFunction(vectorType, "dot") {
+						modifiers(INFIX)
+						parameter("other", vectorType)
+						returns(type)
+						val result = components.joinToString(" + ") { (_, name) -> "$name * other.$name" }
+							.let {
+								when (type) {
+									BYTE, SHORT,
+									U_BYTE, U_SHORT -> "($it).to${type.simpleName}()"
+									else -> it
+								}
+							}
+						statement("return $result")
+					}
+
+					if (componentCount == 3) {
+						extensionFunction(vectorType, "cross") {
+							modifiers(INFIX)
+							parameter("other", vectorType)
+							returns(vectorType)
+							val args =
+								components
+									.drop(1)
+									.plus(components.take(2))
+									.zipWithNext()
+									.joinToString { (c1, c2) ->
+										val name1 = c1.second
+										val name2 = c2.second
+										when (type) {
+											BYTE, SHORT,
+											U_BYTE, U_SHORT -> "($name1 * other.$name2 - other.$name1 * $name2).to${type.simpleName}()"
+											else -> "$name1 * other.$name2 - other.$name1 * $name2"
+										}
+									}
+							statement("return %T($args)", vectorType)
+						}
+					}
+				}.apply { writeTo(commonDir.get().asFile) }
+			}
 		}
 	}
 }
