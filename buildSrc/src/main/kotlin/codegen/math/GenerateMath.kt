@@ -217,7 +217,7 @@ open class GenerateMath : DefaultTask() {
 								when (type) {
 									BYTE, SHORT,
 									U_BYTE, U_SHORT -> "($it).to${type.simpleName}()"
-									else -> it
+									else -> "($it)"
 								}
 							}
 						statement("return $result")
