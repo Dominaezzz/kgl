@@ -121,7 +121,7 @@ open class GenerateMath : DefaultTask() {
 								modifiers(OPERATOR)
 								parameter("other", vectorType)
 								returns(vectorType)
-								val args = componentNames.joinToString {
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 									when (type) {
 										BYTE, SHORT,
 										U_BYTE, U_SHORT -> "($it $op other.$it).to${type.simpleName}()"
@@ -162,7 +162,7 @@ open class GenerateMath : DefaultTask() {
 							modifiers(OPERATOR)
 							parameter("index", INT)
 							parameter("value", type)
-							controlFlow("when(index)") {
+							controlFlow("when (index)") {
 								componentNames.forEachIndexed { i, it ->
 									statement("$i -> $it = value")
 								}
@@ -231,7 +231,7 @@ open class GenerateMath : DefaultTask() {
 								when (type) {
 									BYTE, SHORT,
 									U_BYTE, U_SHORT -> "($it).to${type.simpleName}()"
-									else -> "($it)"
+									else -> "\n\t($it)"
 								}
 							}
 						statement("return $result")
@@ -247,7 +247,7 @@ open class GenerateMath : DefaultTask() {
 									.drop(1)
 									.plus(componentNames.take(2))
 									.zipWithNext()
-									.joinToString { (c1, c2) ->
+									.joinToString(",\n\t", "\n\t", "\n") { (c1, c2) ->
 										when (type) {
 											BYTE, SHORT,
 											U_BYTE, U_SHORT -> "($c1 * other.$c2 - other.$c1 * $c2).to${type.simpleName}()"
