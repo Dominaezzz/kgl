@@ -49,13 +49,44 @@ fun FileSpec.Builder.function(
 }
 
 @KotlinPoetDsl
-fun FileSpec.Builder.extensionFunction(
+fun FileSpec.Builder.extensionProperty(
+	receiver: TypeName,
+	name: String,
 	type: TypeName,
+	vararg modifiers: KModifier,
+	block: PropertySpec.Builder.() -> Unit = {}
+): PropertySpec {
+	return PropertySpec.builder(name, type, *modifiers)
+		.receiver(receiver)
+		.apply(block)
+		.build()
+		.also { addProperty(it) }
+}
+
+@KotlinPoetDsl
+fun FileSpec.Builder.mutableExtensionProperty(
+	receiver: TypeName,
+	name: String,
+	type: TypeName,
+	vararg modifiers: KModifier,
+	block: PropertySpec.Builder.() -> Unit = {}
+): PropertySpec {
+	return PropertySpec.builder(name, type, *modifiers)
+		.receiver(receiver)
+		.mutable(true)
+		.apply(block)
+		.build()
+		.also { addProperty(it) }
+}
+
+@KotlinPoetDsl
+fun FileSpec.Builder.extensionFunction(
+	receiver: TypeName,
 	name: String,
 	block: FunSpec.Builder.() -> Unit = {}
 ): FunSpec {
 	return FunSpec.builder(name)
-		.receiver(type)
+		.receiver(receiver)
 		.apply(block)
 		.build()
 		.also { addFunction(it) }
@@ -78,6 +109,16 @@ inline fun FileSpec.Builder.buildClass(
 	block: TypeSpec.Builder.() -> Unit = {}
 ): TypeSpec {
 	return TypeSpec.classBuilder(className)
+		.apply(block)
+		.build()
+		.also { addType(it) }
+}
+
+@KotlinPoetDsl
+inline fun TypeSpec.Builder.companionObject(
+	block: TypeSpec.Builder.() -> Unit = {}
+): TypeSpec {
+	return TypeSpec.companionObjectBuilder()
 		.apply(block)
 		.build()
 		.also { addType(it) }
