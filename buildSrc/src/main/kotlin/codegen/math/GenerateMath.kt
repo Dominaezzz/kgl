@@ -22,8 +22,7 @@ open class GenerateMath : DefaultTask() {
 
 	data class TypeInfo(
 		val type: ClassName,
-		val zero: String,
-		val baseType: TypeInfo? = null,
+		val baseType: ClassName? = null,
 		val componentCount: Int? = null
 	)
 
@@ -31,49 +30,55 @@ open class GenerateMath : DefaultTask() {
 	private val packageName = "com.kgl.math"
 
 	private val primitiveTypes = listOf(
-		TypeInfo(BYTE, "0"),
-		TypeInfo(SHORT, "0"),
-		TypeInfo(INT, "0"),
-		TypeInfo(LONG, "0L"),
-		TypeInfo(U_BYTE, "0U"),
-		TypeInfo(U_SHORT, "0U"),
-		TypeInfo(U_INT, "0U"),
-		TypeInfo(U_LONG, "0UL"),
-		TypeInfo(FLOAT, "0f"),
-		TypeInfo(DOUBLE, "0.0")
+		TypeInfo(BYTE),
+		TypeInfo(SHORT),
+		TypeInfo(INT),
+		TypeInfo(LONG),
+		TypeInfo(U_BYTE),
+		TypeInfo(U_SHORT),
+		TypeInfo(U_INT),
+		TypeInfo(U_LONG),
+		TypeInfo(FLOAT),
+		TypeInfo(DOUBLE)
+	)
+
+	private val boolVectorTypes = listOf(
+		TypeInfo(ClassName(packageName, "BooleanVector2"), BOOLEAN, 2),
+		TypeInfo(ClassName(packageName, "BooleanVector3"), BOOLEAN, 3),
+		TypeInfo(ClassName(packageName, "BooleanVector4"), BOOLEAN, 4)
 	)
 
 	private val vectorTypes = listOf(
-		TypeInfo(ClassName(packageName, "ByteVector2"), "", TypeInfo(BYTE, "0"), 2),
-		TypeInfo(ClassName(packageName, "ByteVector3"), "", TypeInfo(BYTE, "0"), 3),
-		TypeInfo(ClassName(packageName, "ByteVector4"), "", TypeInfo(BYTE, "0"), 4),
-		TypeInfo(ClassName(packageName, "ShortVector2"), "", TypeInfo(SHORT, "0"), 2),
-		TypeInfo(ClassName(packageName, "ShortVector3"), "", TypeInfo(SHORT, "0"), 3),
-		TypeInfo(ClassName(packageName, "ShortVector4"), "", TypeInfo(SHORT, "0"), 4),
-		TypeInfo(ClassName(packageName, "IntVector2"), "", TypeInfo(INT, "0"), 2),
-		TypeInfo(ClassName(packageName, "IntVector3"), "", TypeInfo(INT, "0"), 3),
-		TypeInfo(ClassName(packageName, "IntVector4"), "", TypeInfo(INT, "0"), 4),
-		TypeInfo(ClassName(packageName, "LongVector2"), "", TypeInfo(LONG, "0L"), 2),
-		TypeInfo(ClassName(packageName, "LongVector3"), "", TypeInfo(LONG, "0L"), 3),
-		TypeInfo(ClassName(packageName, "LongVector4"), "", TypeInfo(LONG, "0L"), 4),
-		TypeInfo(ClassName(packageName, "UByteVector2"), "", TypeInfo(U_BYTE, "0U"), 2),
-		TypeInfo(ClassName(packageName, "UByteVector3"), "", TypeInfo(U_BYTE, "0U"), 3),
-		TypeInfo(ClassName(packageName, "UByteVector4"), "", TypeInfo(U_BYTE, "0U"), 4),
-		TypeInfo(ClassName(packageName, "UShortVector2"), "", TypeInfo(U_SHORT, "0U"), 2),
-		TypeInfo(ClassName(packageName, "UShortVector3"), "", TypeInfo(U_SHORT, "0U"), 3),
-		TypeInfo(ClassName(packageName, "UShortVector4"), "", TypeInfo(U_SHORT, "0U"), 4),
-		TypeInfo(ClassName(packageName, "UIntVector2"), "", TypeInfo(U_INT, "0U"), 2),
-		TypeInfo(ClassName(packageName, "UIntVector3"), "", TypeInfo(U_INT, "0U"), 3),
-		TypeInfo(ClassName(packageName, "UIntVector4"), "", TypeInfo(U_INT, "0U"), 4),
-		TypeInfo(ClassName(packageName, "ULongVector2"), "", TypeInfo(U_LONG, "0UL"), 2),
-		TypeInfo(ClassName(packageName, "ULongVector3"), "", TypeInfo(U_LONG, "0UL"), 3),
-		TypeInfo(ClassName(packageName, "ULongVector4"), "", TypeInfo(U_LONG, "0UL"), 4),
-		TypeInfo(ClassName(packageName, "FloatVector2"), "", TypeInfo(FLOAT, "0f"), 2),
-		TypeInfo(ClassName(packageName, "FloatVector3"), "", TypeInfo(FLOAT, "0f"), 3),
-		TypeInfo(ClassName(packageName, "FloatVector4"), "", TypeInfo(FLOAT, "0f"), 4),
-		TypeInfo(ClassName(packageName, "DoubleVector2"), "", TypeInfo(DOUBLE, "0.0"), 2),
-		TypeInfo(ClassName(packageName, "DoubleVector3"), "", TypeInfo(DOUBLE, "0.0"), 3),
-		TypeInfo(ClassName(packageName, "DoubleVector4"), "", TypeInfo(DOUBLE, "0.0"), 4)
+		TypeInfo(ClassName(packageName, "ByteVector2"), BYTE, 2),
+		TypeInfo(ClassName(packageName, "ByteVector3"), BYTE, 3),
+		TypeInfo(ClassName(packageName, "ByteVector4"), BYTE, 4),
+		TypeInfo(ClassName(packageName, "ShortVector2"), SHORT, 2),
+		TypeInfo(ClassName(packageName, "ShortVector3"), SHORT, 3),
+		TypeInfo(ClassName(packageName, "ShortVector4"), SHORT, 4),
+		TypeInfo(ClassName(packageName, "IntVector2"), INT, 2),
+		TypeInfo(ClassName(packageName, "IntVector3"), INT, 3),
+		TypeInfo(ClassName(packageName, "IntVector4"), INT, 4),
+		TypeInfo(ClassName(packageName, "LongVector2"), LONG, 2),
+		TypeInfo(ClassName(packageName, "LongVector3"), LONG, 3),
+		TypeInfo(ClassName(packageName, "LongVector4"), LONG, 4),
+		TypeInfo(ClassName(packageName, "UByteVector2"), U_BYTE, 2),
+		TypeInfo(ClassName(packageName, "UByteVector3"), U_BYTE, 3),
+		TypeInfo(ClassName(packageName, "UByteVector4"), U_BYTE, 4),
+		TypeInfo(ClassName(packageName, "UShortVector2"), U_SHORT, 2),
+		TypeInfo(ClassName(packageName, "UShortVector3"), U_SHORT, 3),
+		TypeInfo(ClassName(packageName, "UShortVector4"), U_SHORT, 4),
+		TypeInfo(ClassName(packageName, "UIntVector2"), U_INT, 2),
+		TypeInfo(ClassName(packageName, "UIntVector3"), U_INT, 3),
+		TypeInfo(ClassName(packageName, "UIntVector4"), U_INT, 4),
+		TypeInfo(ClassName(packageName, "ULongVector2"), U_LONG, 2),
+		TypeInfo(ClassName(packageName, "ULongVector3"), U_LONG, 3),
+		TypeInfo(ClassName(packageName, "ULongVector4"), U_LONG, 4),
+		TypeInfo(ClassName(packageName, "FloatVector2"), FLOAT, 2),
+		TypeInfo(ClassName(packageName, "FloatVector3"), FLOAT, 3),
+		TypeInfo(ClassName(packageName, "FloatVector4"), FLOAT, 4),
+		TypeInfo(ClassName(packageName, "DoubleVector2"), DOUBLE, 2),
+		TypeInfo(ClassName(packageName, "DoubleVector3"), DOUBLE, 3),
+		TypeInfo(ClassName(packageName, "DoubleVector4"), DOUBLE, 4)
 	)
 
 	private val allComponentNames = listOf("x", "y", "z", "w")
@@ -88,11 +93,11 @@ open class GenerateMath : DefaultTask() {
 	}
 
 	private fun commonFunctions() {
-		(primitiveTypes + vectorTypes).forEach { (type, zero, baseType, componentCount) ->
+		(primitiveTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
 			val componentNames = allComponentNames.take(componentCount ?: 0)
 			val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
 
-			buildFile(packageName, "Common${type.simpleName}") {
+			buildFile(packageName, "${type.simpleName}Common") {
 				indent("\t")
 
 				import("kotlin.math", "abs")
@@ -114,7 +119,7 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					BYTE, SHORT, INT, LONG,
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "abs") {
@@ -131,7 +136,6 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-
 				// sign
 
 				when (type) {
@@ -144,21 +148,23 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					BYTE, SHORT, INT, LONG,
-					FLOAT, DOUBLE -> extensionProperty(type, "sign", type) {
-						getter {
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-								"$it.sign${if (baseType.type == LONG) ".toLong()" else ""}"
+					FLOAT, DOUBLE -> {
+						extensionProperty(type, "sign", type) {
+							getter {
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
+									"$it.sign${if (baseType == LONG) ".toLong()" else ""}"
+								}
+								statement("return %T($args)", type)
 							}
-							statement("return %T($args)", type)
 						}
 					}
 				}
 
 				// floor
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "floor") {
 							returns(type)
@@ -176,7 +182,7 @@ open class GenerateMath : DefaultTask() {
 
 				// trunc
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "truncate") {
 							returns(type)
@@ -194,7 +200,7 @@ open class GenerateMath : DefaultTask() {
 
 				// round
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "round") {
 							returns(type)
@@ -221,14 +227,14 @@ open class GenerateMath : DefaultTask() {
 							statement("val f = n - i")
 							controlFlow("return when") {
 								statement("f > 0.5f || f < 0.5f -> round(n)")
-								statement("i %% 2 == $zero -> i")
+								statement("i %% 2 == ${if (type == FLOAT) "0f" else "0.0"} -> i")
 								statement("else -> mix(i - 1f, i + 1f, n <= 0)")
 							}
 						}
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "roundEven") {
 							returns(type)
@@ -246,7 +252,7 @@ open class GenerateMath : DefaultTask() {
 
 				// ceil
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "ceil") {
 							returns(type)
@@ -274,7 +280,7 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						extensionProperty(type, "fraction", type) {
 							getter {
@@ -290,12 +296,12 @@ open class GenerateMath : DefaultTask() {
 				if (baseType != null) {
 					extensionFunction(type, "rem") {
 						modifiers(OPERATOR)
-						parameter("scalar", baseType.type)
+						parameter("scalar", baseType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-							when (baseType.type) {
+							when (baseType) {
 								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it %% scalar).to${baseType.type.simpleName}()"
+								U_BYTE, U_SHORT -> "($it %% scalar).to${baseType.simpleName}()"
 								else -> "$it %% scalar"
 							}
 						}
@@ -307,9 +313,9 @@ open class GenerateMath : DefaultTask() {
 						parameter("other", type)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-							when (baseType.type) {
+							when (baseType) {
 								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it %% other.$it).to${baseType.type.simpleName}()"
+								U_BYTE, U_SHORT -> "($it %% other.$it).to${baseType.simpleName}()"
 								else -> "$it %% other.$it"
 							}
 						}
@@ -318,11 +324,11 @@ open class GenerateMath : DefaultTask() {
 
 					extensionFunction(mutableType, "remAssign") {
 						modifiers(OPERATOR)
-						parameter("scalar", baseType.type)
+						parameter("scalar", baseType)
 						componentNames.forEach {
-							val code = when (baseType.type) {
+							val code = when (baseType) {
 								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "$it = ($it %% scalar).to${baseType.type.simpleName}()"
+								U_BYTE, U_SHORT -> "$it = ($it %% scalar).to${baseType.simpleName}()"
 								else -> "$it %%= scalar"
 							}
 							statement(code)
@@ -333,9 +339,9 @@ open class GenerateMath : DefaultTask() {
 						modifiers(OPERATOR)
 						parameter("other", type)
 						componentNames.forEach {
-							val code = when (baseType.type) {
+							val code = when (baseType) {
 								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "$it = ($it %% other.$it).to${baseType.type.simpleName}()"
+								U_BYTE, U_SHORT -> "$it = ($it %% other.$it).to${baseType.simpleName}()"
 								else -> "$it %%= other.$it"
 							}
 							statement(code)
@@ -347,7 +353,7 @@ open class GenerateMath : DefaultTask() {
 
 				if (baseType != null) {
 					extensionFunction(type, "coerceAtMost") {
-						parameter("maximumValue", baseType.type)
+						parameter("maximumValue", baseType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							"$it.coerceAtMost(maximumValue)"
@@ -365,7 +371,7 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					extensionFunction(mutableType, "coerceAssignAtMost") {
-						parameter("maximumValue", baseType.type)
+						parameter("maximumValue", baseType)
 						componentNames.forEach {
 							statement("$it = $it.coerceAtMost(maximumValue)")
 						}
@@ -383,7 +389,7 @@ open class GenerateMath : DefaultTask() {
 
 				if (baseType != null) {
 					extensionFunction(type, "coerceAtLeast") {
-						parameter("minimumValue", baseType.type)
+						parameter("minimumValue", baseType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							"$it.coerceAtLeast(minimumValue)"
@@ -401,7 +407,7 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					extensionFunction(mutableType, "coerceAssignAtLeast") {
-						parameter("minimumValue", baseType.type)
+						parameter("minimumValue", baseType)
 						componentNames.forEach {
 							statement("$it = $it.coerceAtLeast(minimumValue)")
 						}
@@ -419,8 +425,8 @@ open class GenerateMath : DefaultTask() {
 
 				if (baseType != null) {
 					extensionFunction(type, "coerceIn") {
-						parameter("minimumValue", baseType.type)
-						parameter("maximumValue", baseType.type)
+						parameter("minimumValue", baseType)
+						parameter("maximumValue", baseType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							"$it.coerceIn(minimumValue, maximumValue)"
@@ -439,7 +445,7 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					extensionFunction(type, "coerceIn") {
-						parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType.type))
+						parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType))
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							"$it.coerceIn(range)"
@@ -448,8 +454,8 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					extensionFunction(mutableType, "coerceAssignIn") {
-						parameter("minimumValue", baseType.type)
-						parameter("maximumValue", baseType.type)
+						parameter("minimumValue", baseType)
+						parameter("maximumValue", baseType)
 						componentNames.forEach {
 							statement("$it = $it.coerceIn(minimumValue, maximumValue)")
 						}
@@ -464,7 +470,7 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					extensionFunction(mutableType, "coerceAssignIn") {
-						parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType.type))
+						parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType))
 						componentNames.forEach {
 							statement("$it = $it.coerceIn(range)")
 						}
@@ -493,12 +499,12 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT, DOUBLE -> {
 						function("mix") {
 							parameter("x", type)
 							parameter("y", type)
-							parameter("a", baseType.type)
+							parameter("a", baseType)
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "mix(x.$it, y.$it, a)" }
 							statement("return %T($args)", type)
@@ -516,6 +522,46 @@ open class GenerateMath : DefaultTask() {
 				}
 
 				// step
+
+				fun oneAndZero(type: ClassName, baseType: ClassName?): Pair<String, String> {
+					return when (type) {
+						BYTE -> "1.toByte()" to "0.toByte()"
+						SHORT -> "1.toShort()" to "0.toShort()"
+						INT -> "1" to "0"
+						LONG -> "1L" to "0L"
+						U_BYTE -> "1U.toUByte()" to "0U.toUByte()"
+						U_SHORT -> "1U.toUShort()" to "0U.toUShort()"
+						U_INT -> "1U" to "0U"
+						U_LONG -> "1UL" to "0UL"
+						FLOAT -> "1f" to "0f"
+						DOUBLE -> "1.0" to "0.0"
+						else -> if (baseType != null) {
+							val (one, zero) = oneAndZero(baseType, null)
+							"${type.simpleName}($one)" to "${type.simpleName}($zero)"
+						} else error("")
+					}
+				}
+
+				val (one, zero) = oneAndZero(type, baseType)
+
+				// TODO implement relational functions before step can work
+				//function("step") {
+				//	parameter("edge", type)
+				//	parameter("x", type)
+				//	returns(type)
+				//	statement("return mix($one, $zero, x < edge)")
+				//}
+
+				// is vector type
+				//else -> {
+				//	function("step") {
+				//		parameter("edge", type)
+				//		parameter("x", type)
+				//		returns(type)
+				//		val args = componentNames.joinToString {  }
+				//		statement()
+				//	}
+				//}
 
 				// smoothStep
 
@@ -545,7 +591,7 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT -> {
 						toBitsFunction(INT, unsigned = false)
 						toBitsFunction(U_INT, unsigned = true)
@@ -565,14 +611,14 @@ open class GenerateMath : DefaultTask() {
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 								val unsignedConversion = if (unsigned) ".to${bitsType.simpleName.drop(1)}()" else ""
-								"${baseType!!.type.simpleName}.fromBits(bits.$it$unsignedConversion)"
+								"${baseType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
 							}
 							statement("return %T($args)", type)
 						}
 					}
 				}
 
-				when (baseType?.type) {
+				when (baseType) {
 					FLOAT -> {
 						fromBitsFunction(INT, false)
 						fromBitsFunction(U_INT, true)
@@ -594,24 +640,24 @@ open class GenerateMath : DefaultTask() {
 	}
 
 	private fun geometricFunctions() {
-		vectorTypes.forEach { (vectorType, _, baseType, componentCount) ->
-			val componentNames = allComponentNames.take(componentCount ?: return@forEach)
-			val (type) = baseType ?: return@forEach
+		vectorTypes.forEach { (type, baseType, componentCount) ->
+			val componentNames = allComponentNames.take(componentCount!!)
+			baseType ?: error("null base type invalid for vector types")
 
-			buildFile(packageName, "Geometric${vectorType.simpleName}") {
+			buildFile(packageName, "${type.simpleName}Geometric") {
 				indent("\t")
 
 				// Dot Product
 
-				extensionFunction(vectorType, "dot") {
+				extensionFunction(type, "dot") {
 					modifiers(INFIX)
-					parameter("other", vectorType)
-					returns(type)
+					parameter("other", type)
+					returns(baseType)
 					val result = componentNames.joinToString(" + ") { "$it * other.$it" }
 						.let {
-							when (type) {
+							when (baseType) {
 								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it).to${type.simpleName}()"
+								U_BYTE, U_SHORT -> "($it).to${baseType.simpleName}()"
 								else -> "\n\t($it)"
 							}
 						}
@@ -621,22 +667,22 @@ open class GenerateMath : DefaultTask() {
 				// Cross Product
 
 				if (componentCount == 3) {
-					extensionFunction(vectorType, "cross") {
+					extensionFunction(type, "cross") {
 						modifiers(INFIX)
-						parameter("other", vectorType)
-						returns(vectorType)
+						parameter("other", type)
+						returns(type)
 						val args = componentNames
 							.drop(1)
 							.plus(componentNames.take(2))
 							.zipWithNext()
 							.joinToString(",\n\t", "\n\t", "\n") { (c1, c2) ->
-								when (type) {
+								when (baseType) {
 									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "($c1 * other.$c2 - other.$c1 * $c2).to${type.simpleName}()"
+									U_BYTE, U_SHORT -> "($c1 * other.$c2 - other.$c1 * $c2).to${baseType.simpleName}()"
 									else -> "$c1 * other.$c2 - other.$c1 * $c2"
 								}
 							}
-						statement("return %T($args)", vectorType)
+						statement("return %T($args)", type)
 					}
 				}
 			}.apply { writeTo(commonDir.get().asFile) }
@@ -644,23 +690,38 @@ open class GenerateMath : DefaultTask() {
 	}
 
 	private fun vectorTypes() {
-		vectorTypes.forEach { (vectorType, _, baseType, componentCount) ->
-			val mutableVectorType = ClassName(packageName, "Mutable${vectorType.simpleName}")
-			val componentNames = allComponentNames.take(componentCount ?: return@forEach)
-			val (type, zero) = baseType ?: return@forEach
+		(boolVectorTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
+			val mutableVectorType = ClassName(packageName, "Mutable${type.simpleName}")
+			val componentNames = allComponentNames.take(componentCount!!)
 
-			buildFile(packageName, vectorType.simpleName) {
+			val zero = when (baseType) {
+				BOOLEAN -> "false"
+				BYTE,
+				SHORT,
+				INT -> "0"
+				LONG -> "0L"
+				U_BYTE,
+				U_SHORT,
+				U_INT -> "0U"
+				U_LONG -> "0UL"
+				FLOAT -> "0f"
+				DOUBLE -> "0.0"
+				null -> error("null base type invalid for vector types")
+				else -> error("invalid base type: $baseType")
+			}
+
+			buildFile(packageName, type.simpleName) {
 				indent("\t")
 
 				import("kotlin.math", "sqrt")
 
-				buildClass(vectorType) {
+				buildClass(type) {
 					modifiers(SEALED)
 
 					companionObject()
 
 					componentNames.forEach {
-						property(it, type, ABSTRACT)
+						property(it, baseType, ABSTRACT)
 					}
 
 					function("get") {
@@ -674,82 +735,84 @@ open class GenerateMath : DefaultTask() {
 						}
 					}
 
-					property("length", type) {
-						getter {
-							val code = when (type) {
-								BYTE, SHORT, INT, LONG ->
-									"return sqrt((this dot this).toDouble()).to${type.simpleName}()"
-								U_BYTE, U_SHORT, U_INT, U_LONG ->
-									"return sqrt((this dot this).toDouble()).to${type.simpleName.drop(1)}().to${type.simpleName}()"
-								else ->
-									"return sqrt(this dot this)"
-							}
-							statement(code)
-						}
-					}
-
-					property("lengthSquared", type) {
-						getter {
-							statement("return this dot this")
-						}
-					}
-
-					function("normalized") {
-						returns(vectorType)
-						statement("val length = length")
-						val args = componentNames.joinToString {
-							when (type) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it / length).to${type.simpleName}()"
-								else -> "$it / length"
+					if (baseType != BOOLEAN) {
+						property("length", baseType) {
+							getter {
+								val code = when (baseType) {
+									BYTE, SHORT, INT, LONG ->
+										"return sqrt((this dot this).toDouble()).to${baseType.simpleName}()"
+									U_BYTE, U_SHORT, U_INT, U_LONG ->
+										"return sqrt((this dot this).toDouble()).to${baseType.simpleName.drop(1)}().to${baseType.simpleName}()"
+									else ->
+										"return sqrt(this dot this)"
+								}
+								statement(code)
 							}
 						}
-						statement("return %T($args)", vectorType)
-					}
 
-					for ((name, op) in arithmetics) {
-						function(name) {
-							modifiers(OPERATOR)
-							parameter("scalar", type)
-							returns(vectorType)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-								when (type) {
+						property("lengthSquared", baseType) {
+							getter {
+								statement("return this dot this")
+							}
+						}
+
+						function("normalized") {
+							returns(type)
+							statement("val length = length")
+							val args = componentNames.joinToString {
+								when (baseType) {
 									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "($it $op scalar).to${type.simpleName}()"
-									else -> "$it $op scalar"
+									U_BYTE, U_SHORT -> "($it / length).to${baseType.simpleName}()"
+									else -> "$it / length"
 								}
 							}
-							statement("return %T($args)", vectorType)
+							statement("return %T($args)", type)
 						}
 
-						function(name) {
-							modifiers(OPERATOR)
-							parameter("other", vectorType)
-							returns(vectorType)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-								when (type) {
-									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "($it $op other.$it).to${type.simpleName}()"
-									else -> "$it $op other.$it"
+						for ((name, op) in arithmetics) {
+							function(name) {
+								modifiers(OPERATOR)
+								parameter("scalar", baseType)
+								returns(type)
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
+									when (baseType) {
+										BYTE, SHORT,
+										U_BYTE, U_SHORT -> "($it $op scalar).to${baseType.simpleName}()"
+										else -> "$it $op scalar"
+									}
 								}
+								statement("return %T($args)", type)
 							}
-							statement("return %T($args)", vectorType)
+
+							function(name) {
+								modifiers(OPERATOR)
+								parameter("other", type)
+								returns(type)
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
+									when (baseType) {
+										BYTE, SHORT,
+										U_BYTE, U_SHORT -> "($it $op other.$it).to${baseType.simpleName}()"
+										else -> "$it $op other.$it"
+									}
+								}
+								statement("return %T($args)", type)
+							}
 						}
 					}
 				}
 
 				buildClass(mutableVectorType) {
-					superclass(vectorType)
+					superclass(type)
 
 					primaryConstructor {
 						componentNames.forEach { name ->
-							parameter(name, type)
+							parameter(name, baseType)
 						}
 						callSuperConstructor()
 					}
 
 					secondaryConstructor {
-						parameter("scalar", type)
+						parameter("scalar", baseType)
 						callThisConstructor(*componentNames.map { "scalar" }.toTypedArray())
 					}
 
@@ -758,7 +821,7 @@ open class GenerateMath : DefaultTask() {
 					}
 
 					componentNames.forEach { name ->
-						mutableProperty(name, type, OVERRIDE) {
+						mutableProperty(name, baseType, OVERRIDE) {
 							initializer(name)
 						}
 					}
@@ -766,7 +829,7 @@ open class GenerateMath : DefaultTask() {
 					function("set") {
 						modifiers(OPERATOR)
 						parameter("index", INT)
-						parameter("value", type)
+						parameter("value", baseType)
 						controlFlow("when (index)") {
 							componentNames.forEachIndexed { i, it ->
 								statement("$i -> $it = value")
@@ -775,42 +838,44 @@ open class GenerateMath : DefaultTask() {
 						}
 					}
 
-					function("normalize") {
-						statement("val length = length")
-						componentNames.forEach {
-							val code = when (type) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "$it = ($it / length).to${type.simpleName}()"
-								else -> "$it /= length"
-							}
-							statement(code)
-						}
-					}
-
-					for ((funName, op) in arithmetics) {
-						function("${funName}Assign") {
-							modifiers(OPERATOR)
-							parameter("scalar", type)
+					if (baseType != BOOLEAN) {
+						function("normalize") {
+							statement("val length = length")
 							componentNames.forEach {
-								val code = when (type) {
+								val code = when (baseType) {
 									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "$it = ($it $op scalar).to${type.simpleName}()"
-									else -> "$it $op= scalar"
+									U_BYTE, U_SHORT -> "$it = ($it / length).to${baseType.simpleName}()"
+									else -> "$it /= length"
 								}
 								statement(code)
 							}
 						}
 
-						function("${funName}Assign") {
-							modifiers(OPERATOR)
-							parameter("other", vectorType)
-							componentNames.forEach {
-								val code = when (type) {
-									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "$it = ($it $op other.$it).to${type.simpleName}()"
-									else -> "$it $op= other.$it"
+						for ((funName, op) in arithmetics) {
+							function("${funName}Assign") {
+								modifiers(OPERATOR)
+								parameter("scalar", baseType)
+								componentNames.forEach {
+									val code = when (baseType) {
+										BYTE, SHORT,
+										U_BYTE, U_SHORT -> "$it = ($it $op scalar).to${baseType.simpleName}()"
+										else -> "$it $op= scalar"
+									}
+									statement(code)
 								}
-								statement(code)
+							}
+
+							function("${funName}Assign") {
+								modifiers(OPERATOR)
+								parameter("other", type)
+								componentNames.forEach {
+									val code = when (baseType) {
+										BYTE, SHORT,
+										U_BYTE, U_SHORT -> "$it = ($it $op other.$it).to${baseType.simpleName}()"
+										else -> "$it $op= other.$it"
+									}
+									statement(code)
+								}
 							}
 						}
 					}
@@ -818,26 +883,26 @@ open class GenerateMath : DefaultTask() {
 
 				// Immutable Constructors
 
-				function(vectorType.simpleName) {
+				function(type.simpleName) {
 					componentNames.forEach { name ->
-						parameter(name, type)
+						parameter(name, baseType)
 					}
-					returns(vectorType)
+					returns(type)
 					statement("return %T(${componentNames.joinToString()})", mutableVectorType)
 				}
 
-				function(vectorType.simpleName) {
-					parameter("scalar", type)
-					returns(vectorType)
+				function(type.simpleName) {
+					parameter("scalar", baseType)
+					returns(type)
 					statement("return %T(scalar)", mutableVectorType)
 				}
 
 				// Destructuring Operators
 
 				componentNames.forEachIndexed { i, name ->
-					extensionFunction(vectorType, "component${i + 1}") {
+					extensionFunction(type, "component${i + 1}") {
 						modifiers(INLINE, OPERATOR)
-						returns(type)
+						returns(baseType)
 						statement("return $name")
 					}
 				}
