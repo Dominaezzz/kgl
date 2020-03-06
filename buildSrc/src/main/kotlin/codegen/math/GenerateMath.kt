@@ -30,43 +30,25 @@ open class GenerateMath : DefaultTask() {
 	private val packageName = "com.kgl.math"
 
 	private val primitiveTypes = listOf(
-		TypeInfo(BYTE),
-		TypeInfo(SHORT),
+		TypeInfo(BOOLEAN),
 		TypeInfo(INT),
 		TypeInfo(LONG),
-		TypeInfo(U_BYTE),
-		TypeInfo(U_SHORT),
 		TypeInfo(U_INT),
 		TypeInfo(U_LONG),
 		TypeInfo(FLOAT),
 		TypeInfo(DOUBLE)
 	)
 
-	private val boolVectorTypes = listOf(
+	private val vectorTypes = listOf(
 		TypeInfo(ClassName(packageName, "BooleanVector2"), BOOLEAN, 2),
 		TypeInfo(ClassName(packageName, "BooleanVector3"), BOOLEAN, 3),
-		TypeInfo(ClassName(packageName, "BooleanVector4"), BOOLEAN, 4)
-	)
-
-	private val vectorTypes = listOf(
-		TypeInfo(ClassName(packageName, "ByteVector2"), BYTE, 2),
-		TypeInfo(ClassName(packageName, "ByteVector3"), BYTE, 3),
-		TypeInfo(ClassName(packageName, "ByteVector4"), BYTE, 4),
-		TypeInfo(ClassName(packageName, "ShortVector2"), SHORT, 2),
-		TypeInfo(ClassName(packageName, "ShortVector3"), SHORT, 3),
-		TypeInfo(ClassName(packageName, "ShortVector4"), SHORT, 4),
+		TypeInfo(ClassName(packageName, "BooleanVector4"), BOOLEAN, 4),
 		TypeInfo(ClassName(packageName, "IntVector2"), INT, 2),
 		TypeInfo(ClassName(packageName, "IntVector3"), INT, 3),
 		TypeInfo(ClassName(packageName, "IntVector4"), INT, 4),
 		TypeInfo(ClassName(packageName, "LongVector2"), LONG, 2),
 		TypeInfo(ClassName(packageName, "LongVector3"), LONG, 3),
 		TypeInfo(ClassName(packageName, "LongVector4"), LONG, 4),
-		TypeInfo(ClassName(packageName, "UByteVector2"), U_BYTE, 2),
-		TypeInfo(ClassName(packageName, "UByteVector3"), U_BYTE, 3),
-		TypeInfo(ClassName(packageName, "UByteVector4"), U_BYTE, 4),
-		TypeInfo(ClassName(packageName, "UShortVector2"), U_SHORT, 2),
-		TypeInfo(ClassName(packageName, "UShortVector3"), U_SHORT, 3),
-		TypeInfo(ClassName(packageName, "UShortVector4"), U_SHORT, 4),
 		TypeInfo(ClassName(packageName, "UIntVector2"), U_INT, 2),
 		TypeInfo(ClassName(packageName, "UIntVector3"), U_INT, 3),
 		TypeInfo(ClassName(packageName, "UIntVector4"), U_INT, 4),
@@ -90,12 +72,20 @@ open class GenerateMath : DefaultTask() {
 		commonFunctions()
 		geometricFunctions()
 		vectorTypes()
+		vectorRelationalFunctions()
 	}
 
 	private fun commonFunctions() {
 		(primitiveTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
 			val componentNames = allComponentNames.take(componentCount ?: 0)
 			val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
+
+			val boolVectorType = vectorTypes.find { it.baseType == BOOLEAN && it.componentCount == componentCount }
+
+			val (zero, vectorZero) = literal("0", type, baseType)
+			val (one, vectorOne) = literal("1", type, baseType)
+			val (two, vectorTwo) = literal("2", type, baseType)
+			val (three, vectorThree) = literal("3", type, baseType)
 
 			buildFile(packageName, "${type.simpleName}Common") {
 				indent("\t")
@@ -109,18 +99,8 @@ open class GenerateMath : DefaultTask() {
 
 				// abs
 
-				when (type) {
-					BYTE, SHORT -> {
-						function("abs") {
-							parameter("n", type)
-							returns(type)
-							statement("return abs(n.toInt()).to%T()", type)
-						}
-					}
-				}
-
 				when (baseType) {
-					BYTE, SHORT, INT, LONG,
+					INT, LONG,
 					FLOAT, DOUBLE -> {
 						extensionFunction(type, "abs") {
 							returns(type)
@@ -138,18 +118,8 @@ open class GenerateMath : DefaultTask() {
 
 				// sign
 
-				when (type) {
-					BYTE, SHORT -> {
-						extensionProperty(type, "sign", type) {
-							getter {
-								statement("return toInt().sign.to%T()", type)
-							}
-						}
-					}
-				}
-
 				when (baseType) {
-					BYTE, SHORT, INT, LONG,
+					INT, LONG,
 					FLOAT, DOUBLE -> {
 						extensionProperty(type, "sign", type) {
 							getter {
@@ -293,18 +263,12 @@ open class GenerateMath : DefaultTask() {
 
 				// mod
 
-				if (baseType != null) {
+				if (baseType != null && baseType != BOOLEAN) {
 					extensionFunction(type, "rem") {
 						modifiers(OPERATOR)
 						parameter("scalar", baseType)
 						returns(type)
-						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-							when (baseType) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it %% scalar).to${baseType.simpleName}()"
-								else -> "$it %% scalar"
-							}
-						}
+						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it %% scalar" }
 						statement("return %T($args)", type)
 					}
 
@@ -312,13 +276,7 @@ open class GenerateMath : DefaultTask() {
 						modifiers(OPERATOR)
 						parameter("other", type)
 						returns(type)
-						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-							when (baseType) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it %% other.$it).to${baseType.simpleName}()"
-								else -> "$it %% other.$it"
-							}
-						}
+						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it %% other.$it" }
 						statement("return %T($args)", type)
 					}
 
@@ -326,12 +284,7 @@ open class GenerateMath : DefaultTask() {
 						modifiers(OPERATOR)
 						parameter("scalar", baseType)
 						componentNames.forEach {
-							val code = when (baseType) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "$it = ($it %% scalar).to${baseType.simpleName}()"
-								else -> "$it %%= scalar"
-							}
-							statement(code)
+							statement("$it %%= scalar")
 						}
 					}
 
@@ -339,12 +292,7 @@ open class GenerateMath : DefaultTask() {
 						modifiers(OPERATOR)
 						parameter("other", type)
 						componentNames.forEach {
-							val code = when (baseType) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "$it = ($it %% other.$it).to${baseType.simpleName}()"
-								else -> "$it %%= other.$it"
-							}
-							statement(code)
+							statement("$it %%= other.$it")
 						}
 					}
 				}
@@ -499,6 +447,17 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
+				if (baseType != null) {
+					function("mix") {
+						parameter("x", type)
+						parameter("y", type)
+						parameter("a", boolVectorType!!.type)
+						returns(type)
+						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "mix(x.$it, y.$it, a.$it)" }
+						statement("return %T($args)", type)
+					}
+				}
+
 				when (baseType) {
 					FLOAT, DOUBLE -> {
 						function("mix") {
@@ -523,51 +482,107 @@ open class GenerateMath : DefaultTask() {
 
 				// step
 
-				fun oneAndZero(type: ClassName, baseType: ClassName?): Pair<String, String> {
-					return when (type) {
-						BYTE -> "1.toByte()" to "0.toByte()"
-						SHORT -> "1.toShort()" to "0.toShort()"
-						INT -> "1" to "0"
-						LONG -> "1L" to "0L"
-						U_BYTE -> "1U.toUByte()" to "0U.toUByte()"
-						U_SHORT -> "1U.toUShort()" to "0U.toUShort()"
-						U_INT -> "1U" to "0U"
-						U_LONG -> "1UL" to "0UL"
-						FLOAT -> "1f" to "0f"
-						DOUBLE -> "1.0" to "0.0"
-						else -> if (baseType != null) {
-							val (one, zero) = oneAndZero(baseType, null)
-							"${type.simpleName}($one)" to "${type.simpleName}($zero)"
-						} else error("")
+				when (baseType) {
+					// is primitive type
+					null -> {
+						function("step") {
+							parameter("edge", type)
+							parameter("x", type)
+							returns(type)
+							statement("return mix($one, $zero, x < edge)")
+						}
+					}
+
+					// is vector type
+					else -> {
+						function("step") {
+							parameter("edge", type)
+							parameter("x", type)
+							returns(type)
+							statement("return mix(\n\t$vectorOne,\n\t$vectorZero,\n\tx.lessThan(edge)\n)")
+						}
+
+						function("step") {
+							parameter("edge", baseType)
+							parameter("x", type)
+							returns(type)
+							statement("return step(%T(edge), x)", type)
+						}
 					}
 				}
 
-				val (one, zero) = oneAndZero(type, baseType)
-
-				// TODO implement relational functions before step can work
-				//function("step") {
-				//	parameter("edge", type)
-				//	parameter("x", type)
-				//	returns(type)
-				//	statement("return mix($one, $zero, x < edge)")
-				//}
-
-				// is vector type
-				//else -> {
-				//	function("step") {
-				//		parameter("edge", type)
-				//		parameter("x", type)
-				//		returns(type)
-				//		val args = componentNames.joinToString {  }
-				//		statement()
-				//	}
-				//}
-
 				// smoothStep
+
+				when (type) {
+					FLOAT, DOUBLE -> {
+						function("smoothStep") {
+							parameter("edge0", type)
+							parameter("edge1", type)
+							parameter("x", type)
+							returns(type)
+							statement("val tmp = ((x - edge0) / (edge1 - edge0)).coerceIn($zero, $one)")
+							statement("return tmp * tmp * ($three - $two * tmp)")
+						}
+					}
+
+					// is vector type
+					else -> when (baseType) {
+						FLOAT, DOUBLE -> {
+							function("smoothStep") {
+								parameter("edge0", type)
+								parameter("edge1", type)
+								parameter("x", type)
+								returns(type)
+								statement("val tmp = ((x - edge0) / (edge1 - edge0)).coerceIn($vectorZero, $vectorOne)")
+								statement("return tmp * tmp * ($vectorThree - $vectorTwo * tmp)")
+							}
+
+							function("smoothStep") {
+								parameter("edge0", baseType)
+								parameter("edge1", baseType)
+								parameter("x", type)
+								returns(type)
+								statement("return smoothStep(%T(edge0), %T(edge1), x)", type, type)
+							}
+						}
+					}
+				}
 
 				// isNaN
 
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						extensionFunction(type, "isNaN") {
+							returns(boolVectorType!!.type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.isNaN()" }
+							statement("return %T($args)", boolVectorType.type)
+						}
+					}
+				}
+
 				// isInf
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						extensionFunction(type, "isInfinite") {
+							returns(boolVectorType!!.type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.isInfinite()" }
+							statement("return %T($args)", boolVectorType.type)
+						}
+					}
+				}
+
+				// isFinite (from kotlin stdlib)
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						extensionFunction(type, "isFinite") {
+							returns(boolVectorType!!.type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.isFinite()" }
+							statement("return %T($args)", boolVectorType.type)
+						}
+					}
+				}
 
 				// floatBitsToInt/floatBitsToUInt
 
@@ -615,6 +630,16 @@ open class GenerateMath : DefaultTask() {
 							}
 							statement("return %T($args)", type)
 						}
+
+						extensionFunction(mutableType.nestedClass("Companion"), "fromBits") {
+							parameter("bits", bitsVectorType)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
+								val unsignedConversion = if (unsigned) ".to${bitsType.simpleName.drop(1)}()" else ""
+								"${baseType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
+							}
+							statement("return %T($args)", type)
+						}
 					}
 				}
 
@@ -629,18 +654,18 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				// fma
-
 				// frexp
 
 				// ldexp
 
-			}.apply { writeTo(commonDir.get().asFile) }
+			}.writeTo(commonDir.get().asFile)
 		}
 	}
 
 	private fun geometricFunctions() {
 		vectorTypes.forEach { (type, baseType, componentCount) ->
+			if (baseType == BOOLEAN) return@forEach
+
 			val componentNames = allComponentNames.take(componentCount!!)
 			baseType ?: error("null base type invalid for vector types")
 
@@ -654,14 +679,7 @@ open class GenerateMath : DefaultTask() {
 					parameter("other", type)
 					returns(baseType)
 					val result = componentNames.joinToString(" + ") { "$it * other.$it" }
-						.let {
-							when (baseType) {
-								BYTE, SHORT,
-								U_BYTE, U_SHORT -> "($it).to${baseType.simpleName}()"
-								else -> "\n\t($it)"
-							}
-						}
-					statement("return $result")
+					statement("return \n\t($result)")
 				}
 
 				// Cross Product
@@ -676,39 +694,22 @@ open class GenerateMath : DefaultTask() {
 							.plus(componentNames.take(2))
 							.zipWithNext()
 							.joinToString(",\n\t", "\n\t", "\n") { (c1, c2) ->
-								when (baseType) {
-									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "($c1 * other.$c2 - other.$c1 * $c2).to${baseType.simpleName}()"
-									else -> "$c1 * other.$c2 - other.$c1 * $c2"
-								}
+								"$c1 * other.$c2 - other.$c1 * $c2"
 							}
 						statement("return %T($args)", type)
 					}
 				}
-			}.apply { writeTo(commonDir.get().asFile) }
+			}.writeTo(commonDir.get().asFile)
 		}
 	}
 
 	private fun vectorTypes() {
-		(boolVectorTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
+		vectorTypes.forEach { (type, baseType, componentCount) ->
 			val mutableVectorType = ClassName(packageName, "Mutable${type.simpleName}")
 			val componentNames = allComponentNames.take(componentCount!!)
+			baseType ?: error("null base type invalid for vectors")
 
-			val zero = when (baseType) {
-				BOOLEAN -> "false"
-				BYTE,
-				SHORT,
-				INT -> "0"
-				LONG -> "0L"
-				U_BYTE,
-				U_SHORT,
-				U_INT -> "0U"
-				U_LONG -> "0UL"
-				FLOAT -> "0f"
-				DOUBLE -> "0.0"
-				null -> error("null base type invalid for vector types")
-				else -> error("invalid base type: $baseType")
-			}
+			val (zero) = literal("0", baseType, null)
 
 			buildFile(packageName, type.simpleName) {
 				indent("\t")
@@ -739,9 +740,9 @@ open class GenerateMath : DefaultTask() {
 						property("length", baseType) {
 							getter {
 								val code = when (baseType) {
-									BYTE, SHORT, INT, LONG ->
+									INT, LONG ->
 										"return sqrt((this dot this).toDouble()).to${baseType.simpleName}()"
-									U_BYTE, U_SHORT, U_INT, U_LONG ->
+									U_INT, U_LONG ->
 										"return sqrt((this dot this).toDouble()).to${baseType.simpleName.drop(1)}().to${baseType.simpleName}()"
 									else ->
 										"return sqrt(this dot this)"
@@ -759,13 +760,7 @@ open class GenerateMath : DefaultTask() {
 						function("normalized") {
 							returns(type)
 							statement("val length = length")
-							val args = componentNames.joinToString {
-								when (baseType) {
-									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "($it / length).to${baseType.simpleName}()"
-									else -> "$it / length"
-								}
-							}
+							val args = componentNames.joinToString { "$it / length" }
 							statement("return %T($args)", type)
 						}
 
@@ -774,13 +769,7 @@ open class GenerateMath : DefaultTask() {
 								modifiers(OPERATOR)
 								parameter("scalar", baseType)
 								returns(type)
-								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-									when (baseType) {
-										BYTE, SHORT,
-										U_BYTE, U_SHORT -> "($it $op scalar).to${baseType.simpleName}()"
-										else -> "$it $op scalar"
-									}
-								}
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it $op scalar" }
 								statement("return %T($args)", type)
 							}
 
@@ -788,13 +777,7 @@ open class GenerateMath : DefaultTask() {
 								modifiers(OPERATOR)
 								parameter("other", type)
 								returns(type)
-								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-									when (baseType) {
-										BYTE, SHORT,
-										U_BYTE, U_SHORT -> "($it $op other.$it).to${baseType.simpleName}()"
-										else -> "$it $op other.$it"
-									}
-								}
+								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it $op other.$it" }
 								statement("return %T($args)", type)
 							}
 						}
@@ -803,6 +786,8 @@ open class GenerateMath : DefaultTask() {
 
 				buildClass(mutableVectorType) {
 					superclass(type)
+
+					companionObject()
 
 					primaryConstructor {
 						componentNames.forEach { name ->
@@ -842,12 +827,7 @@ open class GenerateMath : DefaultTask() {
 						function("normalize") {
 							statement("val length = length")
 							componentNames.forEach {
-								val code = when (baseType) {
-									BYTE, SHORT,
-									U_BYTE, U_SHORT -> "$it = ($it / length).to${baseType.simpleName}()"
-									else -> "$it /= length"
-								}
-								statement(code)
+								statement("$it /= length")
 							}
 						}
 
@@ -856,12 +836,7 @@ open class GenerateMath : DefaultTask() {
 								modifiers(OPERATOR)
 								parameter("scalar", baseType)
 								componentNames.forEach {
-									val code = when (baseType) {
-										BYTE, SHORT,
-										U_BYTE, U_SHORT -> "$it = ($it $op scalar).to${baseType.simpleName}()"
-										else -> "$it $op= scalar"
-									}
-									statement(code)
+									statement("$it $op= scalar")
 								}
 							}
 
@@ -869,15 +844,40 @@ open class GenerateMath : DefaultTask() {
 								modifiers(OPERATOR)
 								parameter("other", type)
 								componentNames.forEach {
-									val code = when (baseType) {
-										BYTE, SHORT,
-										U_BYTE, U_SHORT -> "$it = ($it $op other.$it).to${baseType.simpleName}()"
-										else -> "$it $op= other.$it"
-									}
-									statement(code)
+									statement("$it $op= other.$it")
 								}
 							}
 						}
+					}
+
+					function("equals") {
+						modifiers(OVERRIDE)
+						parameter("other", ANY.copy(nullable = true))
+						returns(BOOLEAN)
+						statement("if (other === this) return true")
+						statement("if (other == null) return false")
+						statement("other as ${type.simpleName}")
+						componentNames.forEach {
+							statement("if ($it != other.$it) return false")
+						}
+						statement("return true")
+					}
+
+					function("hashCode") {
+						modifiers(OVERRIDE)
+						returns(INT)
+						componentNames.forEachIndexed { i, it ->
+							statement(
+								if (i == 0) "var result = $it.hashCode()" else "result = 31 * result + $it.hashCode()"
+							)
+						}
+						statement("return result")
+					}
+
+					function("toString") {
+						modifiers(OVERRIDE)
+						returns(STRING)
+						statement("return %P", componentNames.joinToString(", ", "[", "]") { "$$it" })
 					}
 				}
 
@@ -906,7 +906,122 @@ open class GenerateMath : DefaultTask() {
 						statement("return $name")
 					}
 				}
-			}.apply { writeTo(commonDir.get().asFile) }
+			}.writeTo(commonDir.get().asFile)
+		}
+	}
+
+	private fun vectorRelationalFunctions() {
+		vectorTypes.forEach { (type, baseType, componentCount) ->
+			val componentNames = allComponentNames.take(componentCount!!)
+			baseType!!
+
+			val boolVectorType = vectorTypes.find { it.baseType == BOOLEAN && it.componentCount == componentCount }!!
+
+			buildFile(packageName, "${type.simpleName}Relational") {
+
+				// lessThan
+
+				extensionFunction(type, "lessThan") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it < other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				// lessThanEqual
+
+				extensionFunction(type, "lessThanEqual") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it <= other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				// greaterThan
+
+				extensionFunction(type, "greaterThan") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it > other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				// greaterThanEqual
+
+				extensionFunction(type, "greaterThanEqual") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it >= other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				// equal
+
+				extensionFunction(type, "equal") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it == other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				// notEqual
+
+				extensionFunction(type, "notEqual") {
+					parameter("other", type)
+					returns(boolVectorType.type)
+					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it != other.$it" }
+					statement("return %T($args)", boolVectorType.type)
+				}
+
+				if (baseType == BOOLEAN) {
+					// should the `any` and `all` functionality for collections from stdlib be generalized to all vector types?
+
+					// any
+
+					extensionFunction(type, "any") {
+						returns(BOOLEAN)
+						val result = componentNames.joinToString(" || ") { it }
+						statement("return $result")
+					}
+
+					// all
+
+					extensionFunction(type, "all") {
+						returns(BOOLEAN)
+						val result = componentNames.joinToString(" && ") { it }
+						statement("return $result")
+					}
+
+					// not_
+
+					extensionFunction(type, "not") {
+						modifiers(OPERATOR)
+						returns(type)
+						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "!$it" }
+						statement("return %T($args)", type)
+					}
+				}
+			}.writeTo(commonDir.get().asFile)
+		}
+	}
+
+
+	private fun literal(literal: String, type: ClassName, baseType: ClassName?): Pair<String, String?> {
+		return when (baseType) {
+			null -> when (type) {
+				BOOLEAN -> if (literal == "0") "false" to null else "true" to null
+				INT -> literal to null
+				LONG -> "${literal}L" to null
+				U_INT -> "${literal}U" to null
+				U_LONG -> "${literal}UL" to null
+				FLOAT -> "${literal}f" to null
+				DOUBLE -> "${literal}.0" to null
+				else -> error("invalid type: $type")
+			}
+			else -> {
+				val (one) = literal(literal, baseType, null)
+				one to "${type.simpleName}($one)"
+			}
 		}
 	}
 }
