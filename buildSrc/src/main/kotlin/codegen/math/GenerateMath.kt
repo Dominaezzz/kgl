@@ -727,8 +727,13 @@ open class GenerateMath : DefaultTask() {
 						property("ONE", type) {
 							initializer("%T($one)", type)
 						}
-						componentNames.forEach {
-
+						componentNames.forEach { outer ->
+							property(outer.toUpperCase(), type) {
+								val args = componentNames.joinToString { inner ->
+									if (outer == inner) one else zero
+								}
+								initializer("%T($args)", type)
+							}
 						}
 					}
 
