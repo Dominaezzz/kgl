@@ -238,3 +238,8 @@ inline fun FunSpec.Builder.controlFlow(controlFlow: String, block: FunSpec.Build
 fun FunSpec.Builder.statement(format: String, vararg args: Any) {
 	addStatement(format, *args)
 }
+
+@KotlinPoetDsl
+fun FunSpec.Builder.code(format: String, vararg args: Any?) {
+	addCode(CodeBlock.of(format, args))
+}

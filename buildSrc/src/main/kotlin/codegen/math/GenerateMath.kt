@@ -656,6 +656,77 @@ open class GenerateMath : DefaultTask() {
 
 				// TODO frexp
 
+				when (type) {
+					FLOAT -> {
+						extensionFunction(type, "toFractionAndExponent") {
+							parameter("x", type)
+							returns(
+								Pair::class.asClassName().parameterizedBy(
+									type,
+									vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+								)
+							)
+							code(
+								"""
+								// implementation from glibc math
+								var fraction = x
+								var hx = x.toRawBits()
+								var ix = hx and 0x7FFF_FFFF
+								var exponent = 0
+								if (ix >= 0x7F80_0000 || ix == 0) {
+									return fraction + fraction to exponent
+								}
+								if (ix < 0x0080_0000) {
+									fraction *= 2e25f
+									hx = x.toRawBits()
+									ix = hx and 0x7FFF_FFFF
+									exponent = -25
+								}
+								exponent += (ix shr 23) - 126
+								hx = (hx and 0x807F_FFFF.toInt()) or 0x3F00_0000
+								fraction = Float.fromBits(hx)
+								return fraction to exponent
+								""".trimIndent()
+							)
+						}
+					}
+					DOUBLE -> {
+						extensionFunction(type, "toFractionAndExponent") {
+							parameter("x", type)
+							returns(
+								Pair::class.asClassName().parameterizedBy(
+									type,
+									vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+								)
+							)
+							code(
+								"""
+								// implementation from glibc math
+								var fraction = x
+								var ix = x.toRawBits()
+								var ex = 0x7FF and (ix shr 52).toInt()
+								var exponent = 0
+
+								if (ex != 0x7FF && fraction != 0.0) {
+									exponent = ex - 1022
+									if (ex == 0) {
+										fraction *= 2e54
+										ix = fraction.toRawBits()
+										ex = 0x7FF and (ix shr 52).toInt()
+										exponent = ex - 1022 - 54
+									}
+									ix = (ix and 0x800F_FFFF_FFFF_FFFFu.toLong()) or 0x3FE0_0000_0000_0000
+									fraction = Double.fromBits(ix)
+								} else {
+									fraction += fraction
+								}
+								return fraction to exponent
+								""".trimIndent()
+							)
+						}
+					}
+				}
+
 				// TODO ldexp
 
 			}.writeTo(commonDir.get().asFile)
