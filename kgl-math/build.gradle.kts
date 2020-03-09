@@ -11,32 +11,28 @@ val generateMath by tasks.registering(GenerateMath::class) {
 }
 
 kotlin {
-	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib"))
-				}
+	jvm().compilations {
+		"main" {
+			dependencies {
+				implementation(kotlin("stdlib"))
 			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-				}
+		}
+		"test" {
+			dependencies {
+				implementation(kotlin("test"))
 			}
 		}
 	}
 
-	js {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-js"))
-				}
+	js().compilations {
+		"main" {
+			dependencies {
+				implementation(kotlin("stdlib-js"))
 			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test-js"))
-				}
+		}
+		"test" {
+			dependencies {
+				implementation(kotlin("test-js"))
 			}
 		}
 	}

@@ -654,9 +654,9 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				// frexp
+				// TODO frexp
 
-				// ldexp
+				// TODO ldexp
 
 			}.writeTo(commonDir.get().asFile)
 		}
@@ -710,6 +710,7 @@ open class GenerateMath : DefaultTask() {
 			baseType ?: error("null base type invalid for vectors")
 
 			val (zero) = literal("0", baseType, null)
+			val (one) = literal("1", baseType, null)
 
 			buildFile(packageName, type.simpleName) {
 				indent("\t")
@@ -719,7 +720,17 @@ open class GenerateMath : DefaultTask() {
 				buildClass(type) {
 					modifiers(SEALED)
 
-					companionObject()
+					companionObject {
+						property("ZERO", type) {
+							initializer("%T($zero)", type)
+						}
+						property("ONE", type) {
+							initializer("%T($one)", type)
+						}
+						componentNames.forEach {
+
+						}
+					}
 
 					componentNames.forEach {
 						property(it, baseType, ABSTRACT)
@@ -728,7 +739,8 @@ open class GenerateMath : DefaultTask() {
 					function("get") {
 						modifiers(OPERATOR)
 						parameter("index", INT)
-						controlFlow("when (index)") {
+						returns(baseType)
+						controlFlow("return when (index)") {
 							componentNames.forEachIndexed { i, it ->
 								statement("$i -> $it")
 							}
