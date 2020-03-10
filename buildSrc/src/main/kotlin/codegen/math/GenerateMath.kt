@@ -90,18 +90,13 @@ open class GenerateMath : DefaultTask() {
 			buildFile(packageName, "${type.simpleName}Common") {
 				indent("\t")
 
-				import("kotlin.math", "abs")
-				import("kotlin.math", "ceil")
-				import("kotlin.math", "floor")
-				import("kotlin.math", "round")
-				import("kotlin.math", "sign")
-				import("kotlin.math", "truncate")
-
 				// abs
 
 				when (baseType) {
 					INT, LONG,
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "abs")
+
 						extensionFunction(type, "abs") {
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "abs($it)" }
@@ -121,6 +116,8 @@ open class GenerateMath : DefaultTask() {
 				when (baseType) {
 					INT, LONG,
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "sign")
+
 						extensionProperty(type, "sign", type) {
 							getter {
 								val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
@@ -136,6 +133,8 @@ open class GenerateMath : DefaultTask() {
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "floor")
+
 						extensionFunction(type, "floor") {
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "floor($it)" }
@@ -154,6 +153,8 @@ open class GenerateMath : DefaultTask() {
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "truncate")
+
 						extensionFunction(type, "truncate") {
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "truncate($it)" }
@@ -172,6 +173,8 @@ open class GenerateMath : DefaultTask() {
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "round")
+
 						extensionFunction(type, "round") {
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "round($it)" }
@@ -190,6 +193,9 @@ open class GenerateMath : DefaultTask() {
 
 				when (type) {
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "round")
+						import("kotlin.math", "truncate")
+
 						function("roundEven") {
 							parameter("n", type)
 							returns(type)
@@ -224,6 +230,8 @@ open class GenerateMath : DefaultTask() {
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {
+						import("kotlin.math", "ceil")
+
 						extensionFunction(type, "ceil") {
 							returns(type)
 							val args = componentNames.joinToString { "ceil($it)" }
@@ -654,23 +662,17 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				// TODO frexp
+				// frexp
 
 				when (type) {
 					FLOAT -> {
 						extensionFunction(type, "toFractionAndExponent") {
-							parameter("x", type)
-							returns(
-								Pair::class.asClassName().parameterizedBy(
-									type,
-									vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
-								)
-							)
+							returns(Pair::class.asClassName().parameterizedBy(type, INT))
 							code(
 								"""
 								// implementation from glibc math
-								var fraction = x
-								var hx = x.toRawBits()
+								var fraction = this
+								var hx = fraction.toRawBits()
 								var ix = hx and 0x7FFF_FFFF
 								var exponent = 0
 								if (ix >= 0x7F80_0000 || ix == 0) {
@@ -678,7 +680,7 @@ open class GenerateMath : DefaultTask() {
 								}
 								if (ix < 0x0080_0000) {
 									fraction *= 2e25f
-									hx = x.toRawBits()
+									hx = fraction.toRawBits()
 									ix = hx and 0x7FFF_FFFF
 									exponent = -25
 								}
@@ -692,18 +694,12 @@ open class GenerateMath : DefaultTask() {
 					}
 					DOUBLE -> {
 						extensionFunction(type, "toFractionAndExponent") {
-							parameter("x", type)
-							returns(
-								Pair::class.asClassName().parameterizedBy(
-									type,
-									vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
-								)
-							)
+							returns(Pair::class.asClassName().parameterizedBy(type, INT))
 							code(
 								"""
 								// implementation from glibc math
-								var fraction = x
-								var ix = x.toRawBits()
+								var fraction = this
+								var ix = fraction.toRawBits()
 								var ex = 0x7FF and (ix shr 52).toInt()
 								var exponent = 0
 
@@ -727,8 +723,56 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				// TODO ldexp
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+						extensionFunction(type, "toFractionAndExponent") {
+							returns(Pair::class.asClassName().parameterizedBy(type, intVectorType))
+							val (fargs, iargs) = componentNames.map {
+								statement("val (f$it, i$it) = $it.toFractionAndExponent()")
+								"f$it" to "i$it"
+							}.toMap().run { keys.joinToString() to values.joinToString() }
+							statement("return %T($fargs) to %T($iargs)", type, intVectorType)
+						}
+					}
+				}
 
+				// ldexp
+
+				when (type) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "pow")
+
+						extensionFunction(type.nestedClass("Companion"), "fromFractionAndExponent") {
+							parameter("value", type)
+							parameter("exp", INT)
+							returns(type)
+							code(
+								"""
+								if (value.isInfinite() || value == $zero) return value
+								val result = value * $two.pow(exp)
+								if (result.isInfinite() || value == $zero) error("value out of range!")
+								return result
+								""".trimIndent()
+							)
+						}
+					}
+				}
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+						extensionFunction(type.nestedClass("Companion"), "fromFractionAndExponent") {
+							parameter("value", type)
+							parameter("exp", intVectorType)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
+								"${baseType.simpleName}.fromFractionAndExponent(value.$it, exp.$it)"
+							}
+							statement("return %T($args)", type)
+						}
+					}
+				}
 			}.writeTo(commonDir.get().asFile)
 		}
 	}
