@@ -16,30 +16,28 @@
 package com.kgl.stb
 
 import com.kgl.core.VirtualStack
-import com.kgl.stb.STBImage.Companion.asStbChannels
 import cstb.*
 import kotlinx.cinterop.*
-import kotlinx.io.core.Closeable
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.Closeable
+import io.ktor.utils.io.bits.Memory
+import io.ktor.utils.io.core.internal.DangerousInternalIoApi
 
 actual class STBImage(
-		actual val buffer: IoBuffer,
+		actual val buffer: Memory,
 		actual val info: STBInfo) : Closeable {
 
 	override fun close() {
-		buffer.readDirect {
-			stbi_image_free(it)
-			0
-		}
+		stbi_image_free(buffer.pointer)
 	}
 
 	actual companion object {
 		@Suppress("NOTHING_TO_INLINE")
 		private inline fun Boolean.toInt() = if (this) 1 else 0
+		@OptIn(DangerousInternalIoApi::class)
 		private val nativeCallbacks = cValue<stbi_io_callbacks> {
 			read = staticCFunction { user, data, size ->
 				val callbacks = user!!.asStableRef<STBIOCallbacks>().get()
-				callbacks.read(IoBuffer(data!!, size))
+				callbacks.read(Memory(data!!, size.convert()))
 			}
 			skip = staticCFunction { user, n ->
 				val callbacks = user!!.asStableRef<STBIOCallbacks>().get()
@@ -52,8 +50,9 @@ actual class STBImage(
 		}
 		private val Channels?.asStbChannels: Int get() = this?.value ?: STBI_default.toInt()
 
+		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : CVariable> genericLoad(
-				buffer: IoBuffer, desiredChannels: Channels?,
+				buffer: Memory, desiredChannels: Channels?,
 				crossinline block: (
 						buffer: CValuesRef<stbi_ucVar>?,
 						len: Int,
@@ -69,23 +68,20 @@ actual class STBImage(
 				val y = VirtualStack.alloc<IntVar>()
 				val channels = VirtualStack.alloc<IntVar>()
 
-				var result: CPointer<T>? = null
-				buffer.readDirect {
-					result = block(it.reinterpret(), buffer.readRemaining, x.ptr, y.ptr, channels.ptr,
-							desiredChannels.asStbChannels)
-					buffer.readRemaining
-				}
+				val result = block(buffer.pointer.reinterpret(), buffer.size32, x.ptr, y.ptr, channels.ptr,
+						desiredChannels.asStbChannels)
 
 				val bytes = (result ?: throw STBException(failureReason)).reinterpret<ByteVar>()
 
 				return STBImage(
-						IoBuffer(bytes, x.value * y.value * channels.value * sizeOf<T>().toInt()),
+						Memory(bytes, x.value * y.value * channels.value * sizeOf<T>()),
 						STBInfo(x.value, y.value, Channels.values()[channels.value - 1])
 				)
 			} finally {
 				VirtualStack.pop()
 			}
 		}
+		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : CVariable> genericLoad(
 				callbacks: STBIOCallbacks, desiredChannels: Channels?, 
 				crossinline block: (
@@ -113,7 +109,7 @@ actual class STBImage(
 				val bytes = (result ?: throw STBException(failureReason)).reinterpret<ByteVar>()
 
 				return STBImage(
-						IoBuffer(bytes, x.value * y.value * channels.value * sizeOf<T>().toInt()),
+						Memory(bytes, x.value * y.value * channels.value * sizeOf<T>()),
 						STBInfo(x.value, y.value, Channels.values()[channels.value - 1])
 				)
 			} finally {
@@ -122,21 +118,21 @@ actual class STBImage(
 			}
 		}
 
-		actual fun load(buffer: IoBuffer, desiredChannels: Channels?): STBImage {
+		actual fun load(buffer: Memory, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_load_from_memory)
 		}
 		actual fun load(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_load_from_callbacks)
 		}
 
-		actual fun load16(buffer: IoBuffer, desiredChannels: Channels?): STBImage {
+		actual fun load16(buffer: Memory, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_load_16_from_memory)
 		}
 		actual fun load16(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_load_16_from_callbacks)
 		}
 
-		actual fun loadf(buffer: IoBuffer, desiredChannels: Channels?): STBImage {
+		actual fun loadf(buffer: Memory, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_loadf_from_memory)
 		}
 		actual fun loadf(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
@@ -166,29 +162,21 @@ actual class STBImage(
 				userData.dispose()
 			}
 		}
-		actual fun isHdr(buffer: IoBuffer): Boolean {
-			var result: Int? = null
-			buffer.readDirect {
-				result = stbi_is_hdr_from_memory(it.reinterpret(), buffer.readRemaining)
-				buffer.readRemaining
-			}
-			return result != null && result != 0
+		actual fun isHdr(buffer: Memory): Boolean {
+			val result= stbi_is_hdr_from_memory(buffer.pointer.reinterpret(), buffer.size32)
+			return result != 0
 		}
 
 		actual val failureReason: String? get() = stbi_failure_reason()?.toKStringFromUtf8()
 
-		actual fun loadInfo(buffer: IoBuffer): STBInfo {
+		actual fun loadInfo(buffer: Memory): STBInfo {
 			VirtualStack.push()
 			try {
 				val x = VirtualStack.alloc<IntVar>()
 				val y = VirtualStack.alloc<IntVar>()
 				val channels = VirtualStack.alloc<IntVar>()
 
-				var result = 0
-				buffer.readDirect {
-					result = stbi_info_from_memory(it.reinterpret(), buffer.readRemaining, x.ptr, y.ptr, channels.ptr)
-					buffer.readRemaining
-				}
+				val result = stbi_info_from_memory(buffer.pointer.reinterpret(), buffer.size32, x.ptr, y.ptr, channels.ptr)
 
 				return if (result != 0) {
 					STBInfo(x.value, y.value, Channels.values()[channels.value - 1])
@@ -233,13 +221,9 @@ actual class STBImage(
 				userData.dispose()
 			}
 		}
-		actual fun is16Bit(buffer: IoBuffer): Boolean {
-			var result: Int? = null
-			buffer.readDirect {
-				result = stbi_is_16_bit_from_memory(it.reinterpret(), buffer.readRemaining)
-				buffer.readRemaining
-			}
-			return result != null && result != 0
+		actual fun is16Bit(buffer: Memory): Boolean {
+			val result = stbi_is_16_bit_from_memory(buffer.pointer.reinterpret(), buffer.size.toInt())
+			return result != 0
 		}
 
 		actual fun setUnpremultiplyOnLoad(flag: Boolean) {

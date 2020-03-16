@@ -25,7 +25,7 @@ import cvulkan.VK_SUCCESS
 import cvulkan.VkPipelineCache
 import cvulkan.VkResult
 import kotlinx.cinterop.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class PipelineCache(override val ptr: VkPipelineCache, actual val device: Device) : VkHandleNative<VkPipelineCache>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

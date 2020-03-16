@@ -25,7 +25,7 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkPipeline
 import kotlinx.cinterop.invoke
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

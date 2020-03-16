@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 
 expect class Cursor : Closeable {
 	constructor(image: Image, xhot: Int, yhot: Int)

@@ -19,7 +19,7 @@ import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class CommandBuffer : VkHandle {
 	val commandPool: CommandPool

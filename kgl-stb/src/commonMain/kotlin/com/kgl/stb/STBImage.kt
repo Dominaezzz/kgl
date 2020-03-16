@@ -15,22 +15,24 @@
  */
 package com.kgl.stb
 
-import kotlinx.io.core.Closeable
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
+import io.ktor.utils.io.core.Closeable
+import io.ktor.utils.io.core.ExperimentalIoApi
 
+@OptIn(ExperimentalIoApi::class)
 expect class STBImage : Closeable {
-	val buffer: IoBuffer
+	val buffer: Memory
 	val info: STBInfo
 
 	companion object {
-		fun load(buffer: IoBuffer, desiredChannels: Channels? = null): STBImage
+		fun load(buffer: Memory, desiredChannels: Channels? = null): STBImage
 		fun load(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
-		// fun loadGif(buffer: IoBuffer, desiredChannels: Channels? = null): STBImage
+		// fun loadGif(buffer: Memory, desiredChannels: Channels? = null): STBImage
 
-		fun load16(buffer: IoBuffer, desiredChannels: Channels? = null): STBImage
+		fun load16(buffer: Memory, desiredChannels: Channels? = null): STBImage
 		fun load16(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
 
-		fun loadf(buffer: IoBuffer, desiredChannels: Channels? = null): STBImage
+		fun loadf(buffer: Memory, desiredChannels: Channels? = null): STBImage
 		fun loadf(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
 
 		fun setHdrToLdrGamma(gamma: Float)
@@ -40,15 +42,15 @@ expect class STBImage : Closeable {
 		fun setLdrToHdrScale(scale: Float)
 
 		fun isHdr(callbacks: STBIOCallbacks): Boolean
-		fun isHdr(buffer: IoBuffer): Boolean
+		fun isHdr(buffer: Memory): Boolean
 
 		val failureReason: String?
 
-		fun loadInfo(buffer: IoBuffer): STBInfo
+		fun loadInfo(buffer: Memory): STBInfo
 		fun loadInfo(callbacks: STBIOCallbacks): STBInfo
 
 		fun is16Bit(callbacks: STBIOCallbacks): Boolean
-		fun is16Bit(buffer: IoBuffer): Boolean
+		fun is16Bit(buffer: Memory): Boolean
 
 		/**
 		 * For image formats that explicitly notate that they have premultiplied alpha,

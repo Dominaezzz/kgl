@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 
 expect class Window : Closeable {
 	var position: Pair<Int, Int>

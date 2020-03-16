@@ -25,7 +25,7 @@ internal val BYTE_VAR = ClassName("kotlinx.cinterop", "ByteVar")
 
 internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
 
-internal val IO_BUFFER = ClassName("kotlinx.io.core", "IoBuffer")
+internal val IO_BUFFER = ClassName("io.ktor.utils.io.core", "IoBuffer")
 
 internal val PAIR = ClassName("kotlin", "Pair")
 

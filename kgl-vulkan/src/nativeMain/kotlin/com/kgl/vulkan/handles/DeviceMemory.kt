@@ -25,7 +25,7 @@ import cvulkan.VK_SUCCESS
 import cvulkan.VkDeviceMemory
 import cvulkan.VkMemoryGetFdInfoKHR
 import kotlinx.cinterop.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class DeviceMemory(
 		override val ptr: VkDeviceMemory,

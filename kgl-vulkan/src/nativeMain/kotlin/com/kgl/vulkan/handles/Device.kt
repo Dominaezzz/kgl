@@ -22,7 +22,7 @@ import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class Device(override val ptr: VkDevice, actual val physicalDevice: PhysicalDevice) : VkHandleNative<VkDevice>(), VkHandle {
 	internal val dispatchTable = DeviceDispatchTable {

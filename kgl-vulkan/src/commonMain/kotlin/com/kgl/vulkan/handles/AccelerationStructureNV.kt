@@ -19,7 +19,7 @@ import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class AccelerationStructureNV : VkHandle {
 	val device: Device

@@ -16,7 +16,7 @@
 package com.kgl.glfw
 
 import com.kgl.core.Flag
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWImage
@@ -239,9 +239,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		try {
 			val imageArray = GLFWImage.callocStack(images.size)
 			images.forEachIndexed { index, image ->
-				image.pixels.readDirect {
-					imageArray[index].set(image.width, image.height, it)
-				}
+				imageArray[index].set(image.width, image.height, image.pixels.buffer)
 			}
 			glfwSetWindowIcon(ptr, imageArray)
 		} finally {

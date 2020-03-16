@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class Pipeline : VkHandle {
 	val device: Device

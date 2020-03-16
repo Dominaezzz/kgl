@@ -23,7 +23,7 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkValidationCacheEXT
 import kotlinx.cinterop.invoke
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

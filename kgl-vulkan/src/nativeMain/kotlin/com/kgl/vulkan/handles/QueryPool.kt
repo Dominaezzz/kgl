@@ -22,7 +22,7 @@ import cvulkan.VK_NOT_READY
 import cvulkan.VK_SUCCESS
 import cvulkan.VkQueryPool
 import kotlinx.cinterop.invoke
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable

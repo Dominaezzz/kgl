@@ -21,7 +21,7 @@ import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val commandPool: CommandPool) : VkHandleNative<VkCommandBuffer>(), VkHandle {
 	internal val dispatchTable = commandPool.dispatchTable

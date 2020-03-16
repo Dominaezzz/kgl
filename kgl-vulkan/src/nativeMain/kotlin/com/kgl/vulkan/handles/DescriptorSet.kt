@@ -25,7 +25,7 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descriptorPool: DescriptorPool) : VkHandleNative<VkDescriptorSet>(), VkHandle {
 	internal val dispatchTable = descriptorPool.dispatchTable
