@@ -17,7 +17,7 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.*
 

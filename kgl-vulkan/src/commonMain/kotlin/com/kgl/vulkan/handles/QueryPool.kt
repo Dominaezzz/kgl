@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class QueryPool : VkHandle {
 	val device: Device

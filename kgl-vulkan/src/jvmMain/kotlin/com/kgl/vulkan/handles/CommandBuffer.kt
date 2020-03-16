@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.AMDBufferMarker.vkCmdWriteBufferMarkerAMD

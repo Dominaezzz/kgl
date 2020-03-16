@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.toVkType
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10.vkFreeDescriptorSets
 import org.lwjgl.vulkan.VK11

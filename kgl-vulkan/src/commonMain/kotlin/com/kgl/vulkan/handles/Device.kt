@@ -23,7 +23,7 @@ import com.kgl.vulkan.structs.MemoryFdPropertiesKHR
 import com.kgl.vulkan.structs.MemoryHostPointerPropertiesEXT
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class Device : VkHandle {
 	val physicalDevice: PhysicalDevice

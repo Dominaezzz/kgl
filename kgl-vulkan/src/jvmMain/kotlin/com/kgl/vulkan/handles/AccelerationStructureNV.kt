@@ -23,7 +23,7 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.NVRayTracing.*
 import org.lwjgl.vulkan.VK11.VK_SUCCESS

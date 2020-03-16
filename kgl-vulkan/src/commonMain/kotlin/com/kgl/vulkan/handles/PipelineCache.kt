@@ -16,7 +16,7 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class PipelineCache : VkHandle {
 	val device: Device

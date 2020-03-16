@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWImage
 import org.lwjgl.system.MemoryStack
@@ -28,7 +28,7 @@ actual class Cursor : Closeable {
 			val imagePtr = GLFWImage.callocStack(stack)
 			imagePtr.width(image.width)
 			imagePtr.height(image.height)
-			image.pixels.readDirect { imagePtr.pixels(it) }
+			imagePtr.pixels(image.pixels.buffer)
 			glfwCreateCursor(imagePtr, xhot, yhot)
 		}
 	}

@@ -17,7 +17,7 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.VkHandle
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 expect class DeviceMemory : VkHandle {
 	val device: Device

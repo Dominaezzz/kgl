@@ -20,7 +20,7 @@ import cnames.structs.GLFWwindow
 import com.kgl.core.Flag
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 import kotlin.native.concurrent.ensureNeverFrozen
 
 actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwindow>) : Closeable {
@@ -268,11 +268,7 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	actual fun setIcon(images: Array<Image>) {
 		glfwSetWindowIcon(ptr, images.size, createValues(images.size) { index ->
 			val image = images[index]
-			image.pixels.readDirect {
-				pixels = it.reinterpret()
-				4 * image.width * image.height
-			}
-			pixels
+			pixels = image.pixels.pointer.reinterpret()
 			width = image.width
 			height = image.height
 		})

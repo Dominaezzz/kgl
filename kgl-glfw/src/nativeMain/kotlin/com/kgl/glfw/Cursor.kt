@@ -22,7 +22,7 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
-import kotlinx.io.core.Closeable
+import io.ktor.utils.io.core.Closeable
 
 actual class Cursor : Closeable {
 	val ptr: CPointer<GLFWcursor>?
@@ -34,10 +34,7 @@ actual class Cursor : Closeable {
 					VirtualStack.alloc<GLFWimage> {
 						width = image.width
 						height = image.height
-						image.pixels.readDirect {
-							pixels = it.reinterpret()
-							image.width * image.height * 4
-						}
+						pixels = image.pixels.pointer.reinterpret()
 					}.ptr,
 					xhot,
 					yhot

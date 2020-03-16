@@ -32,7 +32,7 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
-import kotlinx.io.core.IoBuffer
+import io.ktor.utils.io.core.IoBuffer
 
 actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV, actual val device: Device) : VkHandleNative<VkAccelerationStructureNV>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
