@@ -20,7 +20,8 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
+import io.ktor.utils.io.bits.of
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.KHRExternalMemoryFd.vkGetMemoryFdKHR
 import org.lwjgl.vulkan.VK11.*
@@ -56,7 +57,7 @@ actual class DeviceMemory(override val ptr: Long,
 		}
 	}
 
-	actual fun map(offset: ULong, size: ULong): IoBuffer {
+	actual fun map(offset: ULong, size: ULong): Memory {
 		val memory = this
 		val device = memory.device
 		MemoryStack.stackPush()
@@ -65,7 +66,7 @@ actual class DeviceMemory(override val ptr: Long,
 			val result = vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
 					size.toVkType(), 0U.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return IoBuffer(outputPtr.getByteBuffer(size.toInt()))
+			return Memory.of(outputPtr.getByteBuffer(size.toInt()))
 		} finally {
 			MemoryStack.stackPop()
 		}

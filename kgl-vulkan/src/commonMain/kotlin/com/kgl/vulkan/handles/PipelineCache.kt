@@ -16,14 +16,14 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 expect class PipelineCache : VkHandle {
 	val device: Device
 
 	val dataSize: ULong
 
-	fun getData(data: IoBuffer): Boolean
+	fun getData(data: Memory): Boolean
 
 	fun merge(srcCaches: Collection<PipelineCache>)
 }

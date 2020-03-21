@@ -22,8 +22,8 @@ import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkValidationCacheEXT
+import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
-import io.ktor.utils.io.core.IoBuffer
 
 actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -39,7 +39,7 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		}
 	}
 
-	actual fun getData(data: IoBuffer?) {
+	actual fun getData(data: Memory?) {
 		TODO()
 		val validationCache = this
 		val device = validationCache.device

@@ -21,7 +21,7 @@ import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val commandPool: CommandPool) : VkHandleNative<VkCommandBuffer>(), VkHandle {
 	internal val dispatchTable = commandPool.dispatchTable
@@ -429,16 +429,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	actual fun updateBuffer(
 			dstBuffer: Buffer,
 			dstOffset: ULong,
-			data: IoBuffer
+			data: Memory
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
-			data.readDirect {
-				dispatchTable.vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
-						data.readRemaining.toULong(), it)
-				data.readRemaining
-			}
+			dispatchTable.vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
+					data.size.toULong(), data.pointer)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -647,16 +644,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: IoBuffer
+			values: Memory
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
-			values.readDirect {
-				dispatchTable.vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-						offset.toVkType(), values.readRemaining.toUInt(), it)
-				values.readRemaining
-			}
+			dispatchTable.vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
+					offset.toVkType(), values.size.toUInt(), values.pointer)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -878,17 +872,14 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: IoBuffer
+			data: Memory
 	) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
-			data.readDirect {
-				dispatchTable.vkCmdPushDescriptorSetWithTemplateKHR!!(commandBuffer.toVkType(),
-						descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
-						it)
-				data.readRemaining
-			}
+			dispatchTable.vkCmdPushDescriptorSetWithTemplateKHR!!(commandBuffer.toVkType(),
+					descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
+					data.pointer)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -1040,14 +1031,11 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun setCheckpointNV(pCheckpointMarker: IoBuffer) {
+	actual fun setCheckpointNV(pCheckpointMarker: Memory) {
 		val commandBuffer = this
 		VirtualStack.push()
 		try {
-			pCheckpointMarker.readDirect {
-				dispatchTable.vkCmdSetCheckpointNV!!(commandBuffer.toVkType(), it)
-				pCheckpointMarker.readRemaining
-			}
+			dispatchTable.vkCmdSetCheckpointNV!!(commandBuffer.toVkType(), pCheckpointMarker.pointer)
 		} finally {
 			VirtualStack.pop()
 		}

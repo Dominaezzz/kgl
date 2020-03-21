@@ -17,7 +17,7 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.*
 
@@ -36,22 +36,19 @@ actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHa
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: IoBuffer,
+			data: Memory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
 		MemoryStack.stackPush()
 		try {
-			TODO()
-			data.writeDirect(data.writeRemaining) {
-				val result = vkGetQueryPoolResults(device.toVkType(), ptr,
-						firstQuery.toVkType(), queryCount.toVkType(), it,
-						stride.toVkType(), flags.toVkType())
-				when (result) {
-					VK_SUCCESS -> true
-					VK_NOT_READY -> false
-					else -> handleVkResult(result)
-				}
+			val result = vkGetQueryPoolResults(device.toVkType(), ptr,
+					firstQuery.toVkType(), queryCount.toVkType(), data.buffer,
+					stride.toVkType(), flags.toVkType())
+			return when (result) {
+				VK_SUCCESS -> true
+				VK_NOT_READY -> false
+				else -> handleVkResult(result)
 			}
 		} finally {
 			MemoryStack.stackPop()

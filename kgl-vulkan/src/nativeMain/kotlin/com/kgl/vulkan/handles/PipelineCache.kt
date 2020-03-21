@@ -23,9 +23,8 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_INCOMPLETE
 import cvulkan.VK_SUCCESS
 import cvulkan.VkPipelineCache
-import cvulkan.VkResult
+import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.*
-import io.ktor.utils.io.core.IoBuffer
 
 actual class PipelineCache(override val ptr: VkPipelineCache, actual val device: Device) : VkHandleNative<VkPipelineCache>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -60,19 +59,15 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 			}
 		}
 
-	actual fun getData(data: IoBuffer): Boolean {
+	actual fun getData(data: Memory): Boolean {
 		val pipelineCache = this
 		val device = pipelineCache.device
 		VirtualStack.push()
 		try {
 			val outputSize = VirtualStack.alloc<ULongVar>()
-			outputSize.value = data.writeRemaining.toULong()
+			outputSize.value = data.size.toULong()
 
-			var result: VkResult = VK_INCOMPLETE
-			data.writeDirect {
-				result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, it)
-				outputSize.value.toInt()
-			}
+			val result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, data.pointer)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_INCOMPLETE -> false
