@@ -19,12 +19,12 @@ import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 expect class AccelerationStructureNV : VkHandle {
 	val device: Device
 
-	fun getHandle(pData: IoBuffer)
+	fun getHandle(pData: Memory)
 
 	fun getMemoryRequirements(type: AccelerationStructureMemoryRequirementsTypeNV, block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit = {}): MemoryRequirements2
 }

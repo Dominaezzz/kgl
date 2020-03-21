@@ -25,7 +25,7 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descriptorPool: DescriptorPool) : VkHandleNative<VkDescriptorSet>(), VkHandle {
 	internal val dispatchTable = descriptorPool.dispatchTable
@@ -40,14 +40,11 @@ actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descrip
 		}
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory) {
 		VirtualStack.push()
 		try {
-			data.readDirect {
-				dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
-						descriptorUpdateTemplate.toVkType(), it)
-				data.readRemaining
-			}
+			dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
+					descriptorUpdateTemplate.toVkType(), data.pointer)
 		} finally {
 			VirtualStack.pop()
 		}

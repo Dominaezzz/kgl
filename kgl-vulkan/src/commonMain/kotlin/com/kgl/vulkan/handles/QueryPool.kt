@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 expect class QueryPool : VkHandle {
 	val device: Device
@@ -26,7 +26,7 @@ expect class QueryPool : VkHandle {
 	fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: IoBuffer,
+			data: Memory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean

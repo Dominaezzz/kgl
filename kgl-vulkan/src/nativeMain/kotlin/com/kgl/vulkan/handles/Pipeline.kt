@@ -24,8 +24,8 @@ import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkPipeline
+import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
-import io.ktor.utils.io.core.IoBuffer
 
 actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -44,7 +44,7 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 	actual fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: IoBuffer?
+			info: Memory?
 	) {
 		TODO()
 		val pipeline = this
@@ -77,17 +77,14 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		}
 	}
 
-	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: IoBuffer) {
+	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: Memory) {
 		val pipeline = this
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-			data.writeDirect {
-				val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(device.toVkType(), pipeline.toVkType(),
-						firstGroup.toVkType(), groupCount.toVkType(), data.writeRemaining.toULong(), it)
-				if (result != VK_SUCCESS) handleVkResult(result)
-				data.writeRemaining
-			}
+			val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(device.toVkType(), pipeline.toVkType(),
+					firstGroup.toVkType(), groupCount.toVkType(), data.size.toULong(), data.pointer)
+			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}

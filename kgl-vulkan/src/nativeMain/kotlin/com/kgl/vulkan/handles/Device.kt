@@ -22,7 +22,7 @@ import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 actual class Device(override val ptr: VkDevice, actual val physicalDevice: PhysicalDevice) : VkHandleNative<VkDevice>(), VkHandle {
 	internal val dispatchTable = DeviceDispatchTable {
@@ -294,7 +294,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createPipelineCache(initialData: IoBuffer?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
+	actual fun createPipelineCache(initialData: Memory?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -555,7 +555,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun debugMarkerSetObjectTagEXT(tag: IoBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun debugMarkerSetObjectTagEXT(tag: Memory, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -786,7 +786,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createValidationCacheEXT(initialData: IoBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
+	actual fun createValidationCacheEXT(initialData: Memory?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -836,7 +836,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun setDebugUtilsObjectTagEXT(tag: IoBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun setDebugUtilsObjectTagEXT(tag: Memory, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		VirtualStack.push()
 		try {

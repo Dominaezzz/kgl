@@ -19,7 +19,7 @@ import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 expect class CommandBuffer : VkHandle {
 	val commandPool: CommandPool
@@ -97,7 +97,7 @@ expect class CommandBuffer : VkHandle {
 
 	fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: BufferImageCopysBuilder.() -> Unit)
 
-	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: IoBuffer)
+	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: Memory)
 
 	fun fillBuffer(dstBuffer: Buffer, dstOffset: ULong, size: ULong, data: UInt)
 
@@ -148,7 +148,7 @@ expect class CommandBuffer : VkHandle {
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: IoBuffer
+			values: Memory
 	)
 
 	fun beginRenderPass(
@@ -225,7 +225,7 @@ expect class CommandBuffer : VkHandle {
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: IoBuffer
+			data: Memory
 	)
 
 	fun setViewportWScalingNV(firstViewport: UInt, block: ViewportWScalingNVsBuilder.() -> Unit)
@@ -262,7 +262,7 @@ expect class CommandBuffer : VkHandle {
 			stride: UInt
 	)
 
-	fun setCheckpointNV(pCheckpointMarker: IoBuffer)
+	fun setCheckpointNV(pCheckpointMarker: Memory)
 
 	fun bindTransformFeedbackBuffersEXT(
 			firstBinding: UInt,

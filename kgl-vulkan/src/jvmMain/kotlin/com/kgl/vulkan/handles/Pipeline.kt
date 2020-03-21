@@ -21,7 +21,7 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.NVRayTracing.vkCompileDeferredNV
 import org.lwjgl.vulkan.NVRayTracing.vkGetRayTracingShaderGroupHandlesNV
@@ -43,7 +43,7 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 	actual fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: IoBuffer?
+			info: Memory?
 	) {
 		TODO()
 		val pipeline = this
@@ -75,16 +75,14 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		}
 	}
 
-	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: IoBuffer) {
+	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: Memory) {
 		val pipeline = this
 		val device = pipeline.device
 		MemoryStack.stackPush()
 		try {
-			data.writeDirect(data.writeRemaining) {
-				val result = vkGetRayTracingShaderGroupHandlesNV(device.toVkType(), pipeline.toVkType(),
-						firstGroup.toVkType(), groupCount.toVkType(), it)
-				if (result != VK_SUCCESS) handleVkResult(result)
-			}
+			val result = vkGetRayTracingShaderGroupHandlesNV(device.toVkType(), pipeline.toVkType(),
+					firstGroup.toVkType(), groupCount.toVkType(), data.buffer)
+			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
 		}

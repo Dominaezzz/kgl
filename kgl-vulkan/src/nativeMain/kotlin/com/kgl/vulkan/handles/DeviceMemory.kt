@@ -24,8 +24,9 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkDeviceMemory
 import cvulkan.VkMemoryGetFdInfoKHR
+import io.ktor.utils.io.bits.Memory
+import io.ktor.utils.io.bits.of
 import kotlinx.cinterop.*
-import io.ktor.utils.io.core.IoBuffer
 
 actual class DeviceMemory(
 		override val ptr: VkDeviceMemory,
@@ -61,7 +62,7 @@ actual class DeviceMemory(
 		}
 	}
 
-	actual fun map(offset: ULong, size: ULong): IoBuffer {
+	actual fun map(offset: ULong, size: ULong): Memory {
 		val memory = this
 		val device = memory.device
 		VirtualStack.push()
@@ -71,7 +72,7 @@ actual class DeviceMemory(
 			val result = dispatchTable.vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
 					size.toVkType(), 0U.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return IoBuffer(outputVar.value!!.reinterpret(), size.toInt())
+			return Memory.of(outputVar.value!!, size.toInt())
 		} finally {
 			VirtualStack.pop()
 		}

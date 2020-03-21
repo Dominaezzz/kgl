@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK10.vkFreeDescriptorSets
 import org.lwjgl.vulkan.VK11
@@ -28,14 +28,12 @@ actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: De
 		vkFreeDescriptorSets(descriptorPool.device.ptr, descriptorPool.ptr, ptr)
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: IoBuffer) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory) {
 		TODO()
 		MemoryStack.stackPush()
 		try {
-			data.readDirect {
-				VK11.vkUpdateDescriptorSetWithTemplate(descriptorPool.device.toVkType(), toVkType(),
-						descriptorUpdateTemplate.toVkType(), 0)
-			}
+			VK11.vkUpdateDescriptorSetWithTemplate(descriptorPool.device.toVkType(), toVkType(),
+					descriptorUpdateTemplate.toVkType(), 0)
 		} finally {
 			MemoryStack.stackPop()
 		}

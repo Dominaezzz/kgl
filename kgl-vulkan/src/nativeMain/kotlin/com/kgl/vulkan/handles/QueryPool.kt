@@ -21,8 +21,8 @@ import com.kgl.vulkan.utils.*
 import cvulkan.VK_NOT_READY
 import cvulkan.VK_SUCCESS
 import cvulkan.VkQueryPool
+import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
-import io.ktor.utils.io.core.IoBuffer
 
 actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -41,7 +41,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: IoBuffer,
+			data: Memory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
@@ -49,18 +49,14 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		val device = queryPool.device
 		VirtualStack.push()
 		try {
-			TODO()
-			data.writeDirect {
-				val result = dispatchTable.vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
-						firstQuery.toVkType(), queryCount.toVkType(),
-						data.writeRemaining.toULong(), it,
-						stride.toVkType(), flags.toVkType())
-				when (result) {
-					VK_SUCCESS -> true
-					VK_NOT_READY -> false
-					else -> handleVkResult(result)
-				}
-				data.writeRemaining
+			val result = dispatchTable.vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
+					firstQuery.toVkType(), queryCount.toVkType(),
+					data.size.toULong(), data.pointer,
+					stride.toVkType(), flags.toVkType())
+			return when (result) {
+				VK_SUCCESS -> true
+				VK_NOT_READY -> false
+				else -> handleVkResult(result)
 			}
 		} finally {
 			VirtualStack.pop()

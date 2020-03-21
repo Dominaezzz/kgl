@@ -17,7 +17,7 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 
 expect class DeviceMemory : VkHandle {
 	val device: Device
@@ -26,7 +26,7 @@ expect class DeviceMemory : VkHandle {
 
 	val commitment: ULong
 
-	fun map(offset: ULong, size: ULong): IoBuffer
+	fun map(offset: ULong, size: ULong): Memory
 
 	fun unmap()
 

@@ -809,7 +809,7 @@ open class GenerateVulkan : DefaultTask() {
 					1 -> {
 						when(typeName) {
 							"char" -> STRING
-							"void" -> if (len.isNotEmpty()) IO_BUFFER else LONG
+							"void" -> if (len.isNotEmpty()) MEMORY else LONG
 							else -> {
 								val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
 								arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
@@ -1421,18 +1421,22 @@ open class GenerateVulkan : DefaultTask() {
 									}
 									val isOptional = member.optional || lengthParam?.optional == true
 									if (lengthParam != null) {
-										addParameter(memberNameKt, IO_BUFFER.copy(nullable = isOptional))
+										addParameter(memberNameKt, MEMORY.copy(nullable = isOptional))
 
 										val assert = if (isOptional) "?" else ""
-										beginControlFlow("$memberNameKt$assert.readDirect {")
 										if (platform == Platform.JVM) {
-											addStatement("target.${member.name}(it)")
+											addStatement("target.${member.name}($memberNameKt$assert.buffer)")
 										} else {
-											addStatement("target.${member.name} = it")
-											addStatement("target.${member.len[0]} = $memberNameKt.readRemaining.toULong()")
-											addStatement("$memberNameKt.readRemaining")
+											if (isOptional) beginControlFlow("if ($memberNameKt != null)")
+											addStatement("target.${member.name} = $memberNameKt.pointer")
+											addStatement("target.${member.len[0]} = $memberNameKt.size.toULong()")
+											if (isOptional) {
+												nextControlFlow("else")
+												addStatement("target.${member.name} = null")
+												addStatement("target.${member.len[0]} = 0u")
+												endControlFlow()
+											}
 										}
-										endControlFlow()
 									} else {
 										TODO("Cannot handle `void*` without length yet.")
 									}

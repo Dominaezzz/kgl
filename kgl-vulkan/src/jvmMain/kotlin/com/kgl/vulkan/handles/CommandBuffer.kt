@@ -18,7 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.core.IoBuffer
+import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.AMDBufferMarker.vkCmdWriteBufferMarkerAMD
@@ -405,13 +405,11 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: IoBuffer) {
+	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: Memory) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			data.readDirect {
-				vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(), it)
-			}
+			vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(), data.buffer)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -598,15 +596,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: IoBuffer
+			values: Memory
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			values.readDirect {
-				vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-						offset.toVkType(), it)
-			}
+			vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
+					offset.toVkType(), values.buffer)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -828,17 +824,15 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: IoBuffer
+			data: Memory
 	) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			data.readDirect {
-				vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer.toVkType(),
-						descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
-						0)
-			}
+			vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer.toVkType(),
+					descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
+					0)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -985,7 +979,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun setCheckpointNV(pCheckpointMarker: IoBuffer) {
+	actual fun setCheckpointNV(pCheckpointMarker: Memory) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()
