@@ -1,4 +1,5 @@
 import codegen.math.GenerateMath
+import config.Config
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset
 
 plugins {
@@ -19,7 +20,7 @@ kotlin {
 		}
 		"test" {
 			dependencies {
-				implementation(kotlin("test"))
+				implementation(kotlin("test-junit"))
 			}
 		}
 	}
@@ -37,8 +38,11 @@ kotlin {
 		}
 	}
 
-	presets.withType<KotlinNativeTargetPreset> {
-		targetFromPreset(this)
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (!Config.isIdeaActive) {
+		presets.withType<KotlinNativeTargetPreset>(::targetFromPreset)
 	}
 
 	sourceSets {

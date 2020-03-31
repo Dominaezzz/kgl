@@ -210,6 +210,11 @@ inline fun TypeSpec.Builder.function(name: String, block: FunSpec.Builder.() -> 
 }
 
 @KotlinPoetDsl
+fun FunSpec.Builder.kdoc(format: String, vararg args: Any) {
+	addKdoc(format, args)
+}
+
+@KotlinPoetDsl
 fun FunSpec.Builder.modifiers(vararg modifiers: KModifier) {
 	addModifiers(*modifiers)
 }

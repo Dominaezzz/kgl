@@ -173,54 +173,82 @@ open class GenerateMath : DefaultTask() {
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {
-						import("kotlin.math", "round")
+						import("kotlin.math", "roundToInt")
+						import("kotlin.math", "roundToLong")
 
-						extensionFunction(type, "round") {
-							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "round($it)" }
-							statement("return %T($args)", type)
+						val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+						val longVectorType = vectorTypes.find { it.baseType == LONG && it.componentCount == componentCount }!!.type
+
+						extensionFunction(type, "roundToInt") {
+							kdoc(
+								"""
+								Rounds each component `x` to the nearest integer and stores the result in [${intVectorType.simpleName}].
+								Ties are rounded towards positive infinity.
+								
+								Special cases:
+								  - `x.roundToInt() == Int.MAX_VALUE` when `x > Int.MAX_VALUE`
+								  - `x.roundToInt() == Int.MIN_VALUE` when `x < Int.MIN_VALUE`
+								
+								@throws IllegalArgumentException when this value is `NaN`
+								""".trimIndent()
+							)
+							returns(intVectorType)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.roundToInt()" }
+							statement("return %T($args)", intVectorType)
 						}
 
-						extensionFunction(mutableType, "roundAssign") {
-							componentNames.forEach {
-								statement("$it = round($it)")
-							}
+						extensionFunction(type, "roundToLong") {
+							kdoc(
+								"""
+								Rounds each component `x` to the nearest integer and stores the result to [${longVectorType.simpleName}].
+								Ties are rounded towards positive infinity.
+								
+								Special cases:
+								  - `x.roundToLong() == Long.MAX_VALUE` when `x > Long.MAX_VALUE`
+								  - `x.roundToLong() == Long.MIN_VALUE` when `x < Long.MIN_VALUE`
+								
+								@throws IllegalArgumentException when this value is `NaN`
+								""".trimIndent()
+							)
+							returns(longVectorType)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.roundToLong()" }
+							statement("return %T($args)", longVectorType)
 						}
 					}
 				}
 
 				// roundEven
 
-				when (type) {
-					FLOAT, DOUBLE -> {
-						import("kotlin.math", "round")
-						import("kotlin.math", "truncate")
-
-						function("roundEven") {
-							parameter("n", type)
-							returns(type)
-							statement("val i = truncate(n)")
-							statement("val f = n - i")
-							controlFlow("return when") {
-								statement("f > 0.5f || f < 0.5f -> round(n)")
-								statement("i %% 2 == ${if (type == FLOAT) "0f" else "0.0"} -> i")
-								statement("else -> mix(i - 1f, i + 1f, n <= 0)")
-							}
-						}
-					}
-				}
-
 				when (baseType) {
 					FLOAT, DOUBLE -> {
-						extensionFunction(type, "roundEven") {
+						import("kotlin.math", "round")
+
+						extensionFunction(type, "round") {
+							kdoc(
+								"""
+								Rounds each component `x` to the closest integer with ties rounded towards even integers.
+								
+								Special cases:
+								  - `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
+								""".trimIndent()
+							)
 							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "roundEven($it)" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "round($it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "roundEvenAssign") {
+						extensionFunction(mutableType, "roundAssign") {
+							kdoc(
+								"""
+								Rounds each component to the closest integer with ties rounded towards even integers.
+								
+								Special cases:
+								  - `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
+								""".trimIndent()
+							)
+
 							componentNames.forEach {
-								statement("$it = roundEven($it)")
+								statement("$it = round($it)")
 							}
 						}
 					}
@@ -252,7 +280,7 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						extensionProperty(type, "fraction", type) {
 							getter {
-								statement("return this %% 1")
+								statement("return this - this.toLong()")
 							}
 						}
 					}
