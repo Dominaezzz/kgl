@@ -7,44 +7,11 @@ plugins {
 	`maven-publish`
 }
 
-val generateMath by tasks.registering(GenerateMath::class) {
+val generateMath: TaskProvider<GenerateMath> by tasks.registering(GenerateMath::class) {
 	outputDir.set(buildDir.resolve("generated-src"))
 }
 
 kotlin {
-	jvm().compilations {
-		"main" {
-			dependencies {
-				implementation(kotlin("stdlib"))
-			}
-		}
-		"test" {
-			dependencies {
-				implementation(kotlin("test-junit"))
-			}
-		}
-	}
-
-	js().compilations {
-		"main" {
-			dependencies {
-				implementation(kotlin("stdlib-js"))
-			}
-		}
-		"test" {
-			dependencies {
-				implementation(kotlin("test-js"))
-			}
-		}
-	}
-
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
-	if (!Config.isIdeaActive) {
-		presets.withType<KotlinNativeTargetPreset>(::targetFromPreset)
-	}
-
 	sourceSets {
 		commonMain {
 			kotlin.srcDir(generateMath.map { it.commonDir })
@@ -58,5 +25,43 @@ kotlin {
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
+	}
+
+	jvm {
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib"))
+				}
+			}
+			"test" {
+				dependencies {
+					implementation(kotlin("test-junit"))
+				}
+			}
+		}
+	}
+
+	js {
+		nodejs()
+		compilations {
+			"main" {
+				dependencies {
+					implementation(kotlin("stdlib-js"))
+				}
+			}
+			"test" {
+				dependencies {
+					implementation(kotlin("test-js"))
+				}
+			}
+		}
+	}
+
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (!Config.isIdeaActive) {
+		presets.withType<KotlinNativeTargetPreset>(::targetFromPreset)
 	}
 }

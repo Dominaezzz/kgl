@@ -39,29 +39,11 @@ open class GenerateMath : DefaultTask() {
 		TypeInfo(DOUBLE)
 	)
 
-	private val vectorTypes = listOf(
-		TypeInfo(ClassName(packageName, "BooleanVector2"), BOOLEAN, 2),
-		TypeInfo(ClassName(packageName, "BooleanVector3"), BOOLEAN, 3),
-		TypeInfo(ClassName(packageName, "BooleanVector4"), BOOLEAN, 4),
-		TypeInfo(ClassName(packageName, "IntVector2"), INT, 2),
-		TypeInfo(ClassName(packageName, "IntVector3"), INT, 3),
-		TypeInfo(ClassName(packageName, "IntVector4"), INT, 4),
-		TypeInfo(ClassName(packageName, "LongVector2"), LONG, 2),
-		TypeInfo(ClassName(packageName, "LongVector3"), LONG, 3),
-		TypeInfo(ClassName(packageName, "LongVector4"), LONG, 4),
-		TypeInfo(ClassName(packageName, "UIntVector2"), U_INT, 2),
-		TypeInfo(ClassName(packageName, "UIntVector3"), U_INT, 3),
-		TypeInfo(ClassName(packageName, "UIntVector4"), U_INT, 4),
-		TypeInfo(ClassName(packageName, "ULongVector2"), U_LONG, 2),
-		TypeInfo(ClassName(packageName, "ULongVector3"), U_LONG, 3),
-		TypeInfo(ClassName(packageName, "ULongVector4"), U_LONG, 4),
-		TypeInfo(ClassName(packageName, "FloatVector2"), FLOAT, 2),
-		TypeInfo(ClassName(packageName, "FloatVector3"), FLOAT, 3),
-		TypeInfo(ClassName(packageName, "FloatVector4"), FLOAT, 4),
-		TypeInfo(ClassName(packageName, "DoubleVector2"), DOUBLE, 2),
-		TypeInfo(ClassName(packageName, "DoubleVector3"), DOUBLE, 3),
-		TypeInfo(ClassName(packageName, "DoubleVector4"), DOUBLE, 4)
-	)
+	private val vectorTypes = primitiveTypes.flatMap { (type: ClassName) ->
+		(2..4).map { c ->
+			TypeInfo(ClassName(packageName, "${type.simpleName}Vector$c"), type, c)
+		}
+	}
 
 	private val allComponentNames = listOf("x", "y", "z", "w")
 	private val arithmetics = listOf("plus" to "+", "minus" to "-", "times" to "*", "div" to "/")
@@ -186,8 +168,8 @@ open class GenerateMath : DefaultTask() {
 								Ties are rounded towards positive infinity.
 								
 								Special cases:
-								  - `x.roundToInt() == Int.MAX_VALUE` when `x > Int.MAX_VALUE`
-								  - `x.roundToInt() == Int.MIN_VALUE` when `x < Int.MIN_VALUE`
+								- `x.roundToInt() == Int.MAX_VALUE` when `x > Int.MAX_VALUE`
+								- `x.roundToInt() == Int.MIN_VALUE` when `x < Int.MIN_VALUE`
 								
 								@throws IllegalArgumentException when this value is `NaN`
 								""".trimIndent()
@@ -204,8 +186,8 @@ open class GenerateMath : DefaultTask() {
 								Ties are rounded towards positive infinity.
 								
 								Special cases:
-								  - `x.roundToLong() == Long.MAX_VALUE` when `x > Long.MAX_VALUE`
-								  - `x.roundToLong() == Long.MIN_VALUE` when `x < Long.MIN_VALUE`
+								- `x.roundToLong() == Long.MAX_VALUE` when `x > Long.MAX_VALUE`
+								- `x.roundToLong() == Long.MIN_VALUE` when `x < Long.MIN_VALUE`
 								
 								@throws IllegalArgumentException when this value is `NaN`
 								""".trimIndent()
@@ -229,7 +211,7 @@ open class GenerateMath : DefaultTask() {
 								Rounds each component `x` to the closest integer with ties rounded towards even integers.
 								
 								Special cases:
-								  - `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
+								- `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
 								""".trimIndent()
 							)
 							returns(type)
@@ -243,7 +225,7 @@ open class GenerateMath : DefaultTask() {
 								Rounds each component to the closest integer with ties rounded towards even integers.
 								
 								Special cases:
-								  - `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
+								- `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
 								""".trimIndent()
 							)
 
@@ -1052,7 +1034,9 @@ open class GenerateMath : DefaultTask() {
 				}
 
 				function(type.simpleName) {
-					parameter("scalar", baseType)
+					parameter("scalar", baseType) {
+						defaultValue(zero)
+					}
 					returns(type)
 					statement("return %T(scalar)", mutableVectorType)
 				}
@@ -1082,6 +1066,7 @@ open class GenerateMath : DefaultTask() {
 				// lessThan
 
 				extensionFunction(type, "lessThan") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it < other.$it" }
@@ -1091,6 +1076,7 @@ open class GenerateMath : DefaultTask() {
 				// lessThanEqual
 
 				extensionFunction(type, "lessThanEqual") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it <= other.$it" }
@@ -1100,6 +1086,7 @@ open class GenerateMath : DefaultTask() {
 				// greaterThan
 
 				extensionFunction(type, "greaterThan") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it > other.$it" }
@@ -1109,6 +1096,7 @@ open class GenerateMath : DefaultTask() {
 				// greaterThanEqual
 
 				extensionFunction(type, "greaterThanEqual") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it >= other.$it" }
@@ -1118,6 +1106,7 @@ open class GenerateMath : DefaultTask() {
 				// equal
 
 				extensionFunction(type, "equal") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it == other.$it" }
@@ -1127,6 +1116,7 @@ open class GenerateMath : DefaultTask() {
 				// notEqual
 
 				extensionFunction(type, "notEqual") {
+					modifiers(INFIX)
 					parameter("other", type)
 					returns(boolVectorType.type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it != other.$it" }
