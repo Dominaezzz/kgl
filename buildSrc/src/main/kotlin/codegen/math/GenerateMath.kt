@@ -79,15 +79,17 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						import("kotlin.math", "abs")
 
-						extensionFunction(type, "abs") {
+						function("abs") {
+							parameter("n", type)
 							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "abs($it)" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "abs(n.$it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "absAssign") {
+						function("absInPlace") {
+							parameter("n", mutableType)
 							componentNames.forEach {
-								statement("$it = abs($it)")
+								statement("n.$it = abs(n.$it)")
 							}
 						}
 					}
@@ -117,15 +119,17 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						import("kotlin.math", "floor")
 
-						extensionFunction(type, "floor") {
+						function("floor") {
+							parameter("n", type)
 							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "floor($it)" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "floor(n.$it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "floorAssign") {
+						function("floorInPlace") {
+							parameter("n", mutableType)
 							componentNames.forEach {
-								statement("$it = floor($it)")
+								statement("n.$it = floor(n.$it)")
 							}
 						}
 					}
@@ -137,15 +141,17 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						import("kotlin.math", "truncate")
 
-						extensionFunction(type, "truncate") {
+						function("truncate") {
+							parameter("n", type)
 							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "truncate($it)" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "truncate(n.$it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "truncateAssign") {
+						function("truncateInPlace") {
+							parameter("n", mutableType)
 							componentNames.forEach {
-								statement("$it = truncate($it)")
+								statement("n.$it = truncate(n.$it)")
 							}
 						}
 					}
@@ -205,7 +211,7 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						import("kotlin.math", "round")
 
-						extensionFunction(type, "round") {
+						function("round") {
 							kdoc(
 								"""
 								Rounds each component `x` to the closest integer with ties rounded towards even integers.
@@ -214,12 +220,13 @@ open class GenerateMath : DefaultTask() {
 								- `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
 								""".trimIndent()
 							)
+							parameter("n", type)
 							returns(type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "round($it)" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "round(n.$it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "roundAssign") {
+						function("roundInPlace") {
 							kdoc(
 								"""
 								Rounds each component to the closest integer with ties rounded towards even integers.
@@ -228,9 +235,9 @@ open class GenerateMath : DefaultTask() {
 								- `round(x)` is `x` where `x` is `NaN` or `+Inf` or `-Inf` or already a mathematical integer. 
 								""".trimIndent()
 							)
-
+							parameter("n", mutableType)
 							componentNames.forEach {
-								statement("$it = round($it)")
+								statement("n.$it = round(n.$it)")
 							}
 						}
 					}
@@ -242,15 +249,17 @@ open class GenerateMath : DefaultTask() {
 					FLOAT, DOUBLE -> {
 						import("kotlin.math", "ceil")
 
-						extensionFunction(type, "ceil") {
+						function("ceil") {
+							parameter("n", type)
 							returns(type)
-							val args = componentNames.joinToString { "ceil($it)" }
+							val args = componentNames.joinToString { "ceil(n.$it)" }
 							statement("return %T($args)", type)
 						}
 
-						extensionFunction(mutableType, "ceilAssign") {
+						function("ceilInPlace") {
+							parameter("n", mutableType)
 							componentNames.forEach {
-								statement("$it = ceil($it)")
+								statement("n.$it = ceil(n.$it)")
 							}
 						}
 					}
@@ -590,7 +599,7 @@ open class GenerateMath : DefaultTask() {
 					}
 				}
 
-				// isFinite (from kotlin stdlib)
+				// isFinite (kotlin stdlib)
 
 				when (baseType) {
 					FLOAT, DOUBLE -> {

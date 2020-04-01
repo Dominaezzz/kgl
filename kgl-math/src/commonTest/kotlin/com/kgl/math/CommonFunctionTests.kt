@@ -1,24 +1,23 @@
 package com.kgl.math
 
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.expect
 
-class CommonFunctionsTest {
+class CommonFunctionTests {
 
 	private val epsilon = FloatVector4(1e-6f)
 
 	@Test
 	fun vec4_abs() {
 		expect(FloatVector4(0.1f, 2.3f, 4.5f, 6.7f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).abs()
+			abs(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
 		}
 	}
 
 	@Test
-	fun vec4_absAssign() {
+	fun vec4_absInPlace() {
 		expect(FloatVector4(0.1f, 2.3f, 4.5f, 6.7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.absAssign() }
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { absInPlace(it) }
 		}
 	}
 
@@ -32,28 +31,28 @@ class CommonFunctionsTest {
 	@Test
 	fun vec4_floor() {
 		expect(FloatVector4(0f, -3f, 4f, -7f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).floor()
+			floor(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
 		}
 	}
 
 	@Test
-	fun vec4_floorAssign() {
+	fun vec4_floorInPlace() {
 		expect(FloatVector4(0f, -3f, 4f, -7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.floorAssign() }
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { floorInPlace(it) }
 		}
 	}
 
 	@Test
 	fun vec4_truncate() {
 		expect(FloatVector4(0f, -2f, 4f, -6f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).truncate()
+			truncate(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
 		}
 	}
 
 	@Test
-	fun vec4_truncateAssign() {
+	fun vec4_truncateInPlace() {
 		expect(FloatVector4(0f, -2f, 4f, -6f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.truncateAssign() }
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { truncateInPlace(it) }
 		}
 	}
 
@@ -74,28 +73,28 @@ class CommonFunctionsTest {
 	@Test
 	fun vec4_round() {
 		expect(FloatVector4(0f, -2f, 4f, -7f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).round()
+			round(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
 		}
 	}
 
 	@Test
-	fun vec4_roundAssign() {
+	fun vec4_roundInPlace() {
 		expect(FloatVector4(0f, -2f, 4f, -7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.roundAssign() }
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { roundInPlace(it) }
 		}
 	}
 
 	@Test
 	fun vec4_ceil() {
 		expect(FloatVector4(1f, -2f, 5f, -6f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).ceil()
+			ceil(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
 		}
 	}
 
 	@Test
-	fun vec4_ceilAssign() {
+	fun vec4_ceilInPlace() {
 		expect(FloatVector4(1f, -2f, 5f, -6f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.ceilAssign() }
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { ceilInPlace(it) }
 		}
 	}
 
@@ -104,7 +103,7 @@ class CommonFunctionsTest {
 		val expected = FloatVector4(0.1f, -0.3f, 0.5f, -0.7f)
 		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).fraction
 		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -112,8 +111,8 @@ class CommonFunctionsTest {
 	fun vec4_rem_scalar() {
 		val expected = FloatVector4(0.1f, -0.8f, 0f, -0.7f)
 		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f) % 1.5f
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -121,8 +120,8 @@ class CommonFunctionsTest {
 	fun vec4_rem_vector() {
 		val expected = FloatVector4(0.1f, -0.3f, 0f, -0.7f)
 		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f) % FloatVector4(0.5f, 1f, 1.5f, 2f)
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -130,8 +129,8 @@ class CommonFunctionsTest {
 	fun vec4_remAssign_scalar() {
 		val expected = FloatVector4(0.1f, -0.8f, 0f, -0.7f)
 		val actual = MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.remAssign(1.5f) }
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -139,8 +138,8 @@ class CommonFunctionsTest {
 	fun vec4_remAssign_vector() {
 		val expected = FloatVector4(0.1f, -0.3f, 0f, -0.7f)
 		val actual = MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.remAssign(FloatVector4(0.5f, 1f, 1.5f, 2f)) }
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -209,11 +208,10 @@ class CommonFunctionsTest {
 
 	@Test
 	fun vec4_coerceIn_vector() {
-		assertEquals(
-			expected = FloatVector4(0.1f, -1f, 1f, -3f),
-			actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
+		expect(FloatVector4(0.1f, -1f, 1f, -3f)) {
+			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
 				.coerceIn(FloatVector4(-0f, -1f, -2f, -3f), FloatVector4(3f, 2f, 1f, 0f))
-		)
+		}
 	}
 
 	@Test
@@ -232,12 +230,11 @@ class CommonFunctionsTest {
 
 	@Test
 	fun vec4_coerceAssignIn_vector() {
-		assertEquals(
-			expected = FloatVector4(0.1f, -1f, 1f, -3f),
-			actual = MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also {
+		expect(FloatVector4(0.1f, -1f, 1f, -3f)) {
+			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also {
 				it.coerceAssignIn(FloatVector4(-0f, -1f, -2f, -3f), FloatVector4(3f, 2f, 1f, 0f))
 			}
-		)
+		}
 	}
 
 	@Test
@@ -272,8 +269,8 @@ class CommonFunctionsTest {
 		val x = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
 		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
 		val actual = mix(x, y, 0.5f)
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -284,8 +281,8 @@ class CommonFunctionsTest {
 		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
 		val a = FloatVector4(0.5f)
 		val actual = mix(x, y, a)
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -307,8 +304,8 @@ class CommonFunctionsTest {
 	fun vec4_smoothStep_scalar() {
 		val expected = FloatVector4(0.57475f, 0f, 1f, 0f)
 		val actual = smoothStep(-1f, 1f, FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -320,8 +317,8 @@ class CommonFunctionsTest {
 			FloatVector4(0.2f, -4.6f, 9f, -13.4f),
 			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
 		)
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			((expected - actual).abs() lessThan epsilon).all()
+		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
+			(abs(expected - actual) lessThan epsilon).all()
 		}
 	}
 
@@ -348,8 +345,15 @@ class CommonFunctionsTest {
 
 	@Test
 	fun vec4_toBits() {
-		expect(IntVector4(0b1__1111_1111__0000000_00000000_00000000L.toInt())) {
-			FloatVector4(Float.NEGATIVE_INFINITY).toBits()
+		expect(IntVector4(0b0__1111_1111__1000000_00000000_00000000L.toInt())) {
+			FloatVector4(Float.fromBits(0b1__1111_1111__1111111_11111111_11111111L.toInt())).toBits()
+		}
+	}
+
+	@Test
+	fun vec4_toRawBits() {
+		expect(IntVector4(0b1__1111_1111__1111111_11111111_11111111L.toInt())) {
+			FloatVector4(Float.fromBits(0b1__1111_1111__1111111_11111111_11111111L.toInt())).toRawBits()
 		}
 	}
 
