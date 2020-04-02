@@ -115,6 +115,19 @@ inline fun FileSpec.Builder.buildClass(
 }
 
 @KotlinPoetDsl
+inline fun FileSpec.Builder.property(
+	name: String,
+	type: TypeName,
+	vararg modifiers: KModifier,
+	block: PropertySpec.Builder.() -> Unit = {}
+): PropertySpec {
+	return PropertySpec.builder(name, type, *modifiers)
+		.apply(block)
+		.build()
+		.also { addProperty(it) }
+}
+
+@KotlinPoetDsl
 inline fun TypeSpec.Builder.companionObject(
 	block: TypeSpec.Builder.() -> Unit = {}
 ): TypeSpec {

@@ -9,6 +9,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import javax.swing.ComponentInputMap
 
 @Suppress("UnstableApiUsage")
 open class GenerateMath : DefaultTask() {
@@ -52,6 +53,7 @@ open class GenerateMath : DefaultTask() {
 	@TaskAction
 	fun generate() {
 		commonFunctions()
+		exponentialFunctions()
 		geometricFunctions()
 		vectorTypes()
 		vectorRelationalFunctions()
@@ -789,6 +791,263 @@ open class GenerateMath : DefaultTask() {
 								"${baseType.simpleName}.fromFractionAndExponent(value.$it, exp.$it)"
 							}
 							statement("return %T($args)", type)
+						}
+					}
+				}
+			}.writeTo(commonDir.get().asFile)
+		}
+	}
+
+	private fun exponentialFunctions() {
+		(primitiveTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
+			val componentNames = allComponentNames.take(componentCount ?: 0)
+			val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
+
+			val intVector = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }
+
+			val (two) = literal("2", type, baseType)
+
+			buildFile(packageName, "${type.simpleName}Exponential") {
+				indent("\t")
+
+				// pow
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "pow")
+
+						extensionFunction(type, "pow") {
+							parameter("exp", INT)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.pow(exp)" }
+							statement("return %T($args)", type)
+						}
+
+						extensionFunction(mutableType, "powAssign") {
+							parameter("exp", INT)
+							componentNames.forEach {
+								statement("$it = $it.pow(exp)")
+							}
+						}
+
+						extensionFunction(type, "pow") {
+							parameter("exp", baseType)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.pow(exp)" }
+							statement("return %T($args)", type)
+						}
+
+						extensionFunction(mutableType, "powAssign") {
+							parameter("exp", baseType)
+							componentNames.forEach {
+								statement("$it = $it.pow(exp)")
+							}
+						}
+
+						extensionFunction(type, "pow") {
+							parameter("exp", intVector!!.type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.pow(exp.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						extensionFunction(mutableType, "powAssign") {
+							parameter("exp", intVector!!.type)
+							componentNames.forEach {
+								statement("$it = $it.pow(exp.$it)")
+							}
+						}
+
+						extensionFunction(type, "pow") {
+							parameter("exp", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.pow(exp.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						extensionFunction(mutableType, "powAssign") {
+							parameter("exp", type)
+							componentNames.forEach {
+								statement("$it = $it.pow(exp.$it)")
+							}
+						}
+					}
+				}
+
+				// exp
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "exp")
+
+						function("exp") {
+							parameter("exp", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "exp(exp.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("expInPlace") {
+							parameter("exp", mutableType)
+							componentNames.forEach {
+								statement("exp.$it = exp(exp.$it)")
+							}
+						}
+					}
+				}
+
+				// log
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "ln")
+
+						function("ln") {
+							parameter("n", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "ln(n.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("lnInPlace") {
+							parameter("n", mutableType)
+							componentNames.forEach {
+								statement("n.$it = ln(n.$it)")
+							}
+						}
+					}
+				}
+
+				// exp2
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "exp")
+
+						function("exp2") {
+							parameter("exp", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "exp(ln($two) * exp.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("exp2InPlace") {
+							parameter("exp", mutableType)
+							componentNames.forEach {
+								statement("exp.$it = exp(ln($two) * exp.$it)")
+							}
+						}
+					}
+				}
+
+				// log2
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "log2")
+
+						function("log2") {
+							parameter("n", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "log2(n.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("log2InPlace") {
+							parameter("n", mutableType)
+							componentNames.forEach {
+								statement("n.$it = log2(n.$it)")
+							}
+						}
+					}
+				}
+
+				// log10 (kotlin stdlib)
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "log10")
+
+						function("log10") {
+							parameter("n", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "log10(n.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("log10InPlace") {
+							parameter("n", mutableType)
+							componentNames.forEach {
+								statement("n.$it = log10(n.$it)")
+							}
+						}
+					}
+				}
+
+				// log (kotlin stdlib)
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "log")
+
+						function("log") {
+							parameter("n", type)
+							parameter("base", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "log(n.$it, base.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("logInPlace") {
+							parameter("n", mutableType)
+							parameter("base", type)
+							componentNames.forEach {
+								statement("n.$it = log(n.$it, base.$it)")
+							}
+						}
+					}
+				}
+
+				// sqrt
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "sqrt")
+
+						function("sqrt") {
+							parameter("n", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "sqrt(n.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("sqrtInPlace") {
+							parameter("n", mutableType)
+							componentNames.forEach {
+								statement("n.$it = sqrt(n.$it)")
+							}
+						}
+					}
+				}
+
+				// inversesqrt
+
+				when (baseType) {
+					FLOAT, DOUBLE -> {
+						import("kotlin.math", "sqrt")
+
+						function("inverseSqrt") {
+							parameter("n", type)
+							returns(type)
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "1 / sqrt(n.$it)" }
+							statement("return %T($args)", type)
+						}
+
+						function("inverseSqrtInPlace") {
+							parameter("n", mutableType)
+							componentNames.forEach {
+								statement("n.$it = 1 / sqrt(n.$it)")
+							}
 						}
 					}
 				}
