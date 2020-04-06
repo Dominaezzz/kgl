@@ -3,376 +3,312 @@ package com.kgl.math
 import kotlin.test.Test
 import kotlin.test.expect
 
+internal val epsilon = Float.fromBits(0x3400_0000)
+
 class CommonFunctionTests {
-
-	private val epsilon = FloatVector4(1e-6f)
-
 	@Test
-	fun vec4_abs() {
-		expect(FloatVector4(0.1f, 2.3f, 4.5f, 6.7f)) {
-			abs(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun abs_vector() {
+		expect(FloatVector4(1f)) {
+			abs(FloatVector4(-1f))
 		}
 	}
 
 	@Test
-	fun vec4_absInPlace() {
-		expect(FloatVector4(0.1f, 2.3f, 4.5f, 6.7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { absInPlace(it) }
+	fun absInPlace_vector() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(-1f).also { absInPlace(it) }
 		}
 	}
 
 	@Test
-	fun vec4_sign() {
-		expect(FloatVector4(1f, -1f, 1f, -1f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).sign
+	fun vector_sign() {
+		expect(FloatVector4(-1f)) {
+			FloatVector4(-1f).sign
 		}
 	}
 
 	@Test
-	fun vec4_floor() {
-		expect(FloatVector4(0f, -3f, 4f, -7f)) {
-			floor(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun floor_vector() {
+		expect(FloatVector4(1f)) {
+			floor(FloatVector4(1.9f))
 		}
 	}
 
 	@Test
-	fun vec4_floorInPlace() {
-		expect(FloatVector4(0f, -3f, 4f, -7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { floorInPlace(it) }
+	fun floorInPlace_vector() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(1.9f).also { floorInPlace(it) }
 		}
 	}
 
 	@Test
-	fun vec4_truncate() {
-		expect(FloatVector4(0f, -2f, 4f, -6f)) {
-			truncate(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun truncate_vector() {
+		expect(FloatVector4(1f)) {
+			truncate(FloatVector4(1.5f))
 		}
 	}
 
 	@Test
-	fun vec4_truncateInPlace() {
-		expect(FloatVector4(0f, -2f, 4f, -6f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { truncateInPlace(it) }
+	fun truncateInPlace_vector() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(1.5f).also { truncateInPlace(it) }
 		}
 	}
 
 	@Test
-	fun vec4_roundToInt() {
-		expect(IntVector4(0, -2, 5, -7)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).roundToInt()
+	fun vector_roundToInt() {
+		expect(IntVector4(1)) {
+			FloatVector4(1.1f).roundToInt()
 		}
 	}
 
 	@Test
-	fun vec4_roundToLong() {
-		expect(LongVector4(0, -2, 5, -7)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).roundToLong()
+	fun vector_roundToLong() {
+		expect(LongVector4(1)) {
+			FloatVector4(1.1f).roundToLong()
 		}
 	}
 
 	@Test
-	fun vec4_round() {
-		expect(FloatVector4(0f, -2f, 4f, -7f)) {
-			round(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun round_vector() {
+		expect(FloatVector4(1f)) {
+			round(FloatVector4(1.1f))
 		}
 	}
 
 	@Test
-	fun vec4_roundInPlace() {
-		expect(FloatVector4(0f, -2f, 4f, -7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { roundInPlace(it) }
+	fun roundInPlace_vector() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(1.1f).also { roundInPlace(it) }
 		}
 	}
 
 	@Test
-	fun vec4_ceil() {
-		expect(FloatVector4(1f, -2f, 5f, -6f)) {
-			ceil(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun ceil_vector() {
+		expect(FloatVector4(2f)) {
+			ceil(FloatVector4(1.1f))
 		}
 	}
 
 	@Test
-	fun vec4_ceilInPlace() {
-		expect(FloatVector4(1f, -2f, 5f, -6f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { ceilInPlace(it) }
+	fun ceilInPlace_vector() {
+		expect(FloatVector4(2f)) {
+			MutableFloatVector4(1.1f).also { ceilInPlace(it) }
 		}
 	}
 
 	@Test
-	fun vec4_fraction() {
-		val expected = FloatVector4(0.1f, -0.3f, 0.5f, -0.7f)
-		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).fraction
-		expect(true, "Expected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_fraction() {
+		expect(FloatVector4(0.5f)) {
+			FloatVector4(1.5f).fraction
 		}
 	}
 
 	@Test
-	fun vec4_rem_scalar() {
-		val expected = FloatVector4(0.1f, -0.8f, 0f, -0.7f)
-		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f) % 1.5f
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_rem_scalar() {
+		expect(FloatVector4(0.5f)) {
+			FloatVector4(1.5f) % 1f
 		}
 	}
 
 	@Test
-	fun vec4_rem_vector() {
-		val expected = FloatVector4(0.1f, -0.3f, 0f, -0.7f)
-		val actual = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f) % FloatVector4(0.5f, 1f, 1.5f, 2f)
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_rem_vector() {
+		expect(FloatVector4(1f)) {
+			FloatVector4(3f) % FloatVector4(2f)
 		}
 	}
 
 	@Test
-	fun vec4_remAssign_scalar() {
-		val expected = FloatVector4(0.1f, -0.8f, 0f, -0.7f)
-		val actual = MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.remAssign(1.5f) }
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_remAssign_scalar() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(3f).also { it %= FloatVector4(2f) }
 		}
 	}
 
 	@Test
-	fun vec4_remAssign_vector() {
-		val expected = FloatVector4(0.1f, -0.3f, 0f, -0.7f)
-		val actual = MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.remAssign(FloatVector4(0.5f, 1f, 1.5f, 2f)) }
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_remAssign_vector() {
+		expect(FloatVector4(1f)) {
+			MutableFloatVector4(3f).also { it %= FloatVector4(2f) }
 		}
 	}
 
 	@Test
-	fun vec4_coerceAtMost_scalar() {
-		expect(FloatVector4(0f, -2.3f, 0f, -6.7f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceAtMost(0f)
+	fun vector_coerceAtMost_scalar() {
+		expect(FloatVector4(0f)) {
+			FloatVector4(1f).coerceAtMost(0f)
 		}
 	}
 
 	@Test
-	fun vec4_coerceAtMost_vector() {
-		expect(FloatVector4(0f, -2.3f, 2f, -6.7f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceAtMost(FloatVector4(0f, 1f, 2f, 3f))
+	fun vector_coerceAtMost_vector() {
+		expect(FloatVector4(0f)) {
+			FloatVector4(1f).coerceAtMost(FloatVector4(0f))
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignAtMost_scalar() {
-		expect(FloatVector4(0f, -2.3f, 0f, -6.7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignAtMost(0f) }
+	fun vector_coerceAssignAtMost_scalar() {
+		expect(FloatVector4(0f)) {
+			MutableFloatVector4(1f).also { it.coerceAssignAtMost(0f) }
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignAtMost_vector() {
-		expect(FloatVector4(0f, -2.3f, 2f, -6.7f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignAtMost(FloatVector4(0f, 1f, 2f, 3f)) }
+	fun vector_coerceAssignAtMost_vector() {
+		expect(FloatVector4(0f)) {
+			MutableFloatVector4(1f).also { it.coerceAssignAtMost(FloatVector4(0f)) }
 		}
 	}
 
 	@Test
-	fun vec4_coerceAtLeast_scalar() {
-		expect(FloatVector4(0.1f, 0f, 4.5f, 0f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceAtLeast(0f)
+	fun vector_coerceAtLeast_scalar() {
+		expect(FloatVector4(0f)) {
+			FloatVector4(-1f).coerceAtLeast(0f)
 		}
 	}
 
 	@Test
-	fun vec4_coerceAtLeast_vector() {
-		expect(FloatVector4(0.1f, 1f, 4.5f, 3f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceAtLeast(FloatVector4(0f, 1f, 2f, 3f))
+	fun vector_coerceAtLeast_vector() {
+		expect(FloatVector4(0f)) {
+			FloatVector4(-1f).coerceAtLeast(FloatVector4(0f))
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignAtLeast_scalar() {
-		expect(FloatVector4(0.1f, 0f, 4.5f, 0f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignAtLeast(0f) }
+	fun vector_coerceAssignAtLeast_scalar() {
+		expect(FloatVector4(0f)) {
+			MutableFloatVector4(-1f).also { it.coerceAssignAtLeast(0f) }
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignAtLeast_vector() {
-		expect(FloatVector4(0.1f, 1f, 4.5f, 3f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignAtLeast(FloatVector4(0f, 1f, 2f, 3f)) }
+	fun vector_coerceAssignAtLeast_vector() {
+		expect(FloatVector4(0f)) {
+			MutableFloatVector4(-1f).also { it.coerceAssignAtLeast(FloatVector4(0f)) }
 		}
 	}
 
 	@Test
-	fun vec4_coerceIn_scalar() {
-		expect(FloatVector4(0.1f, -1f, 1f, -1f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceIn(-1f, 1f)
+	fun mix_scalar_scalar_boolean() {
+		expect(0f) {
+			mix(0f, 1f, true)
 		}
 	}
 
 	@Test
-	fun vec4_coerceIn_vector() {
-		expect(FloatVector4(0.1f, -1f, 1f, -3f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-				.coerceIn(FloatVector4(-0f, -1f, -2f, -3f), FloatVector4(3f, 2f, 1f, 0f))
+	fun mix_scalar_scalar_scalar() {
+		expect(0f) {
+			mix(-1f, 1f, 0.5f)
 		}
 	}
 
 	@Test
-	fun vec4_coerceIn_range() {
-		expect(FloatVector4(0.1f, -1f, 1f, -1f)) {
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f).coerceIn(-1f..1f)
+	fun mix_vector_vector_boolean() {
+		expect(FloatVector4(0f)) {
+			mix(FloatVector4(0f), FloatVector4(1f), true)
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignIn_scalar() {
-		expect(FloatVector4(0.1f, -1f, 1f, -1f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignIn(-1f, 1f) }
+	fun mix_vector_vector_booleanVector() {
+		expect(FloatVector4(0f)) {
+			mix(FloatVector4(0f), FloatVector4(1f), BooleanVector4(true))
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignIn_vector() {
-		expect(FloatVector4(0.1f, -1f, 1f, -3f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also {
-				it.coerceAssignIn(FloatVector4(-0f, -1f, -2f, -3f), FloatVector4(3f, 2f, 1f, 0f))
-			}
+	fun mix_vector_vector_scalar() {
+		expect(FloatVector4(0f)) {
+			mix(FloatVector4(-1f), FloatVector4(1f), 0.5f)
 		}
 	}
 
 	@Test
-	fun vec4_coerceAssignIn_range() {
-		expect(FloatVector4(0.1f, -1f, 1f, -1f)) {
-			MutableFloatVector4(0.1f, -2.3f, 4.5f, -6.7f).also { it.coerceAssignIn(-1f..1f) }
+	fun mix_vector_vector_vector() {
+		expect(FloatVector4(0f)) {
+			mix(FloatVector4(-1f), FloatVector4(1f), FloatVector4(0.5f))
 		}
 	}
 
 	@Test
-	fun vec4_mix_boolean() {
-		val x = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
-		expect(FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)) {
-			mix(x, y, true)
+	fun step_scalar_vector() {
+		expect(FloatVector4(0f)) {
+			step(0f, FloatVector4(1f))
 		}
 	}
 
 	@Test
-	fun vec4_mix_booleanVector() {
-		val x = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
-		val a = BooleanVector4(x = true, y = false, z = true, w = false)
-		expect(FloatVector4(0.1f, -10.11f, 4.5f, -14.15f)) {
-			mix(x, y, a)
+	fun step_vector_vector() {
+		expect(FloatVector4(0f)) {
+			step(FloatVector4(0f), FloatVector4(1f))
 		}
 	}
 
 	@Test
-	fun vec4_mix_scalar() {
-		val expected = FloatVector4(4.5f, -6.205f, 8.315f, -10.425f)
-		val x = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
-		val actual = mix(x, y, 0.5f)
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun smoothStep_scalar_scalar_vector() {
+		expect(FloatVector4(0.5f)) {
+			smoothStep(-1f, 1f, FloatVector4(0f))
 		}
 	}
 
 	@Test
-	fun vec4_mix_vector() {
-		val expected = FloatVector4(4.5f, -6.205f, 8.315f, -10.425f)
-		val x = FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-		val y = FloatVector4(8.9f, -10.11f, 12.13f, -14.15f)
-		val a = FloatVector4(0.5f)
-		val actual = mix(x, y, a)
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun smoothStep_vector_vector_vector() {
+		expect(FloatVector4(0.5f)) {
+			smoothStep(FloatVector4(-1f), FloatVector4(1f), FloatVector4(0f))
 		}
 	}
 
 	@Test
-	fun vec4_step_scalar() {
-		expect(FloatVector4(0f, 1f, 0f, 1f)) {
-			step(0f, FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun vector_isNan() {
+		expect(BooleanVector4(true)) {
+			FloatVector4(Float.NaN).isNaN()
 		}
 	}
 
 	@Test
-	fun vec4_step_vector() {
-		expect(FloatVector4(0f, 1f, 1f, 1f)) {
-			step(FloatVector4(0f, 2.5f, 5f, 7.5f), FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
+	fun vector_isInfinite() {
+		expect(BooleanVector4(true)) {
+			FloatVector4(Float.POSITIVE_INFINITY).isInfinite()
 		}
 	}
 
 	@Test
-	fun vec4_smoothStep_scalar() {
-		val expected = FloatVector4(0.57475f, 0f, 1f, 0f)
-		val actual = smoothStep(-1f, 1f, FloatVector4(0.1f, -2.3f, 4.5f, -6.7f))
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_isFinite() {
+		expect(BooleanVector4(true)) {
+			FloatVector4(0f).isFinite()
 		}
 	}
 
 	@Test
-	fun vec4_smoothStep_vector() {
-		val expected = FloatVector4(0.5f)
-		val actual = smoothStep(
-			FloatVector4(0f),
-			FloatVector4(0.2f, -4.6f, 9f, -13.4f),
-			FloatVector4(0.1f, -2.3f, 4.5f, -6.7f)
-		)
-		expect(true, "\nExpected :$expected\nActual   :$actual\nEpsilon  :$epsilon") {
-			(abs(expected - actual) lessThan epsilon).all()
+	fun vector_toBits() {
+		expect(IntVector4(0x7FC0_0000L.toInt())) {
+			FloatVector4(Float.fromBits(0xFFFF_FFFFL.toInt())).toBits()
 		}
 	}
 
 	@Test
-	fun vec4_isNan() {
-		expect(BooleanVector4(x = true, y = false, z = true, w = false)) {
-			FloatVector4(Float.NaN, 0f, Float.NaN, 0f).isNaN()
+	fun vector_toRawBits() {
+		expect(IntVector4(0xFFFF_FFFFL.toInt())) {
+			FloatVector4(Float.fromBits(0xFFFF_FFFFL.toInt())).toRawBits()
 		}
 	}
 
 	@Test
-	fun vec4_isInfinite() {
-		expect(BooleanVector4(x = true, y = false, z = true, w = false)) {
-			FloatVector4(Float.POSITIVE_INFINITY, 0f, Float.NEGATIVE_INFINITY, 0f).isInfinite()
+	fun vector_fromBits() {
+		expect(BooleanVector4(true)) {
+			FloatVector4.fromBits(UIntVector4(0xFFFF_FFFFu)).isNaN() // NaN != NaN
 		}
 	}
 
 	@Test
-	fun vec4_isFinite() {
-		expect(BooleanVector4(x = true, y = false, z = true, w = false)) {
-			FloatVector4(0f, Float.POSITIVE_INFINITY, 0f, Float.NEGATIVE_INFINITY).isFinite()
-		}
-	}
-
-	@Test
-	fun vec4_toBits() {
-		expect(IntVector4(0b0__1111_1111__1000000_00000000_00000000L.toInt())) {
-			FloatVector4(Float.fromBits(0b1__1111_1111__1111111_11111111_11111111L.toInt())).toBits()
-		}
-	}
-
-	@Test
-	fun vec4_toRawBits() {
-		expect(IntVector4(0b1__1111_1111__1111111_11111111_11111111L.toInt())) {
-			FloatVector4(Float.fromBits(0b1__1111_1111__1111111_11111111_11111111L.toInt())).toRawBits()
-		}
-	}
-
-	@Test
-	fun vec4_fromBits() {
-		expect(true) {
-			FloatVector4.fromBits(UIntVector4(0xFFFFFFFFu)).isNaN().all()
-		}
-	}
-
-	@Test
-	fun vec4_toFractionAndExponent() {
+	fun vector_toFractionAndExponent() {
 		expect(FloatVector4(0.5f) to IntVector4(3)) {
 			FloatVector4(4f).toFractionAndExponent()
 		}
 	}
 
 	@Test
-	fun vec4_fromFractionAndExponent() {
+	fun vector_fromFractionAndExponent() {
 		expect(FloatVector4(4f)) {
 			FloatVector4.fromFractionAndExponent(FloatVector4(0.5f), IntVector4(3))
 		}
