@@ -43,7 +43,6 @@ kotlin {
 	}
 
 	js {
-		nodejs()
 		compilations {
 			"main" {
 				dependencies {
