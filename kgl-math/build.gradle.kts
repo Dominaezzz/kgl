@@ -12,6 +12,17 @@ val generateMath: TaskProvider<GenerateMath> by tasks.registering(GenerateMath::
 }
 
 kotlin {
+	jvm()
+	js()
+
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
+
+	if (!Config.isIdeaActive) {
+		presets.withType<KotlinNativeTargetPreset>(::targetFromPreset)
+	}
+
 	sourceSets {
 		commonMain {
 			kotlin.srcDir(generateMath.map { it.commonDir })
@@ -25,42 +36,25 @@ kotlin {
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
-	}
-
-	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib"))
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test-junit"))
-				}
+		named("jvmMain") {
+			dependencies {
+				implementation(kotlin("stdlib"))
 			}
 		}
-	}
-
-	js {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-js"))
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test-js"))
-				}
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
 			}
 		}
-	}
-
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
-	if (!Config.isIdeaActive) {
-		presets.withType<KotlinNativeTargetPreset>(::targetFromPreset)
+		named("jsMain") {
+			dependencies {
+				implementation(kotlin("stdlib-js"))
+			}
+		}
+		named("jsTest") {
+			dependencies {
+				implementation(kotlin("test-js"))
+			}
+		}
 	}
 }
