@@ -32,8 +32,8 @@ fun coreFeatures() {
 	vectorRelationalFunctions()
 }
 
-private fun literal(literal: String, type: ClassName, baseType: ClassName?): Pair<String, String?> {
-	return when (baseType) {
+private fun literalOf(literal: String, type: ClassName, valueType: ClassName? = null): Pair<String, String?> {
+	return when (valueType) {
 		null -> when (type) {
 			BOOLEAN -> if (literal == "0") "false" to null else "true" to null
 			INT -> literal to null
@@ -45,30 +45,30 @@ private fun literal(literal: String, type: ClassName, baseType: ClassName?): Pai
 			else -> error("invalid type: $type")
 		}
 		else -> {
-			val (one) = literal(literal, baseType, null)
+			val (one) = literalOf(literal, valueType)
 			one to "${type.simpleName}($one)"
 		}
 	}
 }
 
 private fun commonFunctions() {
-	(primitiveTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
-		val componentNames = allComponentNames.take(componentCount ?: 0)
+	(primitiveTypes + vectorTypes).forEach { (type, valueType, length) ->
+		val componentNames = allComponentNames.take(length ?: 0)
 		val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
 
-		val boolVectorType = vectorTypes.find { it.baseType == BOOLEAN && it.componentCount == componentCount }?.type
+		val boolVectorType = vectorTypes.find { it.valueType == BOOLEAN && it.length == length }?.type
 
-		val (zero, vectorZero) = literal("0", type, baseType)
-		val (one, vectorOne) = literal("1", type, baseType)
-		val (two, vectorTwo) = literal("2", type, baseType)
-		val (three, vectorThree) = literal("3", type, baseType)
+		val (zero, vectorZero) = literalOf("0", type, valueType)
+		val (one, vectorOne) = literalOf("1", type, valueType)
+		val (two, vectorTwo) = literalOf("2", type, valueType)
+		val (three, vectorThree) = literalOf("3", type, valueType)
 
 		buildFile(packageName, "${type.simpleName}Common") {
 			indent("\t")
 
 			// abs
 
-			when (baseType) {
+			when (valueType) {
 				INT, LONG,
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "abs")
@@ -91,7 +91,7 @@ private fun commonFunctions() {
 
 			// sign
 
-			when (baseType) {
+			when (valueType) {
 				INT, LONG,
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "sign")
@@ -99,7 +99,7 @@ private fun commonFunctions() {
 					extensionProperty(type, "sign", type) {
 						getter {
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-								"$it.sign${if (baseType == LONG) ".toLong()" else ""}"
+								"$it.sign${if (valueType == LONG) ".toLong()" else ""}"
 							}
 							statement("return %T($args)", type)
 						}
@@ -109,7 +109,7 @@ private fun commonFunctions() {
 
 			// floor
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "floor")
 
@@ -131,7 +131,7 @@ private fun commonFunctions() {
 
 			// trunc
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "truncate")
 
@@ -153,13 +153,13 @@ private fun commonFunctions() {
 
 			// round
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "roundToInt")
 					import("kotlin.math", "roundToLong")
 
-					val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
-					val longVectorType = vectorTypes.find { it.baseType == LONG && it.componentCount == componentCount }!!.type
+					val intVectorType = vectorTypes.find { it.valueType == INT && it.length == length }!!.type
+					val longVectorType = vectorTypes.find { it.valueType == LONG && it.length == length }!!.type
 
 					extensionFunction(type, "roundToInt") {
 						kdoc(
@@ -201,7 +201,7 @@ private fun commonFunctions() {
 
 			// roundEven
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "round")
 
@@ -239,7 +239,7 @@ private fun commonFunctions() {
 
 			// ceil
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "ceil")
 
@@ -271,7 +271,7 @@ private fun commonFunctions() {
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					extensionProperty(type, "fraction", type) {
 						getter {
@@ -284,10 +284,10 @@ private fun commonFunctions() {
 
 			// mod
 
-			if (baseType != null && baseType != BOOLEAN) {
+			if (valueType != null && valueType != BOOLEAN) {
 				extensionFunction(type, "rem") {
 					modifiers(OPERATOR)
-					parameter("scalar", baseType)
+					parameter("scalar", valueType)
 					returns(type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it %% scalar" }
 					statement("return %T($args)", type)
@@ -303,7 +303,7 @@ private fun commonFunctions() {
 
 				extensionFunction(mutableType, "remAssign") {
 					modifiers(OPERATOR)
-					parameter("scalar", baseType)
+					parameter("scalar", valueType)
 					componentNames.forEach {
 						statement("$it %%= scalar")
 					}
@@ -320,9 +320,9 @@ private fun commonFunctions() {
 
 			// min
 
-			if (baseType != null) {
+			if (valueType != null) {
 				extensionFunction(type, "coerceAtMost") {
-					parameter("maximumValue", baseType)
+					parameter("maximumValue", valueType)
 					returns(type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.coerceAtMost(maximumValue)" }
 					statement("return %T($args)", type)
@@ -336,7 +336,7 @@ private fun commonFunctions() {
 				}
 
 				extensionFunction(mutableType, "coerceAssignAtMost") {
-					parameter("maximumValue", baseType)
+					parameter("maximumValue", valueType)
 					componentNames.forEach {
 						statement("$it = $it.coerceAtMost(maximumValue)")
 					}
@@ -352,9 +352,9 @@ private fun commonFunctions() {
 
 			// max
 
-			if (baseType != null) {
+			if (valueType != null) {
 				extensionFunction(type, "coerceAtLeast") {
-					parameter("minimumValue", baseType)
+					parameter("minimumValue", valueType)
 					returns(type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.coerceAtLeast(minimumValue)" }
 					statement("return %T($args)", type)
@@ -368,7 +368,7 @@ private fun commonFunctions() {
 				}
 
 				extensionFunction(mutableType, "coerceAssignAtLeast") {
-					parameter("minimumValue", baseType)
+					parameter("minimumValue", valueType)
 					componentNames.forEach {
 						statement("$it = $it.coerceAtLeast(minimumValue)")
 					}
@@ -384,10 +384,10 @@ private fun commonFunctions() {
 
 			// clamp
 
-			if (baseType != null) {
+			if (valueType != null) {
 				extensionFunction(type, "coerceIn") {
-					parameter("minimumValue", baseType)
-					parameter("maximumValue", baseType)
+					parameter("minimumValue", valueType)
+					parameter("maximumValue", valueType)
 					returns(type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 						"$it.coerceIn(minimumValue, maximumValue)"
@@ -406,7 +406,7 @@ private fun commonFunctions() {
 				}
 
 				extensionFunction(type, "coerceIn") {
-					parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType))
+					parameter("range", ClosedRange::class.asClassName().parameterizedBy(valueType))
 					returns(type)
 					val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 						"$it.coerceIn(range)"
@@ -415,8 +415,8 @@ private fun commonFunctions() {
 				}
 
 				extensionFunction(mutableType, "coerceAssignIn") {
-					parameter("minimumValue", baseType)
-					parameter("maximumValue", baseType)
+					parameter("minimumValue", valueType)
+					parameter("maximumValue", valueType)
 					componentNames.forEach {
 						statement("$it = $it.coerceIn(minimumValue, maximumValue)")
 					}
@@ -431,7 +431,7 @@ private fun commonFunctions() {
 				}
 
 				extensionFunction(mutableType, "coerceAssignIn") {
-					parameter("range", ClosedRange::class.asClassName().parameterizedBy(baseType))
+					parameter("range", ClosedRange::class.asClassName().parameterizedBy(valueType))
 					componentNames.forEach {
 						statement("$it = $it.coerceIn(range)")
 					}
@@ -460,7 +460,7 @@ private fun commonFunctions() {
 				}
 			}
 
-			if (baseType != null) {
+			if (valueType != null) {
 				function("mix") {
 					parameter("x", type)
 					parameter("y", type)
@@ -471,12 +471,12 @@ private fun commonFunctions() {
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					function("mix") {
 						parameter("x", type)
 						parameter("y", type)
-						parameter("a", baseType)
+						parameter("a", valueType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "mix(x.$it, y.$it, a)" }
 						statement("return %T($args)", type)
@@ -495,7 +495,7 @@ private fun commonFunctions() {
 
 			// step
 
-			when (baseType) {
+			when (valueType) {
 				// is primitive type
 				null -> {
 					function("step") {
@@ -516,7 +516,7 @@ private fun commonFunctions() {
 					}
 
 					function("step") {
-						parameter("edge", baseType)
+						parameter("edge", valueType)
 						parameter("x", type)
 						returns(type)
 						statement("return step(%T(edge), x)", type)
@@ -539,7 +539,7 @@ private fun commonFunctions() {
 				}
 
 				// is vector type
-				else -> when (baseType) {
+				else -> when (valueType) {
 					FLOAT, DOUBLE -> {
 						function("smoothStep") {
 							parameter("edge0", type)
@@ -551,8 +551,8 @@ private fun commonFunctions() {
 						}
 
 						function("smoothStep") {
-							parameter("edge0", baseType)
-							parameter("edge1", baseType)
+							parameter("edge0", valueType)
+							parameter("edge1", valueType)
 							parameter("x", type)
 							returns(type)
 							statement("return smoothStep(%T(edge0), %T(edge1), x)", type, type)
@@ -563,7 +563,7 @@ private fun commonFunctions() {
 
 			// isNaN
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					extensionFunction(type, "isNaN") {
 						returns(boolVectorType!!)
@@ -575,7 +575,7 @@ private fun commonFunctions() {
 
 			// isInf
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					extensionFunction(type, "isInfinite") {
 						returns(boolVectorType!!)
@@ -587,7 +587,7 @@ private fun commonFunctions() {
 
 			// isFinite (kotlin stdlib)
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					extensionFunction(type, "isFinite") {
 						returns(boolVectorType!!)
@@ -600,7 +600,7 @@ private fun commonFunctions() {
 			// floatBitsToInt/floatBitsToUInt
 
 			fun toBitsFunction(bitsType: ClassName, unsigned: Boolean) {
-				ClassName(packageName, "${bitsType.simpleName}Vector$componentCount").let { bitsVectorType ->
+				ClassName(packageName, "${bitsType.simpleName}Vector$length").let { bitsVectorType ->
 					extensionFunction(type, "to${if (unsigned) "Unsigned" else ""}Bits") {
 						returns(bitsVectorType)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
@@ -619,7 +619,7 @@ private fun commonFunctions() {
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT -> {
 					toBitsFunction(INT, unsigned = false)
 					toBitsFunction(U_INT, unsigned = true)
@@ -633,13 +633,13 @@ private fun commonFunctions() {
 			// intBitsToFloat/uintBitsToFloat
 
 			fun fromBitsFunction(bitsType: ClassName, unsigned: Boolean) {
-				ClassName(packageName, "${bitsType.simpleName}Vector$componentCount").let { bitsVectorType ->
+				ClassName(packageName, "${bitsType.simpleName}Vector$length").let { bitsVectorType ->
 					extensionFunction(type.nestedClass("Companion"), "fromBits") {
 						parameter("bits", bitsVectorType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							val unsignedConversion = if (unsigned) ".to${bitsType.simpleName.drop(1)}()" else ""
-							"${baseType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
+							"${valueType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
 						}
 						statement("return %T($args)", type)
 					}
@@ -649,14 +649,14 @@ private fun commonFunctions() {
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
 							val unsignedConversion = if (unsigned) ".to${bitsType.simpleName.drop(1)}()" else ""
-							"${baseType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
+							"${valueType!!.simpleName}.fromBits(bits.$it$unsignedConversion)"
 						}
 						statement("return %T($args)", type)
 					}
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT -> {
 					fromBitsFunction(INT, false)
 					fromBitsFunction(U_INT, true)
@@ -728,9 +728,9 @@ private fun commonFunctions() {
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
-					val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+					val intVectorType = vectorTypes.find { it.valueType == INT && it.length == length }!!.type
 					extensionFunction(type, "toFractionAndExponent") {
 						returns(Pair::class.asClassName().parameterizedBy(type, intVectorType))
 						val (fargs, iargs) = componentNames.map {
@@ -764,15 +764,15 @@ private fun commonFunctions() {
 				}
 			}
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
-					val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }!!.type
+					val intVectorType = vectorTypes.find { it.valueType == INT && it.length == length }!!.type
 					extensionFunction(type.nestedClass("Companion"), "fromFractionAndExponent") {
 						parameter("value", type)
 						parameter("exp", intVectorType)
 						returns(type)
 						val args = componentNames.joinToString(",\n\t", "\n\t", "\n") {
-							"${baseType.simpleName}.fromFractionAndExponent(value.$it, exp.$it)"
+							"${valueType.simpleName}.fromFractionAndExponent(value.$it, exp.$it)"
 						}
 						statement("return %T($args)", type)
 					}
@@ -784,16 +784,16 @@ private fun commonFunctions() {
 
 private fun exponentialFunctions() {
 	vectorTypes.filter {
-		it.baseType == FLOAT || it.baseType == DOUBLE
-	}.forEach { (type, baseType, componentCount) ->
-		baseType ?: error("base type is null for vector type")
+		it.valueType == FLOAT || it.valueType == DOUBLE
+	}.forEach { (type, valueType, length) ->
+		valueType ?: error("base type is null for vector type")
 
-		val componentNames = allComponentNames.take(componentCount ?: 0)
+		val componentNames = allComponentNames.take(length ?: 0)
 		val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
 
-		val intVectorType = vectorTypes.find { it.baseType == INT && it.componentCount == componentCount }?.type
+		val intVectorType = vectorTypes.find { it.valueType == INT && it.length == length }?.type
 
-		val (two) = literal("2", type, baseType)
+		val (two) = literalOf("2", type, valueType)
 
 		buildFile(packageName, "${type.simpleName}Exponential") {
 			indent("\t")
@@ -817,14 +817,14 @@ private fun exponentialFunctions() {
 			}
 
 			extensionFunction(type, "pow") {
-				parameter("exp", baseType)
+				parameter("exp", valueType)
 				returns(type)
 				val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.pow(exp)" }
 				statement("return %T($args)", type)
 			}
 
 			extensionFunction(mutableType, "powAssign") {
-				parameter("exp", baseType)
+				parameter("exp", valueType)
 				componentNames.forEach {
 					statement("$it = $it.pow(exp)")
 				}
@@ -989,15 +989,15 @@ private fun exponentialFunctions() {
 
 private fun geometricFunctions() {
 	vectorTypes.filter {
-		it.baseType == FLOAT || it.baseType == DOUBLE
-	}.forEach { (type, baseType, componentCount) ->
-		baseType ?: error("base type is null for vector type")
-		val componentNames = allComponentNames.take(componentCount ?: 0)
+		it.valueType == FLOAT || it.valueType == DOUBLE
+	}.forEach { (type, valueType, length) ->
+		valueType ?: error("base type is null for vector type")
+		val componentNames = allComponentNames.take(length ?: 0)
 		val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
 
-		val (zero) = literal("0", type, baseType)
-		val (one) = literal("1", type, baseType)
-		val (two) = literal("2", type, baseType)
+		val (zero) = literalOf("0", type, valueType)
+		val (one) = literalOf("1", type, valueType)
+		val (two) = literalOf("2", type, valueType)
 
 		buildFile(packageName, "${type.simpleName}Geometric") {
 			indent("\t")
@@ -1006,7 +1006,7 @@ private fun geometricFunctions() {
 
 			import("kotlin.math", "sqrt")
 
-			extensionProperty(type, "length", baseType) {
+			extensionProperty(type, "length", valueType) {
 				getter {
 					statement("return sqrt(this dot this)")
 				}
@@ -1019,7 +1019,7 @@ private fun geometricFunctions() {
 			function("distance") {
 				parameter("from", type)
 				parameter("to", type)
-				returns(baseType)
+				returns(valueType)
 				statement("return (to - from).length")
 			}
 
@@ -1028,14 +1028,14 @@ private fun geometricFunctions() {
 			extensionFunction(type, "dot") {
 				modifiers(INFIX)
 				parameter("other", type)
-				returns(baseType)
+				returns(valueType)
 				val result = componentNames.joinToString(" + ") { "$it * other.$it" }
 				statement("return \n\t($result)")
 			}
 
 			// cross
 
-			if (componentCount == 3) {
+			if (length == 3) {
 				extensionFunction(type, "cross") {
 					modifiers(INFIX)
 					parameter("other", type)
@@ -1108,7 +1108,7 @@ private fun geometricFunctions() {
 
 			extensionFunction(type, "refracted") {
 				parameter("normal", type)
-				parameter("eta", baseType)
+				parameter("eta", valueType)
 				returns(type)
 				statement("val dot = normal dot this")
 				statement("val k = $one - eta * eta * ($one - dot * dot)")
@@ -1122,7 +1122,7 @@ private fun geometricFunctions() {
 
 			extensionFunction(mutableType, "refract") {
 				parameter("normal", type)
-				parameter("eta", baseType)
+				parameter("eta", valueType)
 				statement("val dot = normal dot this")
 				statement("val k = $one - eta * eta * ($one - dot * dot)")
 				controlFlow("if (k >= 0)") {
@@ -1139,13 +1139,13 @@ private fun geometricFunctions() {
 }
 
 private fun vectorTypes() {
-	vectorTypes.forEach { (type, baseType, componentCount) ->
+	vectorTypes.forEach { (type, valueType, length) ->
 		val mutableVectorType = ClassName(packageName, "Mutable${type.simpleName}")
-		val componentNames = allComponentNames.take(componentCount!!)
-		baseType ?: error("null base type invalid for vectors")
+		val componentNames = allComponentNames.take(length!!)
+		valueType ?: error("null base type invalid for vectors")
 
-		val (zero) = literal("0", baseType, null)
-		val (one) = literal("1", baseType, null)
+		val (zero) = literalOf("0", valueType)
+		val (one) = literalOf("1", valueType)
 
 		buildFile(packageName, type.simpleName) {
 			indent("\t")
@@ -1173,13 +1173,13 @@ private fun vectorTypes() {
 				}
 
 				componentNames.forEach {
-					property(it, baseType, ABSTRACT)
+					property(it, valueType, ABSTRACT)
 				}
 
 				function("get") {
 					modifiers(OPERATOR)
 					parameter("index", INT)
-					returns(baseType)
+					returns(valueType)
 					controlFlow("return when (index)") {
 						componentNames.forEachIndexed { i, it ->
 							statement("$i -> $it")
@@ -1193,7 +1193,7 @@ private fun vectorTypes() {
 				function("copy") {
 					returns(type)
 					val args = componentNames.joinToString {
-						parameter(it, baseType) {
+						parameter(it, valueType) {
 							defaultValue("this.$it")
 						}
 						it
@@ -1203,11 +1203,11 @@ private fun vectorTypes() {
 
 				// arithmetic functions
 
-				if (baseType != BOOLEAN) {
+				if (valueType != BOOLEAN) {
 					for ((name, op) in arithmetics) {
 						function(name) {
 							modifiers(OPERATOR)
-							parameter("scalar", baseType)
+							parameter("scalar", valueType)
 							returns(type)
 							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it $op scalar" }
 							statement("return %T($args)", type)
@@ -1230,7 +1230,7 @@ private fun vectorTypes() {
 						statement("return copy()")
 					}
 
-					when (baseType) {
+					when (valueType) {
 						INT, LONG, FLOAT, DOUBLE -> {
 							function("unaryMinus") {
 								modifiers(OPERATOR)
@@ -1250,13 +1250,13 @@ private fun vectorTypes() {
 
 				primaryConstructor {
 					componentNames.forEach { name ->
-						parameter(name, baseType)
+						parameter(name, valueType)
 					}
 					callSuperConstructor()
 				}
 
 				secondaryConstructor {
-					parameter("scalar", baseType)
+					parameter("scalar", valueType)
 					callThisConstructor(*componentNames.map { "scalar" }.toTypedArray())
 				}
 
@@ -1265,7 +1265,7 @@ private fun vectorTypes() {
 				}
 
 				componentNames.forEach { name ->
-					mutableProperty(name, baseType, OVERRIDE) {
+					mutableProperty(name, valueType, OVERRIDE) {
 						initializer(name)
 					}
 				}
@@ -1273,7 +1273,7 @@ private fun vectorTypes() {
 				function("set") {
 					modifiers(OPERATOR)
 					parameter("index", INT)
-					parameter("value", baseType)
+					parameter("value", valueType)
 					controlFlow("when (index)") {
 						componentNames.forEachIndexed { i, it ->
 							statement("$i -> $it = value")
@@ -1282,11 +1282,11 @@ private fun vectorTypes() {
 					}
 				}
 
-				if (baseType != BOOLEAN) {
+				if (valueType != BOOLEAN) {
 					for ((funName, op) in arithmetics) {
 						function("${funName}Assign") {
 							modifiers(OPERATOR)
-							parameter("scalar", baseType)
+							parameter("scalar", valueType)
 							componentNames.forEach {
 								statement("$it $op= scalar")
 							}
@@ -1337,14 +1337,14 @@ private fun vectorTypes() {
 
 			function(type.simpleName) {
 				componentNames.forEach { name ->
-					parameter(name, baseType)
+					parameter(name, valueType)
 				}
 				returns(type)
 				statement("return %T(${componentNames.joinToString()})", mutableVectorType)
 			}
 
 			function(type.simpleName) {
-				parameter("scalar", baseType) {
+				parameter("scalar", valueType) {
 					defaultValue(zero)
 				}
 				returns(type)
@@ -1356,16 +1356,16 @@ private fun vectorTypes() {
 			componentNames.forEachIndexed { i, name ->
 				extensionFunction(type, "component${i + 1}") {
 					modifiers(INLINE, OPERATOR)
-					returns(baseType)
+					returns(valueType)
 					statement("return $name")
 				}
 			}
 
 			// primitive arithmetic
 
-			if (baseType != BOOLEAN) {
+			if (valueType != BOOLEAN) {
 				for ((name, op) in arithmetics) {
-					extensionFunction(baseType, name) {
+					extensionFunction(valueType, name) {
 						modifiers(OPERATOR)
 						parameter("vector", type)
 						returns(type)
@@ -1377,18 +1377,18 @@ private fun vectorTypes() {
 
 			// conversions
 
-			if (baseType != BOOLEAN) {
+			if (valueType != BOOLEAN) {
 				vectorTypes.filter {
-					it.baseType != BOOLEAN && it.componentCount == componentCount
+					it.valueType != BOOLEAN && it.length == length
 				}.forEach { other ->
-					if (other.baseType != baseType) {
+					if (other.valueType != valueType) {
 						extensionFunction(type, "to${other.type.simpleName}") {
 							returns(other.type)
-							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.to${other.baseType?.simpleName}()" }
+							val args = componentNames.joinToString(",\n\t", "\n\t", "\n") { "$it.to${other.valueType?.simpleName}()" }
 							statement("return %T($args)", other.type)
 						}
 					}
-					if (other.baseType == baseType) {
+					if (other.valueType == valueType) {
 						extensionFunction(type, "to${other.type.simpleName}") {
 							returns(other.type)
 							val args = componentNames.joinToString()
@@ -1402,11 +1402,11 @@ private fun vectorTypes() {
 }
 
 private fun vectorRelationalFunctions() {
-	vectorTypes.forEach { (type, baseType, componentCount) ->
-		val componentNames = allComponentNames.take(componentCount!!)
-		baseType!!
+	vectorTypes.forEach { (type, valueType, length) ->
+		val componentNames = allComponentNames.take(length!!)
+		valueType!!
 
-		val boolVectorType = vectorTypes.find { it.baseType == BOOLEAN && it.componentCount == componentCount }!!
+		val boolVectorType = vectorTypes.find { it.valueType == BOOLEAN && it.length == length }!!
 
 		buildFile(packageName, "${type.simpleName}Relational") {
 
@@ -1470,7 +1470,7 @@ private fun vectorRelationalFunctions() {
 				statement("return %T($args)", boolVectorType.type)
 			}
 
-			if (baseType == BOOLEAN) {
+			if (valueType == BOOLEAN) {
 				// should the `any` and `all` functionality for collections from stdlib be generalized to all vector types?
 
 				// any

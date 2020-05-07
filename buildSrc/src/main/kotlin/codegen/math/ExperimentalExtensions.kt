@@ -9,8 +9,8 @@ internal fun experimentalExtensions() {
 }
 
 private fun logBase() {
-	(primitiveTypes + vectorTypes).forEach { (type, baseType, componentCount) ->
-		val componentNames = allComponentNames.take(componentCount ?: 0)
+	(primitiveTypes + vectorTypes).forEach { (type, valueType, length) ->
+		val componentNames = allComponentNames.take(length ?: 0)
 		val mutableType = ClassName(packageName, "Mutable${type.simpleName}")
 
 		buildFile(packageName, "${type.simpleName}LogBase") {
@@ -18,7 +18,7 @@ private fun logBase() {
 
 			// log
 
-			when (baseType) {
+			when (valueType) {
 				FLOAT, DOUBLE -> {
 					import("kotlin.math", "log")
 

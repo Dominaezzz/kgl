@@ -11,8 +11,8 @@ import java.io.File
 
 internal data class TypeInfo(
 	val type: ClassName,
-	val baseType: ClassName? = null,
-	val componentCount: Int? = null
+	val valueType: ClassName? = null,
+	val length: Int? = null
 )
 
 internal const val packageName = "com.kgl.math"

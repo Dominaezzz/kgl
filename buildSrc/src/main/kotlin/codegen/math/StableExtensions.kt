@@ -9,12 +9,12 @@ fun stableExtensions() {
 }
 
 private fun vectorRelational() {
-	vectorTypes.forEach { (type, baseType, componentCount) ->
-		baseType ?: error("base type is null for vector type")
+	vectorTypes.forEach { (type, valueType, length) ->
+		valueType ?: error("base type is null for vector type")
 
-		val componentNames = allComponentNames.take(componentCount ?: 0)
+		val componentNames = allComponentNames.take(length ?: 0)
 
-		val boolVectorType = vectorTypes.find { it.baseType == BOOLEAN && it.componentCount == componentCount }!!.type
+		val boolVectorType = vectorTypes.find { it.valueType == BOOLEAN && it.length == length }!!.type
 
 		buildFile(packageName, "${type.simpleName}VectorRelational") {
 			indent("\t")
@@ -23,12 +23,12 @@ private fun vectorRelational() {
 
 			extensionFunction(type, "equal") {
 				parameter("other", type)
-				parameter("epsilon", baseType)
+				parameter("epsilon", valueType)
 				returns(boolVectorType)
 				statement("return this.equal(other, %T(epsilon))", type)
 			}
 
-			when (baseType) {
+			when (valueType) {
 				BOOLEAN -> {
 					extensionFunction(type, "equal") {
 						parameter("other", type)
