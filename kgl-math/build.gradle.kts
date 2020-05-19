@@ -1,4 +1,3 @@
-import codegen.math.GenerateMath
 import config.Config
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetPreset
 
@@ -7,13 +6,11 @@ plugins {
 	`maven-publish`
 }
 
-val generateMath: TaskProvider<GenerateMath> by tasks.registering(GenerateMath::class) {
-	outputDir.set(buildDir.resolve("generated-src"))
-}
-
 kotlin {
 	jvm()
-	js()
+	js {
+		nodejs() // FIXME: breaks CI. Why?
+	}
 
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
@@ -25,7 +22,6 @@ kotlin {
 
 	sourceSets {
 		commonMain {
-			kotlin.srcDir(generateMath.map { it.commonDir })
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 			}
