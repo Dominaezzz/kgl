@@ -9,10 +9,10 @@ sealed class FloatVector2 {
 	companion object {
 		val ZERO = FloatVector2(0f)
 		val ONE = FloatVector2(1f)
+		val RIGHT = FloatVector2(1f, 0f)
+		val LEFT = FloatVector2(-1f, 0f)
 		val UP = FloatVector2(0f, 1f)
 		val DOWN = FloatVector2(0f, -1f)
-		val LEFT = FloatVector2(-1f, 0f)
-		val RIGHT = FloatVector2(1f, 0f)
 		val POSITIVE_INFINITY = FloatVector2(Float.POSITIVE_INFINITY)
 		val NEGATIVE_INFINITY = FloatVector2(Float.NEGATIVE_INFINITY)
 	}
@@ -160,7 +160,7 @@ class MutableFloatVector2(
 }
 
 
-/** Returns the unsigned angle between [from] and [to]. */
+/** Returns the unsigned angle in radians between [from] and [to]. */
 fun angle(from: FloatVector2, to: FloatVector2): Float {
 	val divisor = sqrt(from.squareMagnitude * to.squareMagnitude)
 	if (divisor == 0f) return 0f
@@ -169,7 +169,7 @@ fun angle(from: FloatVector2, to: FloatVector2): Float {
 	return acos(dot)
 }
 
-/** Returns the signed angle between [from] and [to]. */
+/** Returns the signed angle in radians between [from] and [to]. */
 fun signedAngle(from: FloatVector2, to: FloatVector2): Float {
 	val angle = angle(from, to)
 	val sign = sign(from.x * to.y - from.y * to.x)

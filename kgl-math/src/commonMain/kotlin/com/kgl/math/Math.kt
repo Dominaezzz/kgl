@@ -4,8 +4,7 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.sign
 
-private val epsilon: Float = Float.fromBits(0x3400_0000)
-val Float.Companion.EPSILON: Float get() = epsilon
+val Float.Companion.EPSILON: Float get() = Float.fromBits(0x3400_0000)
 
 val Float.degrees: Float get() = (this * PI / 180).toFloat()
 
