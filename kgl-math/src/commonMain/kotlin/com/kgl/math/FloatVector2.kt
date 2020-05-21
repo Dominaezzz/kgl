@@ -151,10 +151,10 @@ class MutableFloatVector2(
 	}
 
 	fun reflect(normal: FloatVector2) {
-		val factor = 2f * (this dot normal)
+		val factor = -2f * (this dot normal)
 		set(
-			x - factor * normal.x,
-			y - factor * normal.y
+			factor * normal.x + x,
+			factor * normal.y + y
 		)
 	}
 }

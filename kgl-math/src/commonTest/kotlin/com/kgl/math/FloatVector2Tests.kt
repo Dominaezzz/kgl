@@ -32,6 +32,16 @@ class FloatVector2Tests {
 	}
 
 	@Test
+	fun operator_unaryPlus() {
+		assertEquals(FloatVector2(1f), +FloatVector2(1f))
+	}
+
+	@Test
+	fun operator_unaryMinus() {
+		assertEquals(FloatVector2(-1f), -FloatVector2(1f))
+	}
+
+	@Test
 	fun operator_plus_scalar() {
 		assertEquals(FloatVector2(2f), FloatVector2(1f) + 1f)
 	}
