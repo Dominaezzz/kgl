@@ -115,6 +115,11 @@ class FloatVector3Tests {
 	}
 
 	@Test
+	fun projected() {
+		assertEquals(FloatVector3(2f, 0f, 2f), FloatVector3(2f, 2f, 2f).projected(FloatVector3(1f, 0f, 1f)))
+	}
+
+	@Test
 	fun reflected() {
 		assertEquals(FloatVector3(1f, 2f, 1f), FloatVector3(1f, -2f, 1f).reflected(FloatVector3(0f, 1f, 0f)))
 	}
@@ -228,6 +233,13 @@ class FloatVector3Tests {
 		val vector = MutableFloatVector3(2f, 0f, 0f)
 		vector.normalize()
 		assertEquals(FloatVector3(1f, 0f, 0f), vector)
+	}
+
+	@Test
+	fun project() {
+		val vector = MutableFloatVector3(2f, 2f, 2f)
+		vector.project(FloatVector3(1f, 0f, 1f))
+		assertEquals(FloatVector3(2f, 0f, 2f), vector)
 	}
 
 	@Test

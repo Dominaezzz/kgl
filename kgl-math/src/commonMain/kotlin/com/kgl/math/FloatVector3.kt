@@ -47,7 +47,7 @@ sealed class FloatVector3 {
 	val squareMagnitude: Float get() = this dot this
 	val magnitude: Float get() = sqrt(this dot this)
 
-
+	/** Returns the cross product of this and [other]. */
 	infix fun cross(other: FloatVector3): FloatVector3 = FloatVector3(
 		y * other.z - z * other.y,
 		z * other.x - x * other.z,
@@ -60,15 +60,21 @@ sealed class FloatVector3 {
 	/**
 	 * Returns a new vector equivalent to moving this vector a maximum distance of [maxDistance] towards [target].
 	 *
-	 * If `distance(this, target)` is less than [maxDistance], the returned vector is equal to [target].
+	 * If `distance(this, target)` is less than [maxDistance], the returned vector is equal to [target]. Negative values
+	 * of [maxDistance] result in a vector moved away from [target].
 	 */
 	fun movedTowards(target: FloatVector3, maxDistance: Float): FloatVector3 {
 		return MutableFloatVector3(x, y, z).apply { moveTowards(target, maxDistance) }
 	}
 
-	/** Returns a new vector made with the normalized components of this vector. */
+	/** Returns a new vector equivalent to normalizing this vector. */
 	fun normalized(): FloatVector3 {
 		return MutableFloatVector3(x, y, z).apply { normalize() }
+	}
+
+	/** Returns a new vector equivalent to projecting this vector onto [other]. */
+	fun projected(other: FloatVector3): FloatVector3 {
+		return MutableFloatVector3(x, y, z).apply { project(other) }
 	}
 
 	/** Returns a new vector equivalent to reflecting this vector off [normal]. */
@@ -143,6 +149,12 @@ class MutableFloatVector3(
 		this.z = z
 	}
 
+	/**
+	 * Move this vector towards the target vector a maximum distance of [maxDistance].
+	 *
+	 * If `distance(this, target)` is less than [maxDistance], the sets this vector equal to [target]. Negative values
+	 * of [maxDistance] moves this vector away from [target].
+	 */
 	fun moveTowards(target: FloatVector3, maxDistance: Float) {
 		val xDiff = target.x - x
 		val yDiff = target.y - y
@@ -161,11 +173,28 @@ class MutableFloatVector3(
 		}
 	}
 
+	/** Normalizes this vector. */
 	fun normalize() {
 		val magnitude = magnitude
-		if (magnitude > 0) set(x / magnitude, y / magnitude, z / magnitude) else set(0f)
+		if (magnitude > 0) divAssign(magnitude) else set(0f)
 	}
 
+	/** Projects this vector onto [other]. */
+	fun project(other: FloatVector3) {
+		val squareMagnitude = other.squareMagnitude
+		if (squareMagnitude == 0f) {
+			set(0f)
+		} else {
+			val dot = this dot other
+			set(
+				other.x * dot / squareMagnitude,
+				other.y * dot / squareMagnitude,
+				other.z * dot / squareMagnitude
+			)
+		}
+	}
+
+	/** Reflects this vector off normal. */
 	fun reflect(normal: FloatVector3) {
 		val factor = -2f * (this dot normal)
 		set(
