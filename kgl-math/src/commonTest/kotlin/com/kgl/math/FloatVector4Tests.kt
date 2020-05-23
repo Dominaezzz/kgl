@@ -20,8 +20,9 @@ class FloatVector4Tests {
 	}
 
 	@Test
-	fun operator_get() {
+	fun get() {
 		val vector = FloatVector4(1f, 2f, 3f, 4f)
+		assertFailsWith(IndexOutOfBoundsException::class) { vector[-1] }
 		assertEquals(vector.x, vector[0])
 		assertEquals(vector.y, vector[1])
 		assertEquals(vector.z, vector[2])
@@ -30,62 +31,62 @@ class FloatVector4Tests {
 	}
 
 	@Test
-	fun operator_unaryPlus() {
+	fun unaryPlus() {
 		assertEquals(FloatVector4(1f), +FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_unaryMinus() {
+	fun unaryMinus() {
 		assertEquals(FloatVector4(-1f), -FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_plus_scalar() {
+	fun plus_scalar() {
 		assertEquals(FloatVector4(2f), FloatVector4(1f) + 1f)
 	}
 
 	@Test
-	fun operator_minus_scalar() {
+	fun minus_scalar() {
 		assertEquals(FloatVector4(0f), FloatVector4(1f) - 1f)
 	}
 
 	@Test
-	fun operator_times_scalar() {
+	fun times_scalar() {
 		assertEquals(FloatVector4(1f), FloatVector4(1f) * 1f)
 	}
 
 	@Test
-	fun operator_div_scalar() {
+	fun div_scalar() {
 		assertEquals(FloatVector4(1f), FloatVector4(1f) / 1f)
 	}
 
 	@Test
-	fun operator_rem_scalar() {
+	fun rem_scalar() {
 		assertEquals(FloatVector4(0f), FloatVector4(1f) % 1f)
 	}
 
 	@Test
-	fun operator_plus_vector() {
+	fun plus_vector() {
 		assertEquals(FloatVector4(2f), FloatVector4(1f) + FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_minus_vector() {
+	fun minus_vector() {
 		assertEquals(FloatVector4(0f), FloatVector4(1f) - FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_times_vector() {
+	fun times_vector() {
 		assertEquals(FloatVector4(1f), FloatVector4(1f) * FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_div_vector() {
+	fun div_vector() {
 		assertEquals(FloatVector4(1f), FloatVector4(1f) / FloatVector4(1f))
 	}
 
 	@Test
-	fun operator_rem_vector() {
+	fun rem_vector() {
 		assertEquals(FloatVector4(0f), FloatVector4(1f) % FloatVector4(1f))
 	}
 
@@ -121,8 +122,9 @@ class FloatVector4Tests {
 
 	// Mutable
 	@Test
-	fun operator_set() {
+	fun set() {
 		val vector = MutableFloatVector4()
+		assertFailsWith(IndexOutOfBoundsException::class) { vector[-1] = 1f }
 		vector[0] = 1f
 		assertEquals(1f, vector.x)
 		vector[1] = 1f
@@ -135,70 +137,70 @@ class FloatVector4Tests {
 	}
 
 	@Test
-	fun operator_plusAssign_scalar() {
+	fun plusAssign_scalar() {
 		val vector = MutableFloatVector4(1f)
 		vector += 1f
 		assertEquals(FloatVector4(2f), vector)
 	}
 
 	@Test
-	fun operator_minusAssign_scalar() {
+	fun minusAssign_scalar() {
 		val vector = MutableFloatVector4(1f)
 		vector -= 1f
 		assertEquals(FloatVector4(0f), vector)
 	}
 
 	@Test
-	fun operator_timesAssign_scalar() {
+	fun timesAssign_scalar() {
 		val vector = MutableFloatVector4(1f)
 		vector *= 1f
 		assertEquals(FloatVector4(1f), vector)
 	}
 
 	@Test
-	fun operator_divAssign_scalar() {
+	fun divAssign_scalar() {
 		val vector = MutableFloatVector4(1f)
 		vector /= 1f
 		assertEquals(FloatVector4(1f), vector)
 	}
 
 	@Test
-	fun operator_remAssign_scalar() {
+	fun remAssign_scalar() {
 		val vector = MutableFloatVector4(1f)
 		vector %= 1f
 		assertEquals(FloatVector4(0f), vector)
 	}
 
 	@Test
-	fun operator_plusAssign_vector() {
+	fun plusAssign_vector() {
 		val vector = MutableFloatVector4(1f)
 		vector += vector
 		assertEquals(FloatVector4(2f), vector)
 	}
 
 	@Test
-	fun operator_minusAssign_vector() {
+	fun minusAssign_vector() {
 		val vector = MutableFloatVector4(1f)
 		vector -= vector
 		assertEquals(FloatVector4(0f), vector)
 	}
 
 	@Test
-	fun operator_timesAssign_vector() {
+	fun timesAssign_vector() {
 		val vector = MutableFloatVector4(1f)
 		vector *= vector
 		assertEquals(FloatVector4(1f), vector)
 	}
 
 	@Test
-	fun operator_divAssign_vector() {
+	fun divAssign_vector() {
 		val vector = MutableFloatVector4(1f)
 		vector /= vector
 		assertEquals(FloatVector4(1f), vector)
 	}
 
 	@Test
-	fun operator_remAssign_vector() {
+	fun remAssign_vector() {
 		val vector = MutableFloatVector4(1f)
 		vector %= vector
 		assertEquals(FloatVector4(0f), vector)
@@ -261,27 +263,27 @@ class FloatVector4Tests {
 	}
 
 	@Test
-	fun operator_scalar_plus() {
+	fun scalar_plus() {
 		assertEquals(FloatVector4(2f), 1f + FloatVector4.ONE)
 	}
 
 	@Test
-	fun operator_scalar_minus() {
+	fun scalar_minus() {
 		assertEquals(FloatVector4(0f), 1f - FloatVector4.ONE)
 	}
 
 	@Test
-	fun operator_scalar_times() {
+	fun scalar_times() {
 		assertEquals(FloatVector4(1f), 1f * FloatVector4.ONE)
 	}
 
 	@Test
-	fun operator_scalar_div() {
+	fun scalar_div() {
 		assertEquals(FloatVector4(1f), 1f / FloatVector4.ONE)
 	}
 
 	@Test
-	fun operator_scalar_rem() {
+	fun scalar_rem() {
 		assertEquals(FloatVector4(0f), 1f % FloatVector4.ONE)
 	}
 }
