@@ -79,11 +79,7 @@ sealed class FloatVector2 {
 		return true
 	}
 
-	override fun hashCode(): Int {
-		var result = x.hashCode()
-		result = 31 * result + y.hashCode()
-		return result
-	}
+	override fun hashCode(): Int = y.hashCode() + 31 * x.hashCode()
 
 	override fun toString(): String = "($x, $y)"
 }
@@ -95,11 +91,23 @@ fun FloatVector2(x: Float, y: Float): FloatVector2 = MutableFloatVector2(x, y)
 fun FloatVector2(scalar: Float = 0f): FloatVector2 = MutableFloatVector2(scalar)
 
 
-class MutableFloatVector2(
-	override var x: Float,
+class MutableFloatVector2(x: Float, y: Float) : FloatVector2() {
+	private val m = floatArrayOf(x, y)
+
+	override var x: Float
+		get() = m[0]
+		set(value) {
+			m[0] = value
+		}
 	override var y: Float
-) : FloatVector2() {
+		get() = m[1]
+		set(value) {
+			m[1] = value
+		}
+
 	constructor(scalar: Float = 0f) : this(scalar, scalar)
+
+	fun asFloatArray(): FloatArray = m
 
 	operator fun set(index: Int, value: Float) = when (index) {
 		0 -> x = value
@@ -159,6 +167,11 @@ class MutableFloatVector2(
 	}
 }
 
+fun FloatVector2.toFloatArray(): FloatArray = floatArrayOf(x, y)
+
+fun FloatVector2.toFloatVector2(): FloatVector2 = toMutableFloatVector2()
+
+fun FloatVector2.toMutableFloatVector2(): MutableFloatVector2 = MutableFloatVector2(x, y)
 
 /** Returns the unsigned angle in radians between [from] and [to]. */
 fun angle(from: FloatVector2, to: FloatVector2): Float {

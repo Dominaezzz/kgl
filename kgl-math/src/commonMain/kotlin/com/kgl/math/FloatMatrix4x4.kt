@@ -19,6 +19,38 @@ sealed class FloatMatrix4x4 {
 		)
 	}
 
+	fun copy(
+		c00: Float = this[0, 0], c01: Float = this[0, 1], c02: Float = this[0, 2], c03: Float = this[0, 3],
+		c10: Float = this[1, 0], c11: Float = this[1, 1], c12: Float = this[1, 2], c13: Float = this[1, 3],
+		c20: Float = this[2, 0], c21: Float = this[2, 1], c22: Float = this[2, 2], c23: Float = this[2, 3],
+		c30: Float = this[3, 0], c31: Float = this[3, 1], c32: Float = this[3, 2], c33: Float = this[3, 3]
+	): FloatMatrix4x4 = FloatMatrix4x4(
+		c00, c01, c02, c03,
+		c10, c11, c12, c13,
+		c20, c21, c22, c23,
+		c30, c31, c32, c33
+	)
+
+	// FIXME: currently, this version is called of no parameters are provided
+	fun copy(
+		row0: FloatVector4 = getRow(0),
+		row1: FloatVector4 = getRow(1),
+		row2: FloatVector4 = getRow(2),
+		row3: FloatVector4 = getRow(3)
+	): FloatMatrix4x4 = FloatMatrix4x4(row0, row1, row2, row3)
+
+	abstract operator fun get(row: Int, column: Int): Float
+
+	fun getRow(row: Int): FloatVector4 {
+		if (row !in 0..3) throw IndexOutOfBoundsException()
+		return FloatVector4(this[row, 0], this[row, 1], this[row, 2], this[row, 3])
+	}
+
+	fun getColumn(column: Int): FloatVector4 {
+		if (column !in 0..3) throw IndexOutOfBoundsException()
+		return FloatVector4(this[0, column], this[1, column], this[2, column], this[3, column])
+	}
+
 	val determinant: Float
 		get() {
 			val a = this[0, 0]
@@ -128,18 +160,6 @@ sealed class FloatMatrix4x4 {
 				}
 			}
 		}
-
-	abstract operator fun get(row: Int, column: Int): Float
-
-	fun getRow(row: Int): FloatVector4 {
-		if (row !in 0..3) throw IndexOutOfBoundsException()
-		return FloatVector4(this[row, 0], this[row, 1], this[row, 2], this[row, 3])
-	}
-
-	fun getColumn(column: Int): FloatVector4 {
-		if (column !in 0..3) throw IndexOutOfBoundsException()
-		return FloatVector4(this[0, column], this[1, column], this[2, column], this[3, column])
-	}
 
 	operator fun plus(scalar: Float): FloatMatrix4x4 = FloatMatrix4x4(
 		this[0, 0] + scalar, this[0, 1] + scalar, this[0, 2] + scalar, this[0, 3] + scalar,
@@ -293,15 +313,15 @@ fun FloatMatrix4x4(
 
 @Suppress("FunctionName")
 fun FloatMatrix4x4(
-	m00: Float, m01: Float, m02: Float, m03: Float,
-	m10: Float, m11: Float, m12: Float, m13: Float,
-	m20: Float, m21: Float, m22: Float, m23: Float,
-	m30: Float, m31: Float, m32: Float, m33: Float
+	c00: Float, c01: Float, c02: Float, c03: Float,
+	c10: Float, c11: Float, c12: Float, c13: Float,
+	c20: Float, c21: Float, c22: Float, c23: Float,
+	c30: Float, c31: Float, c32: Float, c33: Float
 ): FloatMatrix4x4 = MutableFloatMatrix4x4(
-	m00, m01, m02, m03,
-	m10, m11, m12, m13,
-	m20, m21, m22, m23,
-	m30, m31, m32, m33
+	c00, c01, c02, c03,
+	c10, c11, c12, c13,
+	c20, c21, c22, c23,
+	c30, c31, c32, c33
 )
 
 
@@ -309,12 +329,12 @@ class MutableFloatMatrix4x4 : FloatMatrix4x4 {
 	private val m: FloatArray
 
 	constructor(
-		m00: Float, m01: Float, m02: Float, m03: Float,
-		m10: Float, m11: Float, m12: Float, m13: Float,
-		m20: Float, m21: Float, m22: Float, m23: Float,
-		m30: Float, m31: Float, m32: Float, m33: Float
+		c00: Float, c01: Float, c02: Float, c03: Float,
+		c10: Float, c11: Float, c12: Float, c13: Float,
+		c20: Float, c21: Float, c22: Float, c23: Float,
+		c30: Float, c31: Float, c32: Float, c33: Float
 	) {
-		m = floatArrayOf(m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33)
+		m = floatArrayOf(c00, c01, c02, c03, c10, c11, c12, c13, c20, c21, c22, c23, c30, c31, c32, c33)
 	}
 
 	constructor(row0: FloatVector4, row1: FloatVector4, row2: FloatVector4, row3: FloatVector4) {

@@ -1,6 +1,8 @@
 package com.kgl.math
 
-import kotlin.math.*
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.sqrt
 
 sealed class FloatVector4 {
 	abstract val x: Float
@@ -83,13 +85,7 @@ sealed class FloatVector4 {
 		return true
 	}
 
-	override fun hashCode(): Int {
-		var result = x.hashCode()
-		result = 31 * result + y.hashCode()
-		result = 31 * result + z.hashCode()
-		result = 31 * result + w.hashCode()
-		return result
-	}
+	override fun hashCode(): Int = w.hashCode() + 31 * (z.hashCode() + 31 * (y.hashCode() + 31 * x.hashCode()))
 
 	override fun toString(): String = "($x, $y, $z, $w)"
 }
@@ -101,13 +97,33 @@ fun FloatVector4(scalar: Float = 0f): FloatVector4 = MutableFloatVector4(scalar)
 fun FloatVector4(x: Float, y: Float, z: Float, w: Float): FloatVector4 = MutableFloatVector4(x, y, z, w)
 
 
-class MutableFloatVector4(
-	override var x: Float,
-	override var y: Float,
-	override var z: Float,
-	override var w: Float
-) : FloatVector4() {
+class MutableFloatVector4(x: Float, y: Float, z: Float, w: Float) : FloatVector4() {
+	private val m = floatArrayOf(x, y, z, w)
+
 	constructor(scalar: Float = 0f) : this(scalar, scalar, scalar, scalar)
+
+	override var x: Float
+		get() = m[0]
+		set(value) {
+			m[0] = value
+		}
+	override var y: Float
+		get() = m[1]
+		set(value) {
+			m[1] = value
+		}
+	override var z: Float
+		get() = m[2]
+		set(value) {
+			m[2] = value
+		}
+	override var w: Float
+		get() = m[3]
+		set(value) {
+			m[3] = value
+		}
+
+	fun asFloatArray(): FloatArray = m
 
 	operator fun set(index: Int, value: Float) = when (index) {
 		0 -> x = value
@@ -192,6 +208,11 @@ class MutableFloatVector4(
 	}
 }
 
+fun FloatVector4.toFloatArray(): FloatArray = floatArrayOf(x, y, z, w)
+
+fun FloatVector4.toFloatVector4(): FloatVector4 = toMutableFloatVector4()
+
+fun FloatVector4.toMutableFloatVector4(): MutableFloatVector4 = MutableFloatVector4(x, y, z, w)
 
 /** Returns the distance between [from] and [to]. */
 fun distance(from: FloatVector4, to: FloatVector4): Float {

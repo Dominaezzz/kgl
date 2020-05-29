@@ -8,9 +8,7 @@ plugins {
 
 kotlin {
 	jvm()
-	js {
-		nodejs() // FIXME: breaks CI. Why?
-	}
+	js().nodejs()
 
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()

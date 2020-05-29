@@ -4,8 +4,11 @@ import kotlin.math.sqrt
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FloatVector4Tests {
+	private val vector = FloatVector4(1f, 2f, 3f, 4f)
+
 	@Test
 	fun constants() {
 		assertEquals(FloatVector4(0f), FloatVector4.ZERO)
@@ -16,12 +19,11 @@ class FloatVector4Tests {
 
 	@Test
 	fun copy() {
-		assertEquals(FloatVector4(1f, 2f, 3f, 4f), FloatVector4(1f, 2f, 3f, 4f).copy())
+		assertEquals(FloatVector4(1f, 2f, 3f, 4f), vector.copy())
 	}
 
 	@Test
 	fun get() {
-		val vector = FloatVector4(1f, 2f, 3f, 4f)
 		assertFailsWith(IndexOutOfBoundsException::class) { vector[-1] }
 		assertEquals(vector.x, vector[0])
 		assertEquals(vector.y, vector[1])
@@ -32,82 +34,82 @@ class FloatVector4Tests {
 
 	@Test
 	fun unaryPlus() {
-		assertEquals(FloatVector4(1f), +FloatVector4(1f))
+		assertEquals(FloatVector4(1f, 2f, 3f, 4f), +vector)
 	}
 
 	@Test
 	fun unaryMinus() {
-		assertEquals(FloatVector4(-1f), -FloatVector4(1f))
+		assertEquals(FloatVector4(-1f, -2f, -3f, -4f), -vector)
 	}
 
 	@Test
 	fun plus_scalar() {
-		assertEquals(FloatVector4(2f), FloatVector4(1f) + 1f)
+		assertEquals(FloatVector4(2f, 3f, 4f, 5f), vector + 1f)
 	}
 
 	@Test
 	fun minus_scalar() {
-		assertEquals(FloatVector4(0f), FloatVector4(1f) - 1f)
+		assertEquals(FloatVector4(0f, 1f, 2f, 3f), vector - 1f)
 	}
 
 	@Test
 	fun times_scalar() {
-		assertEquals(FloatVector4(1f), FloatVector4(1f) * 1f)
+		assertEquals(FloatVector4(2f, 4f, 6f, 8f), vector * 2f)
 	}
 
 	@Test
 	fun div_scalar() {
-		assertEquals(FloatVector4(1f), FloatVector4(1f) / 1f)
+		assertEquals(FloatVector4(0.5f, 1f, 1.5f, 2f), vector / 2f)
 	}
 
 	@Test
 	fun rem_scalar() {
-		assertEquals(FloatVector4(0f), FloatVector4(1f) % 1f)
+		assertEquals(FloatVector4(1f, 0f, 1f, 0f), vector % 2f)
 	}
 
 	@Test
-	fun plus_vector() {
-		assertEquals(FloatVector4(2f), FloatVector4(1f) + FloatVector4(1f))
+	fun plus_result() {
+		assertEquals(FloatVector4(2f, 4f, 6f, 8f), vector + vector)
 	}
 
 	@Test
-	fun minus_vector() {
-		assertEquals(FloatVector4(0f), FloatVector4(1f) - FloatVector4(1f))
+	fun minus_result() {
+		assertEquals(FloatVector4.ZERO, vector - vector)
 	}
 
 	@Test
-	fun times_vector() {
-		assertEquals(FloatVector4(1f), FloatVector4(1f) * FloatVector4(1f))
+	fun times_result() {
+		assertEquals(FloatVector4(1f, 4f, 9f, 16f), vector * vector)
 	}
 
 	@Test
-	fun div_vector() {
-		assertEquals(FloatVector4(1f), FloatVector4(1f) / FloatVector4(1f))
+	fun div_result() {
+		assertEquals(FloatVector4.ONE, vector / vector)
 	}
 
 	@Test
-	fun rem_vector() {
-		assertEquals(FloatVector4(0f), FloatVector4(1f) % FloatVector4(1f))
+	fun rem_result() {
+		assertEquals(FloatVector4.ZERO, vector % vector)
 	}
 
 	@Test
 	fun squareMagnitude() {
-		assertEquals(16f, FloatVector4(2f).squareMagnitude)
+		assertEquals(30f, vector.squareMagnitude)
 	}
 
 	@Test
 	fun magnitude() {
-		assertEquals(4f, FloatVector4(2f).magnitude)
+		assertEquals(sqrt(30f), vector.magnitude)
 	}
 
 	@Test
 	fun dot() {
-		assertEquals(8f, FloatVector4(1f) dot FloatVector4(2f))
+		assertEquals(30f, vector dot vector)
 	}
 
 	@Test
 	fun movedTowards() {
-		assertEquals(FloatVector4(1f), FloatVector4().movedTowards(FloatVector4(1f), 2f))
+		assertEquals(FloatVector4.ONE, FloatVector4.ZERO.movedTowards(FloatVector4.ONE, 2f))
 	}
 
 	@Test
@@ -122,126 +124,150 @@ class FloatVector4Tests {
 
 	// Mutable
 	@Test
+	fun asFloatArray() {
+		val result = vector.toMutableFloatVector4()
+		assertTrue(result.asFloatArray().contentEquals(floatArrayOf(1f, 2f, 3f, 4f)))
+		result.asFloatArray()[2] = 20f
+		assertEquals(20f, result.z)
+	}
+
+	@Test
 	fun set() {
-		val vector = MutableFloatVector4()
-		assertFailsWith(IndexOutOfBoundsException::class) { vector[-1] = 1f }
-		vector[0] = 1f
-		assertEquals(1f, vector.x)
-		vector[1] = 1f
-		assertEquals(1f, vector.y)
-		vector[2] = 1f
-		assertEquals(1f, vector.z)
-		vector[3] = 1f
-		assertEquals(1f, vector.w)
-		assertFailsWith(IndexOutOfBoundsException::class) { vector[4] = 1f }
+		val result = MutableFloatVector4()
+		assertFailsWith(IndexOutOfBoundsException::class) { result[-1] = 1f }
+		result[0] = 1f
+		assertEquals(1f, result.x)
+		result[1] = 1f
+		assertEquals(1f, result.y)
+		result[2] = 1f
+		assertEquals(1f, result.z)
+		result[3] = 1f
+		assertEquals(1f, result.w)
+		assertFailsWith(IndexOutOfBoundsException::class) { result[4] = 1f }
 	}
 
 	@Test
 	fun plusAssign_scalar() {
-		val vector = MutableFloatVector4(1f)
-		vector += 1f
-		assertEquals(FloatVector4(2f), vector)
+		val result = vector.toMutableFloatVector4()
+		result += 1f
+		assertEquals(FloatVector4(2f, 3f, 4f, 5f), result)
 	}
 
 	@Test
 	fun minusAssign_scalar() {
-		val vector = MutableFloatVector4(1f)
-		vector -= 1f
-		assertEquals(FloatVector4(0f), vector)
+		val result = vector.toMutableFloatVector4()
+		result -= 1f
+		assertEquals(FloatVector4(0f, 1f, 2f, 3f), result)
 	}
 
 	@Test
 	fun timesAssign_scalar() {
-		val vector = MutableFloatVector4(1f)
-		vector *= 1f
-		assertEquals(FloatVector4(1f), vector)
+		val result = vector.toMutableFloatVector4()
+		result *= 2f
+		assertEquals(FloatVector4(2f, 4f, 6f, 8f), result)
 	}
 
 	@Test
 	fun divAssign_scalar() {
-		val vector = MutableFloatVector4(1f)
-		vector /= 1f
-		assertEquals(FloatVector4(1f), vector)
+		val result = vector.toMutableFloatVector4()
+		result /= 2f
+		assertEquals(FloatVector4(0.5f, 1f, 1.5f, 2f), result)
 	}
 
 	@Test
 	fun remAssign_scalar() {
-		val vector = MutableFloatVector4(1f)
-		vector %= 1f
-		assertEquals(FloatVector4(0f), vector)
+		val result = vector.toMutableFloatVector4()
+		result %= 2f
+		assertEquals(FloatVector4(1f, 0f, 1f, 0f), result)
 	}
 
 	@Test
-	fun plusAssign_vector() {
-		val vector = MutableFloatVector4(1f)
-		vector += vector
-		assertEquals(FloatVector4(2f), vector)
+	fun plusAssign_result() {
+		val result = vector.toMutableFloatVector4()
+		result += vector
+		assertEquals(FloatVector4(2f, 4f, 6f, 8f), result)
 	}
 
 	@Test
-	fun minusAssign_vector() {
-		val vector = MutableFloatVector4(1f)
-		vector -= vector
-		assertEquals(FloatVector4(0f), vector)
+	fun minusAssign_result() {
+		val result = vector.toMutableFloatVector4()
+		result -= vector
+		assertEquals(FloatVector4.ZERO, result)
 	}
 
 	@Test
-	fun timesAssign_vector() {
-		val vector = MutableFloatVector4(1f)
-		vector *= vector
-		assertEquals(FloatVector4(1f), vector)
+	fun timesAssign_result() {
+		val result = vector.toMutableFloatVector4()
+		result *= vector
+		assertEquals(FloatVector4(1f, 4f, 9f, 16f), result)
 	}
 
 	@Test
-	fun divAssign_vector() {
-		val vector = MutableFloatVector4(1f)
-		vector /= vector
-		assertEquals(FloatVector4(1f), vector)
+	fun divAssign_result() {
+		val result = vector.toMutableFloatVector4()
+		result /= vector
+		assertEquals(FloatVector4.ONE, result)
 	}
 
 	@Test
-	fun remAssign_vector() {
-		val vector = MutableFloatVector4(1f)
-		vector %= vector
-		assertEquals(FloatVector4(0f), vector)
+	fun remAssign_result() {
+		val result = vector.toMutableFloatVector4()
+		result %= vector
+		assertEquals(FloatVector4.ZERO, result)
 	}
 
 	@Test
 	fun set1() {
-		val vector = MutableFloatVector4()
-		vector.set(1f)
-		assertEquals(FloatVector4(1f), vector)
+		val result = MutableFloatVector4()
+		result.set(1f)
+		assertEquals(FloatVector4.ONE, result)
 	}
 
 	@Test
 	fun set4() {
-		val vector = MutableFloatVector4()
-		vector.set(1f, 2f, 3f, 4f)
-		assertEquals(FloatVector4(1f, 2f, 3f, 4f), vector)
+		val result = MutableFloatVector4()
+		result.set(1f, 2f, 3f, 4f)
+		assertEquals(FloatVector4(1f, 2f, 3f, 4f), result)
 	}
 
 	@Test
 	fun moveTowards() {
-		val vector = MutableFloatVector4()
-		vector.moveTowards(FloatVector4(1f), 2f)
-		assertEquals(FloatVector4(1f), vector)
+		val result = MutableFloatVector4()
+		result.moveTowards(FloatVector4.ONE, 2f)
+		assertEquals(FloatVector4.ONE, result)
 	}
 
 	@Test
 	fun normalize() {
-		val vector = MutableFloatVector4(2f, 0f, 0f, 0f)
-		vector.normalize()
-		assertEquals(FloatVector4(1f, 0f, 0f, 0f), vector)
+		val result = MutableFloatVector4(2f, 0f, 0f, 0f)
+		result.normalize()
+		assertEquals(FloatVector4(1f, 0f, 0f, 0f), result)
 	}
 
 	@Test
 	fun project() {
-		val vector = MutableFloatVector4(2f, 2f, 2f, 2f)
-		vector.project(FloatVector4(1f, 0f, 1f, 0f))
-		assertEquals(FloatVector4(2f, 0f, 2f, 0f), vector)
+		val result = MutableFloatVector4(2f, 2f, 2f, 2f)
+		result.project(FloatVector4(1f, 0f, 1f, 0f))
+		assertEquals(FloatVector4(2f, 0f, 2f, 0f), result)
 	}
 
 	// top-level
+	@Test
+	fun toFloatArray() {
+		assertTrue(vector.toFloatArray().contentEquals(floatArrayOf(1f, 2f, 3f, 4f)))
+	}
+
+	@Test
+	fun toFloatVector4() {
+		assertEquals(vector, vector.toFloatVector4())
+	}
+
+	@Test
+	fun toMutableFloatVector4() {
+		val result: MutableFloatVector4 = vector.toMutableFloatVector4()
+		assertEquals(vector, result)
+	}
+
 	@Test
 	fun distance() {
 		assertEquals(2f, distance(FloatVector4(0f), FloatVector4(1f)))

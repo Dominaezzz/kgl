@@ -33,6 +33,37 @@ class FloatMatrix4x4Tests {
 	}
 
 	@Test
+	fun copy() {
+		assertEquals(
+			expected = FloatMatrix4x4(
+				1f, 2f, 3f, 4f,
+				2f, 1f, 2f, 3f,
+				3f, 2f, 1f, 2f,
+				5f, 3f, 2f, 1f
+			),
+			actual = matrix.copy()
+		)
+		assertEquals(
+			expected = FloatMatrix4x4(
+				0f, 0f, 0f, 0f,
+				2f, 1f, 2f, 3f,
+				3f, 2f, 1f, 2f,
+				5f, 3f, 2f, 1f
+			),
+			actual = matrix.copy(row0 = FloatVector4.ZERO)
+		)
+		assertEquals(
+			expected = FloatMatrix4x4(
+				1f, 2f, 3f, 4f,
+				2f, 1f, 2f, 3f,
+				3f, 2f, 1f, 2f,
+				5f, 3f, 20f, 1f
+			),
+			actual = matrix.copy(c32 = 20f)
+		)
+	}
+
+	@Test
 	fun get() {
 		assertFailsWith(IndexOutOfBoundsException::class) { matrix[-1, 0] }
 		assertFailsWith(IndexOutOfBoundsException::class) { matrix[0, -1] }
@@ -581,7 +612,8 @@ class FloatMatrix4x4Tests {
 
 	@Test
 	fun toMutableFloatMatrix4x4() {
-		assertEquals(matrix, matrix.toMutableFloatMatrix4x4())
+		val result: MutableFloatMatrix4x4 = matrix.toMutableFloatMatrix4x4()
+		assertEquals(matrix, result)
 	}
 
 	@Test
