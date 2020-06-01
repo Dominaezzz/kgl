@@ -335,115 +335,140 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 		}
 	}
 
-	actual fun setPosCallback(callback: WindowPosCallback?) {
+	actual fun setPosCallback(callback: WindowPosCallback?): WindowPosCallback? {
+		val previous = windowPosCallback
 		setCallback(callback, { windowPosCallback }, { windowPosCallback = it }, ::glfwSetWindowPosCallback) {
 			staticCFunction { window, width, height ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowPosCallback?.invoke(context, width, height)
 			}
 		}
+		return previous
 	}
 
-	actual fun setSizeCallback(callback: WindowSizeCallback?) {
+	actual fun setSizeCallback(callback: WindowSizeCallback?): WindowSizeCallback? {
+		val previous = windowSizeCallback
 		setCallback(callback, { windowSizeCallback }, { windowSizeCallback = it }, ::glfwSetWindowSizeCallback) {
 			staticCFunction { window, width, height ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowSizeCallback?.invoke(context, width, height)
 			}
 		}
+		return previous
 	}
 
-	actual fun setCloseCallback(callback: WindowCloseCallback?) {
+	actual fun setCloseCallback(callback: WindowCloseCallback?): WindowCloseCallback? {
+		val previous = windowCloseCallback
 		setCallback(callback, { windowCloseCallback }, { windowCloseCallback = it }, ::glfwSetWindowCloseCallback) {
 			staticCFunction { window ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowCloseCallback?.invoke(context)
 			}
 		}
+		return previous
 	}
 
-	actual fun setRefreshCallback(callback: WindowRefreshCallback?) {
+	actual fun setRefreshCallback(callback: WindowRefreshCallback?): WindowRefreshCallback? {
+		val previous = windowRefreshCallback
 		setCallback(callback, { windowRefreshCallback }, { windowRefreshCallback = it }, ::glfwSetWindowRefreshCallback) {
 			staticCFunction { window ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowRefreshCallback?.invoke(context)
 			}
 		}
+		return previous
 	}
 
-	actual fun setFocusCallback(callback: WindowFocusCallback?) {
+	actual fun setFocusCallback(callback: WindowFocusCallback?): WindowFocusCallback? {
+		val previous = windowFocusCallback
 		setCallback(callback, { windowFocusCallback }, { windowFocusCallback = it }, ::glfwSetWindowFocusCallback) {
 			staticCFunction { window, focused ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowFocusCallback?.invoke(context, focused == GLFW_TRUE)
 			}
 		}
+		return previous
 	}
 
-	actual fun setIconifyCallback(callback: WindowIconifyCallback?) {
+	actual fun setIconifyCallback(callback: WindowIconifyCallback?): WindowIconifyCallback? {
+		val previous = windowIconifyCallback
 		setCallback(callback, { windowIconifyCallback }, { windowIconifyCallback = it }, ::glfwSetWindowIconifyCallback) {
 			staticCFunction { window, iconify ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowIconifyCallback?.invoke(context, iconify == GLFW_TRUE)
 			}
 		}
+		return previous
 	}
 
-	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?) {
+	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?): WindowMaximizeCallback? {
+		val previous = windowMaximizeCallback
 		setCallback(callback, { windowMaximizeCallback }, { windowMaximizeCallback = it }, ::glfwSetWindowMaximizeCallback) {
 			staticCFunction { window, maximize ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowMaximizeCallback?.invoke(context, maximize == GLFW_TRUE)
 			}
 		}
+		return previous
 	}
 
-	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?) {
+	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?): WindowContentScaleCallback? {
+		val previous = windowContentScaleCallback
 		setCallback(callback, { windowContentScaleCallback }, { windowContentScaleCallback = it }, ::glfwSetWindowContentScaleCallback) {
 			staticCFunction { window, x, y ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowContentScaleCallback?.invoke(context, x, y)
 			}
 		}
+		return previous
 	}
 
-	actual fun setCursorEnterCallback(callback: CursorEnterCallback?) {
+	actual fun setCursorEnterCallback(callback: CursorEnterCallback?): CursorEnterCallback? {
+		val previous = cursorEnterCallback
 		setCallback(callback, { cursorEnterCallback }, { cursorEnterCallback = it }, ::glfwSetCursorEnterCallback) {
 			staticCFunction { window, entered ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.cursorEnterCallback?.invoke(context, entered == GLFW_TRUE)
 			}
 		}
+		return previous
 	}
 
-	actual fun setScrollCallback(callback: ScrollCallback?) {
+	actual fun setScrollCallback(callback: ScrollCallback?): ScrollCallback? {
+		val previous = scrollCallback
 		setCallback(callback, { scrollCallback }, { scrollCallback = it }, ::glfwSetScrollCallback) {
 			staticCFunction { window, x, y ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.scrollCallback?.invoke(context, x, y)
 			}
 		}
+		return previous
 	}
 
-	actual fun setCursorPosCallback(callback: CursorPosCallback?) {
+	actual fun setCursorPosCallback(callback: CursorPosCallback?): CursorPosCallback? {
+		val previous = cursorPosCallback
 		setCallback(callback, { cursorPosCallback }, { cursorPosCallback = it }, ::glfwSetCursorPosCallback) {
 			staticCFunction { window, width, height ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.cursorPosCallback?.invoke(context, width, height)
 			}
 		}
+		return previous
 	}
 
-	actual fun setFrameBufferCallback(callback: FrameBufferCallback?) {
+	actual fun setFrameBufferCallback(callback: FrameBufferCallback?): FrameBufferCallback? {
+		val previous = frameBufferCallback
 		setCallback(callback, { frameBufferCallback }, { frameBufferCallback = it }, ::glfwSetFramebufferSizeCallback) {
 			staticCFunction { window, width, height ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.frameBufferCallback?.invoke(context, width, height)
 			}
 		}
+		return previous
 	}
 
-	actual fun setDropCallback(callback: DropCallback?) {
+	actual fun setDropCallback(callback: DropCallback?): DropCallback? {
+		val previous = dropCallback
 		setCallback(callback, { dropCallback }, { dropCallback = it }, ::glfwSetDropCallback) {
 			staticCFunction { window, count, names ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
@@ -451,9 +476,11 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 				context.dropCallback?.invoke(context, Array(count) { names[it]!!.toKString() })
 			}
 		}
+		return previous
 	}
 
-	actual fun setKeyCallback(callback: KeyCallback?) {
+	actual fun setKeyCallback(callback: KeyCallback?): KeyCallback? {
+		val previous = keyCallback
 		setCallback(callback, { keyCallback }, { keyCallback = it }, ::glfwSetKeyCallback) {
 			staticCFunction { window, key, scancode, action, mods ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
@@ -462,9 +489,11 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 				)
 			}
 		}
+		return previous
 	}
 
-	actual fun setMouseButtonCallback(callback: MouseButtonCallback?) {
+	actual fun setMouseButtonCallback(callback: MouseButtonCallback?): MouseButtonCallback? {
+		val previous = mouseButtonCallback
 		setCallback(callback, { mouseButtonCallback }, { mouseButtonCallback = it }, ::glfwSetMouseButtonCallback) {
 			staticCFunction { window, button, action, mods ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
@@ -473,24 +502,29 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 				)
 			}
 		}
+		return previous
 	}
 
-	actual fun setCharCallback(callback: CharCallback?) {
+	actual fun setCharCallback(callback: CharCallback?): CharCallback? {
+		val previous = charCallback
 		setCallback(callback, { charCallback }, { charCallback = it }, ::glfwSetCharCallback) {
 			staticCFunction { window, codepoint ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.charCallback?.invoke(context, codepoint)
 			}
 		}
+		return previous
 	}
 
-	actual fun setCharModsCallback(callback: CharModsCallback?) {
+	actual fun setCharModsCallback(callback: CharModsCallback?): CharModsCallback? {
+		val previous = charModsCallback
 		setCallback(callback, { charModsCallback }, { charModsCallback = it }, ::glfwSetCharModsCallback) {
 			staticCFunction { window, codepoint, mods ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.charModsCallback?.invoke(context, codepoint, Flag(mods))
 			}
 		}
+		return previous
 	}
 
 	override fun close() {

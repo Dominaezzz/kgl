@@ -68,23 +68,23 @@ expect class Window : Closeable {
 	fun getKey(key: KeyboardKey): Action
 	fun getMouseButton(button: MouseButton): Action
 
-	fun setPosCallback(callback: WindowPosCallback?)
-	fun setSizeCallback(callback: WindowSizeCallback?)
-	fun setCloseCallback(callback: WindowCloseCallback?)
-	fun setRefreshCallback(callback: WindowRefreshCallback?)
-	fun setFocusCallback(callback: WindowFocusCallback?)
-	fun setIconifyCallback(callback: WindowIconifyCallback?)
-	fun setMaximizeCallback(callback: WindowMaximizeCallback?)
-	fun setContentScaleCallback(callback: WindowContentScaleCallback?)
-	fun setScrollCallback(callback: ScrollCallback?)
-	fun setCursorEnterCallback(callback: CursorEnterCallback?)
-	fun setCursorPosCallback(callback: CursorPosCallback?)
-	fun setFrameBufferCallback(callback: FrameBufferCallback?)
-	fun setDropCallback(callback: DropCallback?)
-	fun setKeyCallback(callback: KeyCallback?)
-	fun setMouseButtonCallback(callback: MouseButtonCallback?)
-	fun setCharCallback(callback: CharCallback?)
-	fun setCharModsCallback(callback: CharModsCallback?)
+	fun setPosCallback(callback: WindowPosCallback?): WindowPosCallback?
+	fun setSizeCallback(callback: WindowSizeCallback?): WindowSizeCallback?
+	fun setCloseCallback(callback: WindowCloseCallback?): WindowCloseCallback?
+	fun setRefreshCallback(callback: WindowRefreshCallback?): WindowRefreshCallback?
+	fun setFocusCallback(callback: WindowFocusCallback?): WindowFocusCallback?
+	fun setIconifyCallback(callback: WindowIconifyCallback?): WindowIconifyCallback?
+	fun setMaximizeCallback(callback: WindowMaximizeCallback?): WindowMaximizeCallback?
+	fun setContentScaleCallback(callback: WindowContentScaleCallback?): WindowContentScaleCallback?
+	fun setScrollCallback(callback: ScrollCallback?): ScrollCallback?
+	fun setCursorEnterCallback(callback: CursorEnterCallback?): CursorEnterCallback?
+	fun setCursorPosCallback(callback: CursorPosCallback?): CursorPosCallback?
+	fun setFrameBufferCallback(callback: FrameBufferCallback?): FrameBufferCallback?
+	fun setDropCallback(callback: DropCallback?): DropCallback?
+	fun setKeyCallback(callback: KeyCallback?): KeyCallback?
+	fun setMouseButtonCallback(callback: MouseButtonCallback?): MouseButtonCallback?
+	fun setCharCallback(callback: CharCallback?): CharCallback?
+	fun setCharModsCallback(callback: CharModsCallback?): CharModsCallback?
 
 	companion object {
 		inline operator fun invoke(
