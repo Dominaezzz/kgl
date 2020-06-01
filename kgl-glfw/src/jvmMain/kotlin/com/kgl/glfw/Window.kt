@@ -267,7 +267,27 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 
 	actual fun getMouseButton(button: MouseButton): Action = Action.from(glfwGetMouseButton(ptr, button.value))
 
-	actual fun setPosCallback(callback: WindowPosCallback?) {
+	private var windowPosCallback: WindowPosCallback? = null
+	private var windowSizeCallback: WindowSizeCallback? = null
+	private var frameBufferCallback: FrameBufferCallback? = null
+	private var windowCloseCallback: WindowCloseCallback? = null
+	private var windowRefreshCallback: WindowRefreshCallback? = null
+	private var windowFocusCallback: WindowFocusCallback? = null
+	private var windowMaximizeCallback: WindowMaximizeCallback? = null
+	private var windowIconifyCallback: WindowIconifyCallback? = null
+	private var cursorEnterCallback: CursorEnterCallback? = null
+	private var windowContentScaleCallback: WindowContentScaleCallback? = null
+	private var cursorPosCallback: CursorPosCallback? = null
+	private var scrollCallback: ScrollCallback? = null
+	private var dropCallback: DropCallback? = null
+	private var keyCallback: KeyCallback? = null
+	private var mouseButtonCallback: MouseButtonCallback? = null
+	private var charCallback: CharCallback? = null
+	private var charModsCallback: CharModsCallback? = null
+
+	actual fun setPosCallback(callback: WindowPosCallback?): WindowPosCallback? {
+		val previous = windowPosCallback
+		windowPosCallback = callback
 		if (callback != null) {
 			glfwSetWindowPosCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -275,9 +295,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowPosCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setSizeCallback(callback: WindowSizeCallback?) {
+	actual fun setSizeCallback(callback: WindowSizeCallback?): WindowSizeCallback? {
+		val previous = windowSizeCallback
+		windowSizeCallback = callback
 		if (callback != null) {
 			glfwSetWindowSizeCallback(ptr) { _, width, height ->
 				callback(this, width, height)
@@ -285,9 +308,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowSizeCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setFrameBufferCallback(callback: FrameBufferCallback?) {
+	actual fun setFrameBufferCallback(callback: FrameBufferCallback?): FrameBufferCallback? {
+		val previous = frameBufferCallback
+		frameBufferCallback = callback
 		if (callback != null) {
 			glfwSetFramebufferSizeCallback(ptr) { _, width, height ->
 				callback(this, width, height)
@@ -295,9 +321,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetFramebufferSizeCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setCloseCallback(callback: WindowCloseCallback?) {
+	actual fun setCloseCallback(callback: WindowCloseCallback?): WindowCloseCallback? {
+		val previous = windowCloseCallback
+		windowCloseCallback = callback
 		if (callback != null) {
 			glfwSetWindowCloseCallback(ptr) {
 				callback(this)
@@ -305,9 +334,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowCloseCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setRefreshCallback(callback: WindowRefreshCallback?) {
+	actual fun setRefreshCallback(callback: WindowRefreshCallback?): WindowRefreshCallback? {
+		val previous = windowRefreshCallback
+		windowRefreshCallback = callback
 		if (callback != null) {
 			glfwSetWindowRefreshCallback(ptr) {
 				callback(this)
@@ -315,9 +347,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowRefreshCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setFocusCallback(callback: WindowFocusCallback?) {
+	actual fun setFocusCallback(callback: WindowFocusCallback?): WindowFocusCallback? {
+		val previous = windowFocusCallback
+		windowFocusCallback = callback
 		if (callback != null) {
 			glfwSetWindowFocusCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -325,9 +360,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowFocusCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setIconifyCallback(callback: WindowIconifyCallback?) {
+	actual fun setIconifyCallback(callback: WindowIconifyCallback?): WindowIconifyCallback? {
+		val previous = windowIconifyCallback
+		windowIconifyCallback = callback
 		if (callback != null) {
 			glfwSetWindowIconifyCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -335,9 +373,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowIconifyCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?) {
+	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?): WindowMaximizeCallback? {
+		val previous = windowMaximizeCallback
+		windowMaximizeCallback = callback
 		if (callback != null) {
 			glfwSetWindowMaximizeCallback(ptr) { _, maximized ->
 				callback(this, maximized)
@@ -345,9 +386,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowMaximizeCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?) {
+	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?): WindowContentScaleCallback? {
+		val previous = windowContentScaleCallback
+		windowContentScaleCallback = callback
 		if (callback != null) {
 			glfwSetWindowContentScaleCallback(ptr) { _, xscale, yscale ->
 				callback(this, xscale, yscale)
@@ -355,9 +399,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetWindowContentScaleCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setCursorEnterCallback(callback: CursorEnterCallback?) {
+	actual fun setCursorEnterCallback(callback: CursorEnterCallback?): CursorEnterCallback? {
+		val previous = cursorEnterCallback
+		cursorEnterCallback = callback
 		if (callback != null) {
 			glfwSetCursorEnterCallback(ptr) { _, focused ->
 				callback(this, focused)
@@ -365,9 +412,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetCursorEnterCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setScrollCallback(callback: ScrollCallback?) {
+	actual fun setScrollCallback(callback: ScrollCallback?): ScrollCallback? {
+		val previous = scrollCallback
+		scrollCallback = callback
 		if (callback != null) {
 			glfwSetScrollCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -375,9 +425,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetScrollCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setCursorPosCallback(callback: CursorPosCallback?) {
+	actual fun setCursorPosCallback(callback: CursorPosCallback?): CursorPosCallback? {
+		val previous = cursorPosCallback
+		cursorPosCallback = callback
 		if (callback != null) {
 			glfwSetCursorPosCallback(ptr) { _, x, y ->
 				callback(this, x, y)
@@ -385,9 +438,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetCursorPosCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setDropCallback(callback: DropCallback?) {
+	actual fun setDropCallback(callback: DropCallback?): DropCallback? {
+		val previous = dropCallback
+		dropCallback = callback
 		if (callback != null) {
 			glfwSetDropCallback(ptr) { _, count, names ->
 				val pNames = PointerBuffer.create(names, count)
@@ -396,9 +452,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetDropCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setKeyCallback(callback: KeyCallback?) {
+	actual fun setKeyCallback(callback: KeyCallback?): KeyCallback? {
+		val previous = keyCallback
+		keyCallback = callback
 		if (callback != null) {
 			glfwSetKeyCallback(ptr) { _, key, scancode, action, mods ->
 				callback(this, KeyboardKey.from(key), scancode, Action.from(action), Flag(mods))
@@ -406,9 +465,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetKeyCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setMouseButtonCallback(callback: MouseButtonCallback?) {
+	actual fun setMouseButtonCallback(callback: MouseButtonCallback?): MouseButtonCallback? {
+		val previous = mouseButtonCallback
+		mouseButtonCallback = callback
 		if (callback != null) {
 			glfwSetMouseButtonCallback(ptr) { _, button, action, mods ->
 				callback(this, MouseButton.from(button), Action.from(action), Flag(mods))
@@ -416,9 +478,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetMouseButtonCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setCharCallback(callback: CharCallback?) {
+	actual fun setCharCallback(callback: CharCallback?): CharCallback? {
+		val previous = charCallback
+		charCallback = callback
 		if (callback != null) {
 			glfwSetCharCallback(ptr) { _, codepoint ->
 				callback(this, codepoint.toUInt())
@@ -426,9 +491,12 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetCharCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
-	actual fun setCharModsCallback(callback: CharModsCallback?) {
+	actual fun setCharModsCallback(callback: CharModsCallback?): CharModsCallback? {
+		val previous = charModsCallback
+		charModsCallback = callback
 		if (callback != null) {
 			glfwSetCharModsCallback(ptr) { _, codepoint, mods ->
 				callback(this, codepoint.toUInt(), Flag(mods))
@@ -436,6 +504,7 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		} else {
 			glfwSetCharModsCallback(ptr, null)
 		}?.free()
+		return previous
 	}
 
 	actual fun swapBuffers() {
