@@ -310,10 +310,14 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		propSetter(callback)
 
 		if (callback != null) {
-			realSetter(ptr, getNativeCallback())
+			// only set the native callback if there was no callback set,
+			// since the native callback has a reference to the property
+			if (previous == null) {
+				realSetter(ptr, getNativeCallback())?.free()
+			}
 		} else {
-			realSetter(ptr, null)
-		}?.free()
+			realSetter(ptr, null)?.free()
+		}
 
 		return previous
 	}
