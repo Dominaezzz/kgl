@@ -339,7 +339,11 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 		propSetter(callback)
 
 		if (callback != null) {
-			realSetter(ptr, getCFunction())
+			// only set the native callback if there was no callback set,
+			// since the native callback has a reference to the property
+			if (previous == null) {
+				realSetter(ptr, getCFunction())
+			}
 		} else {
 			realSetter(ptr, null)
 		}
