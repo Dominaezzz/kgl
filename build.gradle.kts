@@ -33,6 +33,7 @@ subprojects {
 			sourceSets.all {
 				languageSettings.apply {
 					enableLanguageFeature("InlineClasses")
+					enableLanguageFeature("NewInference")
 					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
 					useExperimentalAnnotation("io.ktor.utils.io.core.ExperimentalIoApi")
 				}
