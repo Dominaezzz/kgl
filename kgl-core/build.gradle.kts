@@ -57,9 +57,9 @@ kotlin {
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 	if (!Config.isIdeaActive) {
-		// iosArm32()
-		// iosArm64()
-		// iosX64()
+		iosArm32()
+		iosArm64()
+		iosX64()
 		linuxArm32Hfp()
 		androidNativeArm32()
 		androidNativeArm64()
