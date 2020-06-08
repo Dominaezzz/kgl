@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
@@ -22,7 +23,6 @@ import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkValidationCacheEXT
-import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
 
 actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
@@ -39,7 +39,7 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		}
 	}
 
-	actual fun getData(data: Memory?) {
+	actual fun getData(data: ByteBuffer?) {
 		TODO()
 		val validationCache = this
 		val device = validationCache.device

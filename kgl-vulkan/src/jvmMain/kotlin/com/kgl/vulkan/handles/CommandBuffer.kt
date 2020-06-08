@@ -15,10 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.AMDBufferMarker.vkCmdWriteBufferMarkerAMD
@@ -405,11 +405,11 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: Memory) {
+	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: ByteBuffer) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(), data.buffer)
+			vkCmdUpdateBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(), data.asJvmByteBuffer())
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -596,13 +596,13 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: Memory
+			values: ByteBuffer
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-					offset.toVkType(), values.buffer)
+					offset.toVkType(), values.asJvmByteBuffer())
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -824,7 +824,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: Memory
+			data: ByteBuffer
 	) {
 		TODO()
 		val commandBuffer = this
@@ -979,7 +979,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun setCheckpointNV(pCheckpointMarker: Memory) {
+	actual fun setCheckpointNV(pCheckpointMarker: ByteBuffer) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()

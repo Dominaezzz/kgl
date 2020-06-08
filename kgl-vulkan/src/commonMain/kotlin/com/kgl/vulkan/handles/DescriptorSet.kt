@@ -15,12 +15,12 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
 
 expect class DescriptorSet : VkHandle {
 	val descriptorPool: DescriptorPool
 
-	fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory)
+	fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: ByteBuffer)
 }
 

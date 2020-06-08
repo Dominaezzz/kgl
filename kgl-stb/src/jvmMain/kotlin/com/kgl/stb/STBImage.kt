@@ -15,37 +15,35 @@
  */
 package com.kgl.stb
 
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.core.Closeable
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
+import com.kgl.core.Closeable
+import com.kgl.core.ByteBuffer
 import org.lwjgl.stb.STBIIOCallbacks
 import org.lwjgl.stb.STBImage.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.system.MemoryUtil
 import java.nio.Buffer
-import java.nio.ByteBuffer
+import java.nio.ByteBuffer as JvmByteBuffer
 import java.nio.IntBuffer
 
 actual class STBImage(
-		actual val buffer: Memory,
+		actual val buffer: ByteBuffer,
 		actual val info: STBInfo) : Closeable {
 
 	override fun close() {
-		stbi_image_free(buffer.buffer)
+		stbi_image_free(buffer.asJvmByteBuffer())
 	}
 
 	actual companion object {
-		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : Buffer> genericLoad(
-				buffer: Memory, desiredChannels: Channels?,
+				buffer: ByteBuffer, desiredChannels: Channels?,
 				crossinline block: (
-						buffer: ByteBuffer,
+						buffer: JvmByteBuffer,
 						x: IntBuffer,
 						y: IntBuffer,
 						channels_in_file: IntBuffer,
 						desired_channels: Int
 				) -> T?,
-				convert: (T) -> ByteBuffer
+				convert: (T) -> JvmByteBuffer
 		): STBImage {
 			MemoryStack.stackPush()
 			try {
@@ -53,12 +51,12 @@ actual class STBImage(
 				val y = MemoryStack.stackMallocInt(1)
 				val channels = MemoryStack.stackMallocInt(1)
 
-				val result = block(buffer.buffer, x, y, channels, desiredChannels?.value ?: 0)
+				val result = block(buffer.asJvmByteBuffer(), x, y, channels, desiredChannels?.value ?: 0)
 
 				val bytes = convert(result ?: throw STBException(failureReason))
 
 				return STBImage(
-						Memory(bytes),
+						ByteBuffer(bytes),
 						STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
 				)
 			} finally {
@@ -66,10 +64,9 @@ actual class STBImage(
 			}
 		}
 
-		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <T> usingNativeCallbacks(callbacks: STBIOCallbacks, block: (STBIIOCallbacks, Long) -> T): T {
 			val nativeCallbacks = STBIIOCallbacks.mallocStack()
-			nativeCallbacks.read { _, data, size -> callbacks.read(Memory(MemoryUtil.memByteBuffer(data, size))) }
+			nativeCallbacks.read { _, data, size -> callbacks.read(com.kgl.core.ByteBuffer(MemoryUtil.memByteBuffer(data, size))) }
 			nativeCallbacks.skip { _, n -> callbacks.skip(n) }
 			nativeCallbacks.eof { if (callbacks.eof) 1 else 0 }
 			try {
@@ -81,7 +78,6 @@ actual class STBImage(
 			}
 		}
 
-		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : Buffer> genericLoad(
 				callbacks: STBIOCallbacks, desiredChannels: Channels?,
 				crossinline block: (
@@ -92,7 +88,7 @@ actual class STBImage(
 						channels_in_file: IntBuffer,
 						desired_channels: Int
 				) -> T?,
-				convert: (T) -> ByteBuffer
+				convert: (T) -> JvmByteBuffer
 		): STBImage {
 			MemoryStack.stackPush()
 			try {
@@ -106,7 +102,7 @@ actual class STBImage(
 					val bytes = convert(result ?: throw STBException(failureReason))
 
 					STBImage(
-							Memory(bytes),
+							ByteBuffer(bytes),
 							STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
 					)
 				}
@@ -115,14 +111,14 @@ actual class STBImage(
 			}
 		}
 
-		actual fun load(buffer: Memory, desiredChannels: Channels?): STBImage {
+		actual fun load(buffer: ByteBuffer, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_load_from_memory) { it }
 		}
 		actual fun load(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_load_from_callbacks) { it }
 		}
 
-		actual fun load16(buffer: Memory, desiredChannels: Channels?): STBImage {
+		actual fun load16(buffer: ByteBuffer, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_load_16_from_memory) {
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Short.SIZE_BYTES)
 			}
@@ -133,7 +129,7 @@ actual class STBImage(
 			}
 		}
 
-		actual fun loadf(buffer: Memory, desiredChannels: Channels?): STBImage {
+		actual fun loadf(buffer: ByteBuffer, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_loadf_from_memory) {
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Int.SIZE_BYTES)
 			}
@@ -166,20 +162,20 @@ actual class STBImage(
 				MemoryStack.stackPop()
 			}
 		}
-		actual fun isHdr(buffer: Memory): Boolean {
-			return stbi_is_hdr_from_memory(buffer.buffer)
+		actual fun isHdr(buffer: ByteBuffer): Boolean {
+			return stbi_is_hdr_from_memory(buffer.asJvmByteBuffer())
 		}
 
 		actual val failureReason: String? get() = stbi_failure_reason()
 
-		actual fun loadInfo(buffer: Memory): STBInfo {
+		actual fun loadInfo(buffer: ByteBuffer): STBInfo {
 			MemoryStack.stackPush()
 			try {
 				val x = MemoryStack.stackMallocInt(1)
 				val y = MemoryStack.stackMallocInt(1)
 				val channels = MemoryStack.stackMallocInt(1)
 
-				val result = stbi_info_from_memory(buffer.buffer, x, y, channels)
+				val result = stbi_info_from_memory(buffer.asJvmByteBuffer(), x, y, channels)
 
 				return if (result) {
 					STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
@@ -219,8 +215,8 @@ actual class STBImage(
 				MemoryStack.stackPop()
 			}
 		}
-		actual fun is16Bit(buffer: Memory): Boolean {
-			return stbi_is_16_bit_from_memory(buffer.buffer)
+		actual fun is16Bit(buffer: ByteBuffer): Boolean {
+			return stbi_is_16_bit_from_memory(buffer.asJvmByteBuffer())
 		}
 
 		actual fun setUnpremultiplyOnLoad(flag: Boolean) {

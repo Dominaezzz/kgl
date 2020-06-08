@@ -44,4 +44,8 @@ actual class ByteBuffer(private val ptr: Long, actual val length: Long) : Buffer
 
 		return ByteBuffer(ptr + (index * Byte.SIZE_BYTES), length)
 	}
+
+	fun asJvmByteBuffer(): JvmByteBuffer {
+		return MemoryUtil.memByteBuffer(ptr, length.toInt())
+	}
 }

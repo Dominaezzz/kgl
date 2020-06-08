@@ -15,10 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
 
 expect class Pipeline : VkHandle {
 	val device: Device
@@ -26,7 +26,7 @@ expect class Pipeline : VkHandle {
 	fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: Memory?
+			info: ByteBuffer?
 	)
 
 	fun compileDeferredNV(shader: UInt)
@@ -34,7 +34,7 @@ expect class Pipeline : VkHandle {
 	fun getRayTracingShaderGroupHandlesNV(
 			firstGroup: UInt,
 			groupCount: UInt,
-			data: Memory
+			data: ByteBuffer
 	)
 }
 

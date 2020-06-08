@@ -17,9 +17,9 @@ package com.kgl.glfw
 
 import cglfw.*
 import cnames.structs.GLFWwindow
+import com.kgl.core.Closeable
 import com.kgl.core.Flag
 import com.kgl.core.VirtualStack
-import io.ktor.utils.io.core.Closeable
 import kotlinx.cinterop.*
 import kotlin.native.concurrent.ensureNeverFrozen
 
@@ -280,7 +280,7 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	actual fun setIcon(images: Array<Image>) {
 		glfwSetWindowIcon(ptr, images.size, createValues(images.size) { index ->
 			val image = images[index]
-			pixels = image.pixels.pointer.reinterpret()
+			pixels = image.pixels.asCPointer().reinterpret()
 			width = image.width
 			height = image.height
 		})

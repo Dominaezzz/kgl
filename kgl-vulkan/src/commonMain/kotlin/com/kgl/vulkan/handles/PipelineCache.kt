@@ -15,15 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
 
 expect class PipelineCache : VkHandle {
 	val device: Device
 
 	val dataSize: ULong
 
-	fun getData(data: Memory): Boolean
+	fun getData(data: ByteBuffer): Boolean
 
 	fun merge(srcCaches: Collection<PipelineCache>)
 }

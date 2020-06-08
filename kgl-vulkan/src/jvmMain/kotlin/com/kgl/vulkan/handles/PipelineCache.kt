@@ -15,11 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.*
 
@@ -54,14 +54,14 @@ actual class PipelineCache(override val ptr: Long, actual val device: Device) : 
 			}
 		}
 
-	actual fun getData(data: Memory): Boolean {
+	actual fun getData(data: ByteBuffer): Boolean {
 		val pipelineCache = this
 		val device = pipelineCache.device
 		MemoryStack.stackPush()
 		try {
 			val outputSize = MemoryStack.stackGet().mallocPointer(1)
 
-			val result = vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize, data.buffer)
+			val result = vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize, data.asJvmByteBuffer())
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_INCOMPLETE -> false

@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.ByteBuffer
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2
@@ -23,7 +24,6 @@ import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.NVRayTracing.*
 import org.lwjgl.vulkan.VK11.VK_SUCCESS
@@ -43,13 +43,13 @@ actual class AccelerationStructureNV(override val ptr: Long, actual val device: 
 		}
 	}
 
-	actual fun getHandle(pData: Memory) {
+	actual fun getHandle(pData: ByteBuffer) {
 		val accelerationStructure = this
 		val device = accelerationStructure.device
 		MemoryStack.stackPush()
 		try {
 			val result = vkGetAccelerationStructureHandleNV(device.toVkType(),
-					accelerationStructure.toVkType(), pData.buffer)
+					accelerationStructure.toVkType(), pData.asJvmByteBuffer())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()

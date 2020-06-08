@@ -42,4 +42,8 @@ actual class ByteBuffer(private val ptr: CPointer<ByteVar>, actual val length: L
 
 		return ByteBuffer((ptr + index)!!, length)
 	}
+
+	fun asCPointer(): CPointer<ByteVar> {
+		return ptr
+	}
 }
