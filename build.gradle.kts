@@ -45,7 +45,7 @@ subprojects {
 				// Disable cross-platform build
 				val shouldCompile = when {
 					HostManager.host == konanTarget -> true
-					HostManager.host.family != konanTarget.family -> true
+					HostManager.host.family == konanTarget.family -> true
 					HostManager.hostIsMac -> konanTarget.family == Family.IOS
 					HostManager.hostIsLinux -> konanTarget.family == Family.ANDROID || konanTarget.family == Family.LINUX
 					else -> false
