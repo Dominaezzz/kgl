@@ -1,7 +1,9 @@
 import config.Config
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 import java.io.ByteArrayOutputStream
 
 plugins {
@@ -41,7 +43,14 @@ subprojects {
 			// Hack until https://youtrack.jetbrains.com/issue/KT-30498
 			targets.withType<KotlinNativeTarget> {
 				// Disable cross-platform build
-				if (konanTarget != HostManager.host) {
+				val shouldCompile = when {
+					HostManager.host == konanTarget -> true
+					HostManager.host.family != konanTarget.family -> true
+					HostManager.hostIsMac -> konanTarget.family == Family.IOS
+					HostManager.hostIsLinux -> konanTarget.family == Family.ANDROID || konanTarget.family == Family.LINUX
+					else -> false
+				}
+				if (!shouldCompile) {
 					compilations.all {
 						cinterops.all {
 							tasks.named(interopProcessingTaskName).configure {
