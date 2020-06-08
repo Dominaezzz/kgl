@@ -3,6 +3,7 @@ import config.Config
 import config.Versions
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
 	kotlin("multiplatform")
@@ -102,6 +103,16 @@ kotlin {
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
+	if (!Config.isIdeaActive) {
+		iosArm32()
+		iosArm64()
+		iosX64()
+		androidNativeArm32()
+		androidNativeArm64()
+		androidNativeX86()
+		androidNativeX64()
+	}
+
 	targets.withType<KotlinNativeTarget> {
 		compilations {
 			"main" {
@@ -113,6 +124,16 @@ kotlin {
 							dependsOn(unzipDocs)
 						}
 						includeDirs(unzipDocs.map { it.destinationDir.resolve("include") })
+						val headerFlag = when (konanTarget.family) {
+							Family.ANDROID -> "VK_USE_PLATFORM_ANDROID_KHR"
+							Family.IOS -> "VK_USE_PLATFORM_IOS_MVK"
+							Family.OSX -> "VK_USE_PLATFORM_MACOS_MVK"
+							Family.MINGW -> "VK_USE_PLATFORM_WIN32_KHR"
+							else -> null
+						}
+						if (headerFlag != null) {
+							compilerOpts("-D$headerFlag")
+						}
 					}
 				}
 

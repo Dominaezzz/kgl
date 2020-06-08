@@ -60,8 +60,11 @@ kotlin {
 		// iosArm32()
 		// iosArm64()
 		// iosX64()
-		// androidNativeArm32()
-		// androidNativeArm64()
+		linuxArm32Hfp()
+		androidNativeArm32()
+		androidNativeArm64()
+		androidNativeX86()
+		androidNativeX64()
 	}
 
 	targets.withType<KotlinNativeTarget> {

@@ -106,6 +106,15 @@ kotlin {
 			}
 		}
 	}
+	if (!Config.isIdeaActive) {
+		linuxArm32Hfp {
+			compilations["main"].apply {
+				defaultSourceSet {
+					kotlin.srcDir(generateOpenGL.map { it.linuxDir })
+				}
+			}
+		}
+	}
 
 	targets.withType<KotlinNativeTarget> {
 		compilations["main"].apply {
