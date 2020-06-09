@@ -107,7 +107,7 @@ kotlin {
 		iosArm32()
 		iosArm64()
 		iosX64()
-		androidNativeArm32()
+		// androidNativeArm32()
 		androidNativeArm64()
 		androidNativeX86()
 		androidNativeX64()
