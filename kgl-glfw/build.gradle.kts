@@ -2,6 +2,7 @@ import config.Config
 import config.Versions
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 plugins {
 	kotlin("multiplatform")
@@ -12,11 +13,19 @@ plugins {
 val glfwVersion = "3.3"
 val downloadsDir = buildDir.resolve("downloads")
 val glfwWin64Dir = downloadsDir.resolve("glfw.bin.WIN64")
+val glfwWin32Dir = downloadsDir.resolve("glfw.bin.WIN32")
 val glfwMacosDir = downloadsDir.resolve("glfw.bin.MACOS")
 
 val downloadWin64Binaries by tasks.registering(Download::class) {
 	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.WIN64.zip")
 	dest(downloadsDir.resolve("glfw.bin.WIN64.zip"))
+
+	overwrite(false)
+}
+
+val downloadWin32Binaries by tasks.registering(Download::class) {
+	src("https://github.com/glfw/glfw/releases/download/$glfwVersion/glfw-$glfwVersion.bin.WIN32.zip")
+	dest(downloadsDir.resolve("glfw.bin.WIN32.zip"))
 
 	overwrite(false)
 }
@@ -38,6 +47,18 @@ val unzipWin64Binaries by tasks.registering(Copy::class) {
 		includeEmptyDirs = false
 	}
 	into(glfwWin64Dir)
+}
+
+val unzipWin32Binaries by tasks.registering(Copy::class) {
+	from(downloadWin32Binaries.map { zipTree(it.dest) }) {
+		eachFile {
+			relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+		}
+		include("glfw-*/include/**", "glfw-*/lib-mingw-w64/**")
+
+		includeEmptyDirs = false
+	}
+	into(glfwWin32Dir)
 }
 
 val unzipMacOSBinaries by tasks.registering(Copy::class) {
@@ -94,6 +115,7 @@ kotlin {
 	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (!Config.isIdeaActive) mingwX86()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations {
@@ -102,6 +124,21 @@ kotlin {
 					create("cglfw") {
 						tasks.named(interopProcessingTaskName) {
 							dependsOn(vulkanUnzipDocs)
+							when (konanTarget) {
+								KonanTarget.MACOS_X64 -> {
+									dependsOn(unzipMacOSBinaries)
+									includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
+								}
+								KonanTarget.MINGW_X64 -> {
+									dependsOn(unzipWin64Binaries)
+									includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
+								}
+								KonanTarget.MINGW_X86 -> {
+									dependsOn(unzipWin32Binaries)
+									includeDirs(unzipWin32Binaries.map { it.destinationDir.resolve("include") })
+								}
+								else -> {}
+							}
 						}
 						includeDirs(vulkanHeaderDir)
 					}
@@ -120,27 +157,6 @@ kotlin {
 				dependencies {
 					implementation(project(":kgl-glfw-static"))
 				}
-			}
-		}
-	}
-
-	if (Config.OS.isWindows || !Config.isIdeaActive) {
-		mingwX64 {
-			compilations["main"].cinterops["cglfw"].apply {
-				tasks.named(interopProcessingTaskName) {
-					dependsOn(unzipWin64Binaries)
-				}
-				includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
-			}
-		}
-	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) {
-		macosX64 {
-			compilations["main"].cinterops["cglfw"].apply {
-				tasks.named(interopProcessingTaskName) {
-					dependsOn(unzipMacOSBinaries)
-				}
-				includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
 			}
 		}
 	}

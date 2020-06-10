@@ -57,6 +57,7 @@ kotlin {
 	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 	if (!Config.isIdeaActive) {
+		mingwX86()
 		iosArm32()
 		iosArm64()
 		iosX64()

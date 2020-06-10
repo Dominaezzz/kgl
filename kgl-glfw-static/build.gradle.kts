@@ -7,22 +7,25 @@ plugins {
 
 evaluationDependsOn(":kgl-glfw")
 val unzipWin64Binaries by project(":kgl-glfw").tasks.getting(Copy::class)
+val unzipWin32Binaries by project(":kgl-glfw").tasks.getting(Copy::class)
 val unzipMacOSBinaries by project(":kgl-glfw").tasks.getting(Copy::class)
 
 kotlin {
 	val staticLibs = mapOf(
 			KonanTarget.MINGW_X64 to unzipWin64Binaries.destinationDir.resolve("lib-mingw-w64/libglfw3.a"),
+			KonanTarget.MINGW_X86 to unzipWin32Binaries.destinationDir.resolve("lib-mingw-w64/libglfw3.a"),
 			KonanTarget.LINUX_X64 to file("/usr/local/lib/libglfw3.a"),
 			KonanTarget.MACOS_X64 to unzipMacOSBinaries.destinationDir.resolve("lib-macos/libglfw3.a")
 	)
 
-	configure(listOf(mingwX64(), linuxX64(), macosX64())) {
+	configure(listOf(mingwX64(), mingwX86(), linuxX64(), macosX64())) {
 		compilations {
 			"main" {
-				if (konanTarget == KonanTarget.MINGW_X64){
-					compileKotlinTask.dependsOn(unzipWin64Binaries)
-				} else if (konanTarget == KonanTarget.MACOS_X64){
-					compileKotlinTask.dependsOn(unzipMacOSBinaries)
+				when (konanTarget) {
+					KonanTarget.MINGW_X64 -> compileKotlinTask.dependsOn(unzipWin64Binaries)
+					KonanTarget.MINGW_X86 -> compileKotlinTask.dependsOn(unzipWin32Binaries)
+					KonanTarget.MACOS_X64 -> compileKotlinTask.dependsOn(unzipMacOSBinaries)
+					else -> {}
 				}
 				val staticLib = staticLibs.getValue(konanTarget)
 				kotlinOptions {
