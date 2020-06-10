@@ -104,12 +104,12 @@ kotlin {
 	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
 
 	if (!Config.isIdeaActive) {
-		iosArm32()
+		// iosArm32()
 		iosArm64()
 		iosX64()
 		// androidNativeArm32()
 		androidNativeArm64()
-		androidNativeX86()
+		// androidNativeX86()
 		androidNativeX64()
 	}
 
