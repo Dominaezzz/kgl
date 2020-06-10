@@ -139,7 +139,13 @@ kotlin {
 
 				defaultSourceSet {
 					kotlin.srcDir(generateVulkan.map { it.nativeDir })
-					kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
+
+					val loaderPath = when {
+						konanTarget.family == Family.MINGW -> "src/mingwMain/kotlin"
+						konanTarget.family.isAppleFamily -> "src/appleMain/kotlin"
+						else -> "src/linuxMain/kotlin"
+					}
+					kotlin.srcDir(loaderPath)
 
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")
