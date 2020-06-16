@@ -15,7 +15,6 @@
  */
 package com.kgl.glfw
 
-import com.sun.jdi.request.*
 import org.lwjgl.PointerBuffer
 import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.system.MemoryStack
