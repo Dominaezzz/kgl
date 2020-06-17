@@ -63,34 +63,59 @@ actual object Glfw {
 		glfwTerminate()
 	}
 
-	actual fun setErrorCallback(callback: ErrorCallback?) {
+	private var errorCallback: ErrorCallback? = null
+	private var joystickCallback: JoystickCallback? = null
+	private var monitorCallback: MonitorCallback? = null
+
+	actual fun setErrorCallback(callback: ErrorCallback?): ErrorCallback? {
+		val previous = errorCallback
+		errorCallback = callback
+
 		if (callback != null) {
-			glfwSetErrorCallback { error, description ->
-				callback(error, MemoryUtil.memUTF8(description))
+			if (previous == null) {
+				glfwSetErrorCallback { error, description ->
+					errorCallback?.invoke(error, MemoryUtil.memUTF8(description))
+				}?.free()
 			}
 		} else {
-			glfwSetErrorCallback(null)
-		}?.free()
+			glfwSetErrorCallback(null)?.free()
+		}
+
+		return previous
 	}
 
-	actual fun setJoystickCallback(callback: JoystickCallback?) {
+	actual fun setJoystickCallback(callback: JoystickCallback?): JoystickCallback? {
+		val previous = joystickCallback
+		joystickCallback = callback
+
 		if (callback != null) {
-			glfwSetJoystickCallback { jid, event ->
-				callback(Joystick.values()[jid], event == GLFW_CONNECTED)
+			if (previous == null) {
+				glfwSetJoystickCallback { jid, event ->
+					joystickCallback?.invoke(Joystick.values()[jid], event == GLFW_CONNECTED)
+				}?.free()
 			}
 		} else {
-			glfwSetJoystickCallback(null)
-		}?.free()
+			glfwSetJoystickCallback(null)?.free()
+		}
+
+		return previous
 	}
 
-	actual fun setMonitorCallback(callback: MonitorCallback?) {
+	actual fun setMonitorCallback(callback: MonitorCallback?): MonitorCallback? {
+		val previous = monitorCallback
+		monitorCallback = callback
+
 		if (callback != null) {
-			glfwSetMonitorCallback { monitor, event ->
-				callback(Monitor(monitor), event == GLFW_CONNECTED)
+			if (previous == null) {
+				glfwSetMonitorCallback { monitor, event ->
+					monitorCallback?.invoke(Monitor(monitor), event == GLFW_CONNECTED)
+				}?.free()
 			}
 		} else {
-			glfwSetMonitorCallback(null)
-		}?.free()
+			glfwSetMonitorCallback(null)?.free()
+		}
+
+		return previous
 	}
 
 	actual fun pollEvents() {

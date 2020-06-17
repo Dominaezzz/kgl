@@ -81,49 +81,55 @@ actual object Glfw {
 	private var joystickCallback: JoystickCallback? = null
 	private var monitorCallback: MonitorCallback? = null
 
-	actual fun setErrorCallback(callback: ErrorCallback?) {
-		val wasNotPreviouslySet = errorCallback == null
+	actual fun setErrorCallback(callback: ErrorCallback?): ErrorCallback? {
+		val previous = errorCallback
 		errorCallback = callback
 
 		if (callback != null) {
-			if (wasNotPreviouslySet) {
+			if (previous == null) {
 				glfwSetErrorCallback(staticCFunction { error, description ->
-					Glfw.errorCallback?.invoke(error, description!!.toKString())
+					errorCallback?.invoke(error, description!!.toKString())
 				})
 			}
 		} else {
 			glfwSetErrorCallback(null)
 		}
+
+		return previous
 	}
 
-	actual fun setJoystickCallback(callback: JoystickCallback?) {
-		val wasNotPreviouslySet = joystickCallback == null
+	actual fun setJoystickCallback(callback: JoystickCallback?): JoystickCallback? {
+		val previous = joystickCallback
 		joystickCallback = callback
 
 		if (callback != null) {
-			if (wasNotPreviouslySet) {
+			if (previous == null) {
 				glfwSetJoystickCallback(staticCFunction { jid, event ->
-					Glfw.joystickCallback?.invoke(Joystick.values()[jid], event == GLFW_CONNECTED)
+					joystickCallback?.invoke(Joystick.values()[jid], event == GLFW_CONNECTED)
 				})
 			}
 		} else {
 			glfwSetJoystickCallback(null)
 		}
+
+		return previous
 	}
 
-	actual fun setMonitorCallback(callback: MonitorCallback?) {
-		val wasNotPreviouslySet = monitorCallback == null
+	actual fun setMonitorCallback(callback: MonitorCallback?): MonitorCallback? {
+		val previous = monitorCallback
 		monitorCallback = callback
 
 		if (callback != null) {
-			if (wasNotPreviouslySet) {
+			if (previous == null) {
 				glfwSetMonitorCallback(staticCFunction { monitor, event ->
-					Glfw.monitorCallback?.invoke(Monitor(monitor!!), event == GLFW_CONNECTED)
+					monitorCallback?.invoke(Monitor(monitor!!), event == GLFW_CONNECTED)
 				})
 			}
 		} else {
 			glfwSetMonitorCallback(null)
 		}
+
+		return previous
 	}
 
 	actual fun pollEvents() {

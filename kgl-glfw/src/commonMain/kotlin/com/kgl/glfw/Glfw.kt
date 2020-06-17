@@ -32,9 +32,9 @@ expect object Glfw {
 	fun init(): Boolean
 	fun terminate()
 
-	fun setErrorCallback(callback: ErrorCallback? = null)
-	fun setJoystickCallback(callback: JoystickCallback? = null)
-	fun setMonitorCallback(callback: MonitorCallback? = null)
+	fun setErrorCallback(callback: ErrorCallback? = null): ErrorCallback?
+	fun setJoystickCallback(callback: JoystickCallback? = null): JoystickCallback?
+	fun setMonitorCallback(callback: MonitorCallback? = null): MonitorCallback?
 
 	fun pollEvents()
 	fun waitEvents()
