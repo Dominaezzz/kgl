@@ -481,6 +481,9 @@ open class GenerateVulkan : DefaultTask() {
 				if (enum.name == "VkRenderPassCreateFlagBits") continue
 
 				val srcExtension = extensionInvMap[enum.name]
+				if (srcExtension != null) {
+					if (srcExtension.supported != "vulkan") continue
+				}
 
 				val enumVkPrefix = enum.name.let {
 					if (srcExtension != null) it.removeSuffix(srcExtension.author) else it
@@ -517,7 +520,7 @@ open class GenerateVulkan : DefaultTask() {
 				val enumTypeSpec = buildTypeSpec({ TypeSpec.enumBuilder(enumClassKt) }) { platform ->
 					addKdoc(summary)
 					for (para in paragraphs) {
-						addKdoc(para)
+						addKdoc("%L", para)
 					}
 					for (other in seeAlso) {
 						val kglClass = kglClassMap[other.text()]
