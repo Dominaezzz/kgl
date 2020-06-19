@@ -251,13 +251,16 @@ class Registry(vkXML: Document) {
 				featureNode.getAttribute("comment"),
 				featureNode.getChildren("require").map { requireNode ->
 					Require(
-							requireNode.getChildren("enum").filter { it.hasAttribute("extends") }.map {
-								Enum(
-										it.getAttribute("name"),
-										it.getAttribute("extends"),
-										it.getAttribute("offset").toIntOrNull() ?: it.getAttribute("bitpos").toInt()
-								)
-							}.toList(),
+							requireNode.getChildren("enum")
+									.filter { it.hasAttribute("extends") }
+									.filterNot { it.hasAttribute("alias") }
+									.map {
+										Enum(
+												it.getAttribute("name"),
+												it.getAttribute("extends"),
+												it.getAttribute("offset").toIntOrNull() ?: it.getAttribute("bitpos").toInt()
+										)
+									}.toList(),
 							requireNode.getChildren("enum")
 									.filter { !it.hasAttribute("extends") }
 									.associate { it.getAttribute("name") to it.getAttribute("value").takeIf { it.isNotBlank() } },
