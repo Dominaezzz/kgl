@@ -1,10 +1,8 @@
 import codegen.vulkan.GenerateVulkan
-import codegen.vulkan.Registry
 import config.Config
 import config.Versions
 import de.undercouch.gradle.tasks.download.Download
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import javax.xml.parsers.DocumentBuilderFactory
 
 plugins {
 	kotlin("multiplatform")
@@ -31,38 +29,23 @@ val unzipDocs by tasks.registering(Copy::class) {
 	into(downloadDocs.map { it.dest.resolveSibling("Vulkan-Docs") })
 }
 
-val makeHtmlDocs by tasks.registering(Task::class) {
+val makeHtmlDocs by tasks.registering(Exec::class) {
 	dependsOn(unzipDocs)
 
 	val docsDir = unzipDocs.get().destinationDir
-	val vkXml = docsDir.resolve("xml/vk.xml")
 
-	inputs.file(vkXml)
+	inputs.file(docsDir.resolve("xml/vk.xml"))
 	outputs.file(docsDir.resolve("out/apispec.html"))
 
-	doLast {
-		val registry = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder()
-				.parse(vkXml)
-				.let {
-					it.documentElement.normalize()
-					Registry(it)
-				}
+	workingDir = docsDir
 
-		val extensionsConcat = registry.extensions.filter { it.supported == "vulkan" }
-				.joinToString(" ") { it.name }
-
-		exec {
-			workingDir = docsDir
-
-			if (Config.OS.isWindows) {
-				// Requires unix environment to build.
-				executable = "C:\\Program Files\\Git\\bin\\sh.exe"
-				args("-c", "make PYTHON=python EXTENSIONS='$extensionsConcat' manhtml")
-			} else {
-				commandLine("make", "EXTENSIONS=$extensionsConcat", "manhtml")
-			}
-		}
+	if (Config.OS.isWindows) {
+		// Requires unix environment to build.
+		executable = "C:\\Program Files\\Git\\bin\\sh.exe"
+		args("-c", "PYTHON=python ./makeAllExts manhtml")
+	} else {
+		executable = docsDir.resolve("makeAllExts").absolutePath
+		args( "manhtml")
 	}
 }
 
