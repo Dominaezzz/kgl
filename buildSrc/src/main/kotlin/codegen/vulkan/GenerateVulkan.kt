@@ -111,6 +111,15 @@ open class GenerateVulkan : DefaultTask() {
 								lambdaParam("SubmitInfoBuilder", withDefault = true)
 						)
 				),
+				"VkPresentInfoKHR" to listOf(
+						listOf(
+								param("swapchains", COLLECTION.parameterizedBy(
+										PAIR.parameterizedBy(handle("SwapchainKHR"), U_INT)
+								)),
+								param("waitSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
+								lambdaParam("PresentInfoKHRBuilder", withDefault = true)
+						)
+				),
 				"VkSubpassDescription" to listOf(
 						listOf(
 								param(
@@ -144,6 +153,30 @@ open class GenerateVulkan : DefaultTask() {
 								param("queueFamilyIndex", U_INT),
 								param("queuePriorities", FLOAT, KModifier.VARARG),
 								lambdaParam("DeviceQueueCreateInfoBuilder", true)
+						)
+				),
+				"VkDebugUtilsMessengerCreateInfoEXT" to listOf(
+						listOf(
+								lambdaParam("DebugUtilsMessengerCreateInfoEXTBuilder")
+						)
+				),
+				"VkDebugReportCallbackCreateInfoEXT" to listOf(
+						listOf(
+								lambdaParam("DebugReportCallbackCreateInfoEXTBuilder")
+						)
+				),
+				"VkShaderModuleCreateInfo" to listOf(
+						listOf(
+								param("code", U_BYTE_ARRAY),
+								lambdaParam("ShaderModuleCreateInfoBuilder", true)
+						)
+				),
+				"VkObjectTableCreateInfoNVX" to listOf(
+						listOf(
+								param("objectEntryTypes", COLLECTION.parameterizedBy(ClassName("com.kgl.vulkan.enums", "ObjectEntryTypeNVX"))),
+								param("objectEntryCounts", U_INT_ARRAY),
+								param("objectEntryUsageFlags", COLLECTION.parameterizedBy(VK_FLAG.parameterizedBy(ClassName("com.kgl.vulkan.enums", "ObjectEntryUsageNVX")))),
+								lambdaParam("ObjectTableCreateInfoNVXBuilder", true)
 						)
 				)
 		)
