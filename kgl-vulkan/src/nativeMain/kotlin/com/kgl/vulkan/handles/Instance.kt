@@ -29,7 +29,7 @@ import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>(), VkHandle {
+actual class Instance(override val ptr: VkInstance, private val debugUtilsMessengerCallback: StableRef<*>?, private val debugReportCallback: StableRef<*>?) : VkHandleNative<VkInstance>(), VkHandle {
 	internal val dispatchTable = InstanceDispatchTable {
 		VirtualStack.push()
 		try {
@@ -105,6 +105,8 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 			dispatchTable.vkDestroyInstance(instance.toVkType(), null)
 		} finally {
 			VirtualStack.pop()
+			debugReportCallback?.dispose()
+			debugUtilsMessengerCallback?.dispose()
 		}
 	}
 
@@ -308,8 +310,26 @@ actual class Instance(override val ptr: VkInstance) : VkHandleNative<VkInstance>
 				val outputVar = VirtualStack.alloc<VkInstanceVar>()
 				val outputPtr = outputVar.ptr
 				val result = globalDispatchTable.vkCreateInstance(target, null, outputPtr)
-				if (result != VK_SUCCESS) handleVkResult(result)
-				return Instance(outputVar.value!!)
+
+				var debugUtilsMessengerCallback: StableRef<*>? = null
+				var debugReportCallback: StableRef<*>? = null
+				var node = target.pointed.pNext?.reinterpret<VkBaseInStructure>()
+				while (node != null) {
+					val struct = node.pointed
+					if (struct.sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
+						debugUtilsMessengerCallback = struct.reinterpret<VkDebugUtilsMessengerCreateInfoEXT>().pUserData?.asStableRef<Any>()
+					} else if (struct.sType == VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT) {
+						debugReportCallback = struct.reinterpret<VkDebugReportCallbackCreateInfoEXT>().pUserData?.asStableRef<Any>()
+					}
+					node = struct.pNext
+				}
+
+				if (result != VK_SUCCESS) {
+					debugUtilsMessengerCallback?.dispose()
+					debugReportCallback?.dispose()
+					handleVkResult(result)
+				}
+				return Instance(outputVar.value!!, debugUtilsMessengerCallback, debugReportCallback)
 			} finally {
 				VirtualStack.pop()
 			}
