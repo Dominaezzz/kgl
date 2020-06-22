@@ -946,36 +946,32 @@ open class GenerateVulkan : DefaultTask() {
 								when (type) {
 									is VkPrimitive -> {
 										if (member.isArray()) {
-											add(buildString {
-												append("ptr.")
-												append(member.name)
-												if (platform == Platform.JVM) append("()")
-												if (propertyClass.isNullable) {
-													append("?")
-												} else if (member.type.asteriskCount > 0) {
-													append("!!")
-												}
-												append(".let { target -> %T(")
-												if (member.type.count.isNotEmpty()) {
-													append(member.type.count)
-												} else {
-													append("ptr.")
-													if (member.len.isNotEmpty()) {
-														append(member.len.first())
-													} else if (member.name.endsWith("s")) {
-														append(member.name.removeSuffix("s"))
-														append("Count")
-													} else TODO("Cannot find count!")
-													append("()")
-													append(".toInt()")
-												}
-												append(") { target[it]")
-												if (platform == Platform.JVM && type.fromJVMVkType.isNotBlank()) {
-													append('.')
-													append(type.fromJVMVkType)
-												}
-												append(" } }")
-											}, propertyClass.copy(nullable = false))
+											add("ptr.${member.name}")
+											if (platform == Platform.JVM) add("()")
+											if (propertyClass.isNullable || member.type.asteriskCount > 0) {
+												add("?")
+											}
+											add(".let { target -> %T(", propertyClass.copy(nullable = false))
+											if (member.type.count.isNotEmpty()) {
+												add(member.type.count)
+											} else {
+												add("ptr.")
+												if (member.len.isNotEmpty()) {
+													add(member.len.first())
+												} else if (member.name.endsWith("s")) {
+													add(member.name.removeSuffix("s") + "Count")
+												} else TODO("Cannot find count!")
+												add("()")
+												add(".toInt()")
+											}
+											add(") { target[it]")
+											if (platform == Platform.JVM && type.fromJVMVkType.isNotBlank()) {
+												add("." + type.fromJVMVkType)
+											}
+											add(" } }")
+											if (!propertyClass.isNullable && member.type.asteriskCount > 0) {
+												add(".%M()", MemberName("kotlin.collections", "orEmpty"))
+											}
 										} else {
 											val code = buildString {
 												append("ptr.")
@@ -1015,25 +1011,22 @@ open class GenerateVulkan : DefaultTask() {
 									}
 									is VkStruct -> {
 										if (propertyClass is ParameterizedTypeName) {
-											add(buildString {
-												append("ptr.")
-												append(member.name)
-												if (platform == Platform.JVM) append("()")
-												if (propertyClass.isNullable) {
-													append("?")
-												} else if (member.type.asteriskCount > 0) {
-													append("!!")
-												}
-												append(".let { target -> %T(ptr.")
-												if (member.len.isNotEmpty()) {
-													append(member.len.first())
-												} else if (member.name.endsWith("s")) {
-													append(member.name.removeSuffix("s"))
-													append("Count")
-												}
-												if (platform == Platform.NATIVE) append(".toInt")
-												append("()) { %T.from(target[it]) } }")
-											}, propertyClass.copy(nullable = false), propertyClass.typeArguments[0])
+											add("ptr.${member.name}")
+											if (platform == Platform.JVM) add("()")
+											if (propertyClass.isNullable || member.type.asteriskCount > 0) {
+												add("?")
+											}
+											add(".let { target -> %T(ptr.", propertyClass.copy(nullable = false))
+											if (member.len.isNotEmpty()) {
+												add(member.len.first())
+											} else if (member.name.endsWith("s")) {
+												add(member.name.removeSuffix("s") + "Count")
+											}
+											if (platform == Platform.NATIVE) add(".toInt")
+											add("()) { %T.from(target[it]) } }", propertyClass.typeArguments[0])
+											if (!propertyClass.isNullable && member.type.asteriskCount > 0) {
+												add(".%M()", MemberName("kotlin.collections", "orEmpty"))
+											}
 										} else {
 											add(buildString {
 												append("%T.from(ptr.")
