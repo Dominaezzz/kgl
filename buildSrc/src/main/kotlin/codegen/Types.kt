@@ -36,6 +36,7 @@ object KtxC {
 	val POINTED = MemberName("kotlinx.cinterop", "pointed")
 	val PTR = MemberName("kotlinx.cinterop", "ptr")
 	val TO_KSTRING = MemberName("kotlinx.cinterop", "toKString")
+	val CONVERT = MemberName("kotlinx.cinterop", "convert")
 	val ALLOC = MemberName("kotlinx.cinterop", "alloc")
 	val VALUE = MemberName("kotlinx.cinterop", "value")
 	val CSTR = MemberName("kotlinx.cinterop", "cstr")
