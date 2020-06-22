@@ -5,5 +5,8 @@
   "VkPhysicalDeviceMemoryProperties.memoryHeapCount",
   "VkPhysicalDeviceGroupProperties.physicalDeviceCount",
   "VkDescriptorSetLayoutBinding",
-  "VkShaderModuleCreateInfo"
+  "VkShaderModuleCreateInfo",
+  "VkImageDrmFormatModifierExplicitCreateInfoEXT",
+  "VkSubresourceLayout",
+  "VkPhysicalDeviceFragmentDensityMapFeaturesEXT"
 ]
