@@ -1473,7 +1473,7 @@ open class GenerateVulkan : DefaultTask() {
 										} else {
 											if (isOptional) beginControlFlow("if ($memberNameKt != null)")
 											addStatement("target.${member.name} = $memberNameKt.pointer")
-											addStatement("target.${member.len[0]} = $memberNameKt.size.toULong()")
+											addStatement("target.${member.len[0]} = $memberNameKt.size.%M()", KtxC.CONVERT)
 											if (isOptional) {
 												nextControlFlow("else")
 												addStatement("target.${member.name} = null")
