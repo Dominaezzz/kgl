@@ -24,14 +24,16 @@ import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.EXTDebugReport.vkCreateDebugReportCallbackEXT
-import org.lwjgl.vulkan.EXTDebugReport.vkDebugReportMessageEXT
-import org.lwjgl.vulkan.EXTDebugUtils.vkCreateDebugUtilsMessengerEXT
-import org.lwjgl.vulkan.EXTDebugUtils.vkSubmitDebugUtilsMessageEXT
+import org.lwjgl.vulkan.EXTDebugReport.*
+import org.lwjgl.vulkan.EXTDebugUtils.*
 import org.lwjgl.vulkan.KHRDisplay.vkCreateDisplayPlaneSurfaceKHR
 import org.lwjgl.vulkan.VK11.*
 
-actual class Instance(override val ptr: VkInstance) : VkHandleJVM<VkInstance>(), VkHandle {
+actual class Instance(
+		override val ptr: VkInstance,
+		private val debugUtilsMessengerCallback: VkDebugUtilsMessengerCallbackEXT?,
+		private val debugReportCallback: VkDebugReportCallbackEXT?
+) : VkHandleJVM<VkInstance>(), VkHandle {
 	actual val physicalDevices: List<PhysicalDevice>
 		get() {
 			val instance = this
@@ -91,6 +93,8 @@ actual class Instance(override val ptr: VkInstance) : VkHandleJVM<VkInstance>(),
 			vkDestroyInstance(instance.toVkType(), null)
 		} finally {
 			MemoryStack.stackPop()
+			debugReportCallback?.free()
+			debugUtilsMessengerCallback?.free()
 		}
 	}
 
@@ -281,8 +285,27 @@ actual class Instance(override val ptr: VkInstance) : VkHandleJVM<VkInstance>(),
 				builder.apply(block)
 				val outputPtr = MemoryStack.stackGet().mallocPointer(1)
 				val result = vkCreateInstance(target, null, outputPtr)
+
+				var debugUtilsMessengerCallback: VkDebugUtilsMessengerCallbackEXT? = null
+				var debugReportCallback: VkDebugReportCallbackEXT? = null
+				var node = VkBaseInStructure.createSafe(target.pNext())
+				while (node != null) {
+					if (node.sType() == VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
+						debugUtilsMessengerCallback = VkDebugUtilsMessengerCreateInfoEXT.create(node.address()).pfnUserCallback()
+					} else if (node.sType() == VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT) {
+						debugReportCallback = VkDebugReportCallbackCreateInfoEXT.create(node.address()).pfnCallback()
+					}
+					node = node.pNext()
+				}
+
+				if (result != VK_SUCCESS) {
+					debugUtilsMessengerCallback?.free()
+					debugReportCallback?.free()
+					handleVkResult(result)
+				}
+
 				if (result != VK_SUCCESS) handleVkResult(result)
-				return Instance(VkInstance(outputPtr[0], target))
+				return Instance(VkInstance(outputPtr[0], target), debugUtilsMessengerCallback, debugReportCallback)
 			} finally {
 				MemoryStack.stackPop()
 			}

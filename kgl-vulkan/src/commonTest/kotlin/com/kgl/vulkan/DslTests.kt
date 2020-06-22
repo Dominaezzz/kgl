@@ -71,12 +71,21 @@ class DslTests {
 			next {
 				ValidationFlagsEXT(listOf(ValidationCheckEXT.ALL_EXT, ValidationCheckEXT.SHADERS_EXT))
 
-				// DebugReportCallbackCreateInfoEXT {
-				//     flags = DebugReportFlagBitsEXT.WARNING or DebugReportFlagBitsEXT.ERROR
-				//     callback { _, _, _, _, _, _, message ->
-				//         println("Debug Message: $message")
-				//     }
-				// }
+				DebugReportCallbackCreateInfoEXT {
+				    flags = DebugReportEXT.WARNING_BIT_EXT or DebugReportEXT.ERROR_BIT_EXT
+				    callback { _, _, _, _, _, _, message ->
+				        println("Debug Message: $message")
+				    }
+				}
+
+				DebugUtilsMessengerCreateInfoEXT {
+					messageType = DebugUtilsMessageTypeEXT.GENERAL
+					messageSeverity = DebugUtilsMessageSeverityEXT.ERROR
+
+					userCallback { messageSeverity, messageTypes, callbackData ->
+						println("$messageSeverity $messageTypes $callbackData")
+					}
+				}
 			}
 		}
 	}
