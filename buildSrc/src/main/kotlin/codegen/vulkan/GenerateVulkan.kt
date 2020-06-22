@@ -1947,6 +1947,12 @@ open class GenerateVulkan : DefaultTask() {
 								addStatement("val builder = %T(subTarget)", structBuilderClass)
 								addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
 								if (hasLambda) addStatement("builder.apply(block)")
+
+								if (it == Platform.JVM && struct.structExtends.size > 1) {
+									addAnnotation(AnnotationSpec.builder(JvmName::class)
+											.addMember("%S", "${extendee}_${struct.name}")
+											.build())
+								}
 							}
 						}
 						pNextFileCommon.addFunction(function.common)
