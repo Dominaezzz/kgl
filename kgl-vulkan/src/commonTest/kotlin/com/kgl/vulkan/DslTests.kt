@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan
 
+import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.handles.*
 import com.kgl.vulkan.utils.VkVersion
@@ -26,6 +27,8 @@ import kotlin.test.Test
 class DslTests {
 	private val instance: Instance = TODO("Only to be used for static analysis.")
 	private val physicalDevice: PhysicalDevice = TODO("Only to be used for static analysis.")
+	private val physicalDevice1: PhysicalDevice = TODO("Only to be used for static analysis.")
+	private val physicalDevice2: PhysicalDevice = TODO("Only to be used for static analysis.")
 	private val device: Device = TODO("Only to be used for static analysis.")
 	private val surfaceKHR: SurfaceKHR = TODO("Only to be used for static analysis.")
 	private val image: Image = TODO("Only to be used for static analysis.")
@@ -64,6 +67,17 @@ class DslTests {
 				engineVersion = VkVersion(1U, 0U, 0U)
 				apiVersion = VkVersion(1u, 0u, 0u)
 			}
+
+			next {
+				ValidationFlagsEXT(listOf(ValidationCheckEXT.ALL_EXT, ValidationCheckEXT.SHADERS_EXT))
+
+				// DebugReportCallbackCreateInfoEXT {
+				//     flags = DebugReportFlagBitsEXT.WARNING or DebugReportFlagBitsEXT.ERROR
+				//     callback { _, _, _, _, _, _, message ->
+				//         println("Debug Message: $message")
+				//     }
+				// }
+			}
 		}
 	}
 
@@ -73,9 +87,37 @@ class DslTests {
 		val extensions = listOf<String>()
 
 		physicalDevice.createDevice(layers, extensions) {
+			next {
+				DeviceGroupDeviceCreateInfo(listOf(physicalDevice, physicalDevice1, physicalDevice2))
+
+				PhysicalDevice16BitStorageFeatures {
+					storagePushConstant16 = true
+				}
+
+				PhysicalDeviceFeatures2 {
+					features {
+						samplerAnisotropy = true
+						geometryShader = true
+						depthClamp = true
+					}
+
+					next {
+						PhysicalDevice16BitStorageFeatures {
+
+						}
+					}
+				}
+			}
+
 			queues {
 				queue(1U, 1f, 1f) {
 					flags = DeviceQueueCreate.PROTECTED
+
+					next {
+						DeviceQueueGlobalPriorityCreateInfoEXT {
+							globalPriority = QueueGlobalPriorityEXT.REALTIME
+						}
+					}
 				}
 
 				queue(4U, 1f, 0.5f, 0.6f)
@@ -96,7 +138,14 @@ class DslTests {
 		}
 
 		device.createEvent()
-		device.createFence { flags = FenceCreate.SIGNALED }
+		device.createFence {
+			flags = FenceCreate.SIGNALED
+			next {
+				ExportFenceCreateInfo {
+					handleTypes = ExternalFenceHandleType.OPAQUE_FD
+				}
+			}
+		}
 		device.createSemaphore()
 		device.createPipelineCache()
 

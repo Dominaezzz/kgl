@@ -1220,6 +1220,8 @@ open class GenerateVulkan : DefaultTask() {
 			val resolvedStructs = mutableSetOf<String>()
 			val requiredArrayBuilders = mutableSetOf<String>()
 
+			val structExtensions = registry.structs.flatMap { struct -> struct.structExtends.map { struct.name to it } }
+					.groupBy({ it.second }, { it.first })
 			val structDependencies = mutableMapOf<String, Set<String>>()
 			fun crawlInputStruct(struct: VkStruct) {
 				if (struct.name in structDependencies) return
@@ -1239,6 +1241,11 @@ open class GenerateVulkan : DefaultTask() {
 							requiredArrayBuilders += type.name
 						}
 					}
+				}
+				for (ext in structExtensions[struct.name].orEmpty()) {
+					val type = vkTypeMap.getValue(ext) as VkStruct
+					crawlInputStruct(type)
+					deps += type.name
 				}
 				structDependencies[struct.name] = deps
 			}
@@ -1296,6 +1303,7 @@ open class GenerateVulkan : DefaultTask() {
 				val visibleMembers = struct.members.filter { it.name !in lengthMembers }
 
 				val structBuilderName = struct.name.removePrefix("Vk") + "Builder"
+				val structBuilderClass = ClassName("com.kgl.vulkan.dsls", structBuilderName)
 
 				val initFun = try {
 					buildFunSpec({ FunSpec.builder("init").addModifiers(KModifier.INTERNAL) }) { platform ->
@@ -1771,10 +1779,26 @@ open class GenerateVulkan : DefaultTask() {
 
 				val hasPNext = struct.members.any { it.name == "pNext" }
 
+				if (hasPNext) {
+					val param = LambdaTypeName.get(NEXT.parameterizedBy(structBuilderClass), returnType = UNIT)
+					val common = FunSpec.builder("next")
+							.addParameter("block", param)
+							.build()
+					val platform = FunSpec.builder("next")
+							.addParameter("block", param)
+							.addModifiers(KModifier.ACTUAL)
+							.addStatement("%T(this).apply(block)", NEXT)
+							.build()
+
+					builder.common.addFunction(common)
+					builder.jvm.addFunction(platform)
+					builder.native.addFunction(platform)
+				}
+
 				val initParams = initFun.common.parameters.mapTo(mutableListOf()) {
 					if (it.type.isNullable) it.toBuilder().defaultValue("null").build() else it
 				}
-				val lambdaType = LambdaTypeName.get(ClassName("com.kgl.vulkan.dsls", structBuilderName), returnType = UNIT)
+				val lambdaType = LambdaTypeName.get(structBuilderClass, returnType = UNIT)
 				if (requiredCount > 0) {
 					initParams.add(ParameterSpec.builder("block", lambdaType).build())
 				} else if (hasPNext || builder.common.propertySpecs.isNotEmpty() || builder.common.funSpecs.count { it.name != "init" } > 0) {
@@ -1844,6 +1868,64 @@ open class GenerateVulkan : DefaultTask() {
 
 				FileSpec.get("com.kgl.vulkan.dsls", builder).writeTo(commonDir.get().asFile)
 			}
+
+			val pNextFileCommon = FileSpec.builder("com.kgl.vulkan.dsls", "Next")
+			val pNextFileJvm = FileSpec.builder("com.kgl.vulkan.dsls", "Next")
+			val pNextFileNative = FileSpec.builder("com.kgl.vulkan.dsls", "Next")
+
+			// Generate pNext DSL functions
+			for (struct in inputStructs) {
+				if (extensionInvMap[struct.name]?.platform != null) continue
+				if (struct.name in hiddenEntries) continue
+
+				val commonParamss = structInits[struct.name] ?: continue
+				if (commonParamss.isEmpty()) continue
+
+				val structBuilderClass = ClassName("com.kgl.vulkan.dsls", struct.name.removePrefix("Vk") + "Builder")
+
+				for (extendee in struct.structExtends) {
+					val extendeeClass = ClassName("com.kgl.vulkan.dsls", extendee.removePrefix("Vk") + "Builder")
+					val pNextClass = NEXT.parameterizedBy(extendeeClass)
+
+					for (commonParams in commonParamss) {
+						val hasLambda = commonParams.lastOrNull()?.type is LambdaTypeName
+						val platformParams = commonParams.map {
+							ParameterSpec.builder(it.name, it.type, *it.modifiers.toTypedArray()).build()
+						}
+						val passedParams = platformParams.dropLast(if (hasLambda) 1 else 0)
+
+						val function = buildFunSpec({ FunSpec.builder(struct.name.removePrefix("Vk")) }, auto = false) {
+							receiver(pNextClass)
+							if (it == Platform.COMMON) {
+								addParameters(commonParams)
+							} else {
+								addParameters(platformParams)
+								if (it == Platform.JVM) {
+									addStatement("val subTarget = %T.callocStack()", ClassName(LWJGLVulkanPackage, struct.name))
+									addStatement("subTarget.pNext(targetBuilder.target.pNext())")
+									addStatement("targetBuilder.target.pNext(subTarget.address())")
+								} else {
+									addStatement("val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
+											KtxC.ALLOC, ClassName("cvulkan", struct.name))
+									addStatement("subTarget.pNext = targetBuilder.target.pNext")
+									addStatement("targetBuilder.target.pNext = subTarget.%M", KtxC.PTR)
+								}
+
+								addStatement("val builder = %T(subTarget)", structBuilderClass)
+								addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+								if (hasLambda) addStatement("builder.apply(block)")
+							}
+						}
+						pNextFileCommon.addFunction(function.common)
+						pNextFileJvm.addFunction(function.jvm)
+						pNextFileNative.addFunction(function.native)
+					}
+				}
+			}
+
+			pNextFileCommon.build().writeTo(commonDir.get().asFile)
+			pNextFileJvm.build().writeTo(jvmDir.get().asFile)
+			pNextFileNative.build().writeTo(nativeDir.get().asFile)
 		}
 
 		generateDispatchTables()

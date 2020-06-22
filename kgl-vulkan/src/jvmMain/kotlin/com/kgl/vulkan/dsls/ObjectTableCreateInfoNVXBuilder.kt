@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.ObjectEntryTypeNVX
 import com.kgl.vulkan.enums.ObjectEntryUsageNVX
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.toVkType
 import org.lwjgl.vulkan.NVXDeviceGeneratedCommands
@@ -52,6 +53,10 @@ actual class ObjectTableCreateInfoNVXBuilder(internal val target: VkObjectTableC
 		set(value) {
 			target.maxPipelineLayouts(value.toVkType())
 		}
+
+	actual fun next(block: Next<ObjectTableCreateInfoNVXBuilder>.() -> Unit) {
+		Next(this).apply(block)
+	}
 
 	internal actual fun init(
 			objectEntryTypes: Collection<ObjectEntryTypeNVX>,

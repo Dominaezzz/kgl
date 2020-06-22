@@ -18,6 +18,7 @@ package com.kgl.vulkan.dsls
 import com.kgl.vulkan.enums.DescriptorType
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.handles.Sampler
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 import com.kgl.vulkan.utils.VkFlag
 
@@ -28,6 +29,8 @@ expect class DescriptorSetLayoutBindingBuilder {
 	var descriptorType: DescriptorType?
 
 	var stageFlags: VkFlag<ShaderStage>?
+
+	fun next(block: Next<DescriptorSetLayoutBindingBuilder>.() -> Unit)
 
 	internal fun init(immutableSamplers: Collection<Sampler>)
 

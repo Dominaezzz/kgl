@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 import com.kgl.vulkan.utils.VkFlag
 
@@ -35,6 +36,8 @@ expect class DebugReportCallbackCreateInfoEXTBuilder {
 	var flags: VkFlag<DebugReportEXT>?
 
 	fun callback(callback: DebugReportCallbackEXT)
+
+	fun next(block: Next<DebugReportCallbackCreateInfoEXTBuilder>.() -> Unit)
 
 	internal fun init()
 }

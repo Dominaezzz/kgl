@@ -18,6 +18,7 @@ package com.kgl.vulkan.dsls
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.handles.Semaphore
 import com.kgl.vulkan.handles.SwapchainKHR
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.mapToCArray
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
@@ -25,6 +26,10 @@ import cvulkan.VkPresentInfoKHR
 import kotlinx.cinterop.value
 
 actual class PresentInfoKHRBuilder(internal val target: VkPresentInfoKHR) {
+	actual fun next(block: Next<PresentInfoKHRBuilder>.() -> Unit) {
+		Next(this).apply(block)
+	}
+
 	internal actual fun init(swapchains: Collection<Pair<SwapchainKHR, UInt>>, waitSemaphores: Collection<Semaphore>?) {
 		target.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
 		target.pNext = null

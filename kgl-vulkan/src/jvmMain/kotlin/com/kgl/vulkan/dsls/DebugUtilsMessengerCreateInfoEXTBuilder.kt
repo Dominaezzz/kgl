@@ -19,6 +19,7 @@ import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
 import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
 import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
 import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.VkFlag
 import org.lwjgl.vulkan.EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
 import org.lwjgl.vulkan.VK10.VK_FALSE
@@ -48,6 +49,10 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 			)
 			VK_FALSE
 		}
+	}
+
+	actual fun next(block: Next<DebugUtilsMessengerCreateInfoEXTBuilder>.() -> Unit) {
+		Next(this).apply(block)
 	}
 
 	internal actual fun init() {

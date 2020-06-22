@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.ObjectEntryTypeNVX
 import com.kgl.vulkan.enums.ObjectEntryUsageNVX
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 import com.kgl.vulkan.utils.VkFlag
 
@@ -31,6 +32,8 @@ expect class ObjectTableCreateInfoNVXBuilder {
 	var maxSampledImagesPerDescriptor: UInt
 
 	var maxPipelineLayouts: UInt
+
+	fun next(block: Next<ObjectTableCreateInfoNVXBuilder>.() -> Unit)
 
 	internal fun init(
 			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
