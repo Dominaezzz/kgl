@@ -26,6 +26,7 @@ val VK_HANDLE_JVM = ClassName("com.kgl.vulkan.utils", "VkHandleJVM")
 val VK_HANDLE_NATIVE = ClassName("com.kgl.vulkan.utils", "VkHandleNative")
 val VK_VERSION = ClassName("com.kgl.vulkan.utils", "VkVersion")
 val STRUCT_MARKER = ClassName("com.kgl.vulkan.utils", "StructMarker")
+val NEXT = ClassName("com.kgl.vulkan.utils", "Next")
 
 val BASE_OUT_STRUCTURE = ClassName("com.kgl.vulkan.structs", "BaseOutStructure")
 

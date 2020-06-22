@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.DebugReportEXT
 import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.VkFlag
 import org.lwjgl.system.MemoryUtil
 import org.lwjgl.vulkan.EXTDebugReport
@@ -42,6 +43,10 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 			)
 			VK10.VK_FALSE
 		}
+	}
+
+	actual fun next(block: Next<DebugReportCallbackCreateInfoEXTBuilder>.() -> Unit) {
+		Next(this).apply(block)
 	}
 
 	internal actual fun init() {

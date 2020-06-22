@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.PipelineBindPoint
 import com.kgl.vulkan.enums.SubpassDescription
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.mapToStackArray
 import com.kgl.vulkan.utils.toVkType
@@ -64,6 +65,10 @@ actual class SubpassDescription2KHRBuilder(internal val target: VkSubpassDescrip
 		val builder = AttachmentReference2KHRBuilder(subTarget)
 		builder.init()
 		builder.apply(block)
+	}
+
+	actual fun next(block: Next<SubpassDescription2KHRBuilder>.() -> Unit) {
+		Next(this).apply(block)
 	}
 
 	internal actual fun init(preserveAttachments: UIntArray) {

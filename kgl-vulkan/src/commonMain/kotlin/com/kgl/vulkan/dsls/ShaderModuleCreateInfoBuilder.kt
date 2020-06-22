@@ -15,9 +15,12 @@
  */
 package com.kgl.vulkan.dsls
 
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 
 @StructMarker
 expect class ShaderModuleCreateInfoBuilder {
+	fun next(block: Next<ShaderModuleCreateInfoBuilder>.() -> Unit)
+
 	internal fun init(code: UByteArray)
 }

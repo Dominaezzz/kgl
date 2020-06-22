@@ -17,6 +17,7 @@ package com.kgl.vulkan.dsls
 
 import com.kgl.vulkan.enums.PipelineBindPoint
 import com.kgl.vulkan.enums.SubpassDescription
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 import com.kgl.vulkan.utils.VkFlag
 
@@ -33,6 +34,8 @@ expect class SubpassDescriptionBuilder {
 	fun resolveAttachments(block: AttachmentReferencesBuilder.() -> Unit)
 
 	fun depthStencilAttachment(block: AttachmentReferenceBuilder.() -> Unit = {})
+
+	fun next(block: Next<SubpassDescriptionBuilder>.() -> Unit)
 
 	internal fun init(preserveAttachments: UIntArray?)
 }

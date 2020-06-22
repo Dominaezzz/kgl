@@ -18,6 +18,7 @@ package com.kgl.vulkan.dsls
 import com.kgl.vulkan.enums.DescriptorType
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.handles.Sampler
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VkDescriptorSetLayoutBinding
@@ -40,6 +41,10 @@ actual class DescriptorSetLayoutBindingBuilder(internal val target: VkDescriptor
 		set(value) {
 			target.stageFlags = value.toVkType()
 		}
+
+	actual fun next(block: Next<DescriptorSetLayoutBindingBuilder>.() -> Unit) {
+		Next(this).apply(block)
+	}
 
 	internal actual fun init(immutableSamplers: Collection<Sampler>) {
 		target.pImmutableSamplers = immutableSamplers.toVkType()

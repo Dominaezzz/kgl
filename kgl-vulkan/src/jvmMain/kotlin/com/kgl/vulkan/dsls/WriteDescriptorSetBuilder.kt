@@ -18,6 +18,7 @@ package com.kgl.vulkan.dsls
 import com.kgl.vulkan.enums.DescriptorType
 import com.kgl.vulkan.handles.BufferView
 import com.kgl.vulkan.handles.DescriptorSet
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.mapToStackArray
 import com.kgl.vulkan.utils.toVkType
 import org.lwjgl.vulkan.VK11
@@ -52,6 +53,10 @@ actual class WriteDescriptorSetBuilder(internal val target: VkWriteDescriptorSet
 	actual fun bufferInfo(block: DescriptorBufferInfosBuilder.() -> Unit) {
 		val targets = DescriptorBufferInfosBuilder().apply(block).targets
 		target.pBufferInfo(targets.mapToStackArray(VkDescriptorBufferInfo::callocStack, ::DescriptorBufferInfoBuilder))
+	}
+
+	actual fun next(block: Next<WriteDescriptorSetBuilder>.() -> Unit) {
+		Next(this).apply(block)
 	}
 
 	internal actual fun init(dstSet: DescriptorSet, texelBufferView: Collection<BufferView>?) {

@@ -18,6 +18,7 @@ package com.kgl.vulkan.dsls
 import com.kgl.vulkan.enums.DescriptorType
 import com.kgl.vulkan.handles.BufferView
 import com.kgl.vulkan.handles.DescriptorSet
+import com.kgl.vulkan.utils.Next
 import com.kgl.vulkan.utils.StructMarker
 
 @StructMarker
@@ -31,6 +32,8 @@ expect class WriteDescriptorSetBuilder {
 	fun imageInfo(block: DescriptorImageInfosBuilder.() -> Unit)
 
 	fun bufferInfo(block: DescriptorBufferInfosBuilder.() -> Unit)
+
+	fun next(block: Next<WriteDescriptorSetBuilder>.() -> Unit)
 
 	internal fun init(dstSet: DescriptorSet, texelBufferView: Collection<BufferView>?)
 }
