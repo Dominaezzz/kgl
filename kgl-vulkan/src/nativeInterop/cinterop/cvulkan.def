@@ -1,6 +1,6 @@
 package = cvulkan
-headers = vulkan/vulkan.h
-headerFilter = vulkan/*.h
+headers = include/vulkan/vulkan.h
+headerFilter = include/vulkan/*.h
 
 depends.osx = posix
 depends.mingw = posix windows

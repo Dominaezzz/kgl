@@ -123,7 +123,7 @@ kotlin {
 						tasks.named(interopProcessingTaskName) {
 							dependsOn(unzipDocs)
 						}
-						includeDirs(unzipDocs.map { it.destinationDir.resolve("include") })
+						includeDirs(unzipDocs.map { it.destinationDir /* .resolve("include") */ })
 						val headerFlag = when (konanTarget.family) {
 							Family.ANDROID -> "VK_USE_PLATFORM_ANDROID_KHR"
 							Family.IOS -> "VK_USE_PLATFORM_IOS_MVK"
