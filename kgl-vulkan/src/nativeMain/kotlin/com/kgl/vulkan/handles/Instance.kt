@@ -110,11 +110,11 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 		}
 	}
 
-	actual fun getProcAddr(name: String) {
+	actual fun getProcAddr(name: String): Long {
 		val instance = this
 		VirtualStack.push()
 		try {
-			Loader.vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
+			return Loader.vkGetInstanceProcAddr(instance.toVkType(), name.toVkType()).toLong()
 		} finally {
 			VirtualStack.pop()
 		}

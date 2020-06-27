@@ -59,11 +59,11 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun getProcAddr(name: String) {
+	actual fun getProcAddr(name: String): Long {
 		val device = this
 		VirtualStack.push()
 		try {
-			physicalDevice.dispatchTable.vkGetDeviceProcAddr(device.toVkType(), name.toVkType())
+			return physicalDevice.dispatchTable.vkGetDeviceProcAddr(device.toVkType(), name.toVkType()).toLong()
 		} finally {
 			VirtualStack.pop()
 		}

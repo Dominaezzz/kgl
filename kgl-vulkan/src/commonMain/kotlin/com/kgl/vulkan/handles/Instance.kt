@@ -32,7 +32,7 @@ expect class Instance : VkHandle {
 
 	val physicalDeviceGroups: List<PhysicalDeviceGroupProperties>
 
-	fun getProcAddr(name: String)
+	fun getProcAddr(name: String): Long
 
 	fun createDisplayPlaneSurfaceKHR(displayMode: DisplayModeKHR, block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit): SurfaceKHR
 

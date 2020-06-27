@@ -66,11 +66,11 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun getProcAddr(name: String) {
+	actual fun getProcAddr(name: String): Long {
 		val device = this
 		MemoryStack.stackPush()
 		try {
-			vkGetDeviceProcAddr(device.toVkType(), name.toVkType())
+			return vkGetDeviceProcAddr(device.toVkType(), name.toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}

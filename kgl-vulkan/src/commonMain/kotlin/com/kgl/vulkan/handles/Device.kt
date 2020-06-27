@@ -30,7 +30,7 @@ expect class Device : VkHandle {
 
 	val groupPresentCapabilitiesKHR: DeviceGroupPresentCapabilitiesKHR
 
-	fun getProcAddr(name: String)
+	fun getProcAddr(name: String): Long
 
 	fun getQueue(queueFamilyIndex: UInt, queueIndex: UInt): Queue
 

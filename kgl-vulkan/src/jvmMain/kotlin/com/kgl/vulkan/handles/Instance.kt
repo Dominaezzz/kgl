@@ -98,11 +98,11 @@ actual class Instance(
 		}
 	}
 
-	actual fun getProcAddr(name: String) {
+	actual fun getProcAddr(name: String): Long {
 		val instance = this
 		MemoryStack.stackPush()
 		try {
-			vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
+			return vkGetInstanceProcAddr(instance.toVkType(), name.toVkType())
 		} finally {
 			MemoryStack.stackPop()
 		}
