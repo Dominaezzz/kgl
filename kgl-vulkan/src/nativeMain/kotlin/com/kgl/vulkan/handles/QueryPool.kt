@@ -15,13 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
 import cvulkan.VK_NOT_READY
 import cvulkan.VK_SUCCESS
 import cvulkan.VkQueryPool
-import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
 
 actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(), VkHandle {
@@ -41,7 +41,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: Memory,
+			data: DirectMemory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
@@ -51,7 +51,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		try {
 			val result = dispatchTable.vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
 					firstQuery.toVkType(), queryCount.toVkType(),
-					data.size.toULong(), data.pointer,
+					data.size.toULong(), data.asCPointer(),
 					stride.toVkType(), flags.toVkType())
 			return when (result) {
 				VK_SUCCESS -> true

@@ -15,7 +15,6 @@
  */
 package com.kgl.glfw
 
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.core.ExperimentalIoApi
+import com.kgl.core.DirectMemory
 
-data class Image @ExperimentalIoApi constructor(val pixels: Memory, val width: Int, val height: Int)
+data class Image(val pixels: DirectMemory, val width: Int, val height: Int)

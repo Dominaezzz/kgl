@@ -15,10 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
 
 expect class QueryPool : VkHandle {
 	val device: Device
@@ -26,7 +26,7 @@ expect class QueryPool : VkHandle {
 	fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: Memory,
+			data: DirectMemory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean

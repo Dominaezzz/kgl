@@ -20,12 +20,11 @@ import com.squareup.kotlinpoet.MemberName
 
 
 internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
+internal val DIRECT_BUFFER = ClassName("com.kgl.core", "DirectMemory")
 internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
 internal val BYTE_VAR = ClassName("kotlinx.cinterop", "ByteVar")
 
 internal val THREAD_LOCAL = ClassName("kotlin.native.concurrent", "ThreadLocal")
-
-internal val MEMORY = ClassName("io.ktor.utils.io.bits", "Memory")
 
 internal val PAIR = ClassName("kotlin", "Pair")
 

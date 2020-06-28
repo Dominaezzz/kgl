@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import io.ktor.utils.io.core.Closeable
+import com.kgl.core.Closeable
 
 expect class Cursor : Closeable {
 	constructor(image: Image, xhot: Int, yhot: Int)

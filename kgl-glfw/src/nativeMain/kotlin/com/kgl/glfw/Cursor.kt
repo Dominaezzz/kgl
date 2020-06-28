@@ -17,12 +17,12 @@ package com.kgl.glfw
 
 import cglfw.*
 import cnames.structs.GLFWcursor
+import com.kgl.core.Closeable
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.reinterpret
-import io.ktor.utils.io.core.Closeable
 
 actual class Cursor : Closeable {
 	val ptr: CPointer<GLFWcursor>?
@@ -34,7 +34,7 @@ actual class Cursor : Closeable {
 					VirtualStack.alloc<GLFWimage> {
 						width = image.width
 						height = image.height
-						pixels = image.pixels.pointer.reinterpret()
+						pixels = image.pixels.asCPointer().reinterpret()
 					}.ptr,
 					xhot,
 					yhot

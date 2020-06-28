@@ -16,7 +16,6 @@
 package config
 
 object Versions {
-	const val KTOR_IO = "1.3.2"
 	const val LWJGL = "3.2.2"
 	val LWJGL_NATIVES = when {
 		Config.OS.isWindows -> "natives-windows"

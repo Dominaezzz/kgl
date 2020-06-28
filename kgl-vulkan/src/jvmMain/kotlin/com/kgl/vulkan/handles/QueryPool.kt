@@ -15,9 +15,9 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.bits.Memory
 import org.lwjgl.system.MemoryStack
 import org.lwjgl.vulkan.VK11.*
 
@@ -36,14 +36,14 @@ actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHa
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: Memory,
+			data: DirectMemory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {
 		MemoryStack.stackPush()
 		try {
 			val result = vkGetQueryPoolResults(device.toVkType(), ptr,
-					firstQuery.toVkType(), queryCount.toVkType(), data.buffer,
+					firstQuery.toVkType(), queryCount.toVkType(), data.asJvmByteBuffer(),
 					stride.toVkType(), flags.toVkType())
 			return when (result) {
 				VK_SUCCESS -> true

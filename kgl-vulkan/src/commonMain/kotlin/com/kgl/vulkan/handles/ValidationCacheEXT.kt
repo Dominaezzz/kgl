@@ -15,13 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
 
 expect class ValidationCacheEXT : VkHandle {
 	val device: Device
 
-	fun getData(data: Memory?)
+	fun getData(data: DirectMemory?)
 
 	fun merge(srcCaches: Collection<ValidationCacheEXT>)
 }

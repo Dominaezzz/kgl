@@ -12,7 +12,6 @@ kotlin {
 		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
-				api("io.ktor:ktor-io:${Versions.KTOR_IO}")
 			}
 		}
 		commonTest {
@@ -29,7 +28,6 @@ kotlin {
 				dependencies {
 					implementation(kotlin("stdlib-jdk8"))
 					api("org.lwjgl:lwjgl:${Versions.LWJGL}")
-					api("io.ktor:ktor-io-jvm:${Versions.KTOR_IO}")
 				}
 			}
 			"test" {
@@ -46,7 +44,6 @@ kotlin {
 			"main" {
 				dependencies {
 					implementation(kotlin("stdlib-js"))
-					api("io.ktor:ktor-io-js:${Versions.KTOR_IO}")
 				}
 			}
 			"test" {
@@ -73,9 +70,6 @@ kotlin {
 				defaultSourceSet {
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")
-				}
-				dependencies {
-					api("io.ktor:ktor-io-native:${Versions.KTOR_IO}")
 				}
 			}
 

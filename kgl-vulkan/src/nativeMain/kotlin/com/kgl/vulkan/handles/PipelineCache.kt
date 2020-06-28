@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
@@ -23,7 +24,6 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_INCOMPLETE
 import cvulkan.VK_SUCCESS
 import cvulkan.VkPipelineCache
-import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.*
 
 actual class PipelineCache(override val ptr: VkPipelineCache, actual val device: Device) : VkHandleNative<VkPipelineCache>(), VkHandle {
@@ -59,7 +59,7 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 			}
 		}
 
-	actual fun getData(data: Memory): Boolean {
+	actual fun getData(data: DirectMemory): Boolean {
 		val pipelineCache = this
 		val device = pipelineCache.device
 		VirtualStack.push()
@@ -67,7 +67,7 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 			val outputSize = VirtualStack.alloc<ULongVar>()
 			outputSize.value = data.size.toULong()
 
-			val result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, data.pointer)
+			val result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, data.asCPointer())
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_INCOMPLETE -> false

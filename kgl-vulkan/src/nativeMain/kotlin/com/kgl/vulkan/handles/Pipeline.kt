@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
@@ -24,7 +25,6 @@ import com.kgl.vulkan.utils.handleVkResult
 import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkPipeline
-import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.invoke
 
 actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
@@ -44,7 +44,7 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 	actual fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: Memory?
+			info: DirectMemory?
 	) {
 		TODO()
 		val pipeline = this
@@ -77,13 +77,13 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		}
 	}
 
-	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: Memory) {
+	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: DirectMemory) {
 		val pipeline = this
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
 			val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(device.toVkType(), pipeline.toVkType(),
-					firstGroup.toVkType(), groupCount.toVkType(), data.size.toULong(), data.pointer)
+					firstGroup.toVkType(), groupCount.toVkType(), data.size.toULong(), data.asCPointer())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()

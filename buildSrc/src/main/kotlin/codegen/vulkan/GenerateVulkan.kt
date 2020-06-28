@@ -845,7 +845,7 @@ open class GenerateVulkan : DefaultTask() {
 					1 -> {
 						when(typeName) {
 							"char" -> STRING
-							"void" -> if (len.isNotEmpty()) MEMORY else LONG
+							"void" -> if (len.isNotEmpty()) DIRECT_BUFFER else LONG
 							else -> {
 								val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
 								arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
@@ -1458,14 +1458,14 @@ open class GenerateVulkan : DefaultTask() {
 									}
 									val isOptional = member.optional || lengthParam?.optional == true
 									if (lengthParam != null) {
-										addParameter(memberNameKt, MEMORY.copy(nullable = isOptional))
+										addParameter(memberNameKt, DIRECT_BUFFER.copy(nullable = isOptional))
 
 										val assert = if (isOptional) "?" else ""
 										if (platform == Platform.JVM) {
-											addStatement("target.${member.name}($memberNameKt$assert.buffer)")
+											addStatement("target.${member.name}($memberNameKt$assert.asJvmByteBuffer())")
 										} else {
 											if (isOptional) beginControlFlow("if ($memberNameKt != null)")
-											addStatement("target.${member.name} = $memberNameKt.pointer")
+											addStatement("target.${member.name} = $memberNameKt.asCPointer()")
 											addStatement("target.${member.len[0]} = $memberNameKt.size.%M()", KtxC.CONVERT)
 											if (isOptional) {
 												nextControlFlow("else")

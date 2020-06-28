@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleNative
@@ -25,7 +26,6 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.value
-import io.ktor.utils.io.bits.Memory
 
 actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descriptorPool: DescriptorPool) : VkHandleNative<VkDescriptorSet>(), VkHandle {
 	internal val dispatchTable = descriptorPool.dispatchTable
@@ -40,11 +40,11 @@ actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descrip
 		}
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: DirectMemory) {
 		VirtualStack.push()
 		try {
 			dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
-					descriptorUpdateTemplate.toVkType(), data.pointer)
+					descriptorUpdateTemplate.toVkType(), data.asCPointer())
 		} finally {
 			VirtualStack.pop()
 		}

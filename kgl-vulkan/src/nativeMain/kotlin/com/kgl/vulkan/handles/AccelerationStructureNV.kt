@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
@@ -28,7 +29,6 @@ import cvulkan.VK_SUCCESS
 import cvulkan.VkAccelerationStructureMemoryRequirementsInfoNV
 import cvulkan.VkAccelerationStructureNV
 import cvulkan.VkMemoryRequirements2
-import io.ktor.utils.io.bits.Memory
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.invoke
 import kotlinx.cinterop.pointed
@@ -49,13 +49,13 @@ actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV
 		}
 	}
 
-	actual fun getHandle(pData: Memory) {
+	actual fun getHandle(pData: DirectMemory) {
 		val accelerationStructure = this
 		val device = accelerationStructure.device
 		VirtualStack.push()
 		try {
 			val result = dispatchTable.vkGetAccelerationStructureHandleNV!!(device.toVkType(),
-					accelerationStructure.toVkType(), pData.size.toULong(), pData.pointer)
+					accelerationStructure.toVkType(), pData.size.toULong(), pData.asCPointer())
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()

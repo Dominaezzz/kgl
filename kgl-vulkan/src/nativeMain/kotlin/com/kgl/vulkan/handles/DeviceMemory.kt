@@ -15,6 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.VkHandle
@@ -24,8 +25,6 @@ import com.kgl.vulkan.utils.toVkType
 import cvulkan.VK_SUCCESS
 import cvulkan.VkDeviceMemory
 import cvulkan.VkMemoryGetFdInfoKHR
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.bits.of
 import kotlinx.cinterop.*
 
 actual class DeviceMemory(
@@ -62,7 +61,7 @@ actual class DeviceMemory(
 		}
 	}
 
-	actual fun map(offset: ULong, size: ULong): Memory {
+	actual fun map(offset: ULong, size: ULong): DirectMemory {
 		val memory = this
 		val device = memory.device
 		VirtualStack.push()
@@ -72,7 +71,7 @@ actual class DeviceMemory(
 			val result = dispatchTable.vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
 					size.toVkType(), 0U.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Memory.of(outputVar.value!!, size.toInt())
+			return DirectMemory(outputVar.value!!.reinterpret(), size.toLong())
 		} finally {
 			VirtualStack.pop()
 		}
