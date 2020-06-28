@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
@@ -49,7 +49,7 @@ actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV
 		}
 	}
 
-	actual fun getHandle(pData: ByteBuffer) {
+	actual fun getHandle(pData: DirectMemory) {
 		val accelerationStructure = this
 		val device = accelerationStructure.device
 		VirtualStack.push()

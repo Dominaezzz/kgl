@@ -3,10 +3,10 @@ package com.kgl.core
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 
-actual inline fun <T> withByteBuffer(length: Long, block: (ByteBuffer) -> T): T {
+actual inline fun <T> withMemory(length: Long, block: (DirectMemory) -> T): T {
 	val array = ByteArray(length.toInt())
 	return array.usePinned {
-		val buffer = ByteBuffer(it.addressOf(0), length)
+		val buffer = DirectMemory(it.addressOf(0), length)
 		block(buffer)
 	}
 }

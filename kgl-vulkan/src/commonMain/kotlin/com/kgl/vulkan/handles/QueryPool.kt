@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.VkFlag
 import com.kgl.vulkan.utils.VkHandle
@@ -26,7 +26,7 @@ expect class QueryPool : VkHandle {
 	fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: ByteBuffer,
+			data: DirectMemory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean

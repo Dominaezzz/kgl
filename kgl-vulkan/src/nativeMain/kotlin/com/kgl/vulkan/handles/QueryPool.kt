@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.enums.QueryResult
 import com.kgl.vulkan.utils.*
@@ -41,7 +41,7 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 	actual fun getResults(
 			firstQuery: UInt,
 			queryCount: UInt,
-			data: ByteBuffer,
+			data: DirectMemory,
 			stride: ULong,
 			flags: VkFlag<QueryResult>?
 	): Boolean {

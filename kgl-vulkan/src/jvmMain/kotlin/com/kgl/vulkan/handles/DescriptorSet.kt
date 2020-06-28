@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.toVkType
@@ -28,7 +28,7 @@ actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: De
 		vkFreeDescriptorSets(descriptorPool.device.ptr, descriptorPool.ptr, ptr)
 	}
 
-	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: ByteBuffer) {
+	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: DirectMemory) {
 		TODO()
 		MemoryStack.stackPush()
 		try {

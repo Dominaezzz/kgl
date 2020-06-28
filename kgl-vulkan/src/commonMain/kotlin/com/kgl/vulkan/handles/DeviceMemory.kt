@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.VkHandle
 
@@ -26,7 +26,7 @@ expect class DeviceMemory : VkHandle {
 
 	val commitment: ULong
 
-	fun map(offset: ULong, size: ULong): ByteBuffer
+	fun map(offset: ULong, size: ULong): DirectMemory
 
 	fun unmap()
 

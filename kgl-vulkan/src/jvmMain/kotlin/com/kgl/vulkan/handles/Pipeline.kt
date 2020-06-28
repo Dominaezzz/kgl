@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.utils.VkHandle
@@ -43,7 +43,7 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 	actual fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: ByteBuffer?
+			info: DirectMemory?
 	) {
 		TODO()
 		val pipeline = this
@@ -75,7 +75,7 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		}
 	}
 
-	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: ByteBuffer) {
+	actual fun getRayTracingShaderGroupHandlesNV(firstGroup: UInt, groupCount: UInt, data: DirectMemory) {
 		val pipeline = this
 		val device = pipeline.device
 		MemoryStack.stackPush()

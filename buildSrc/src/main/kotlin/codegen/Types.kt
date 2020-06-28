@@ -20,7 +20,7 @@ import com.squareup.kotlinpoet.MemberName
 
 
 internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")
-internal val BYTE_BUFFER = ClassName("com.kgl.core", "ByteBuffer")
+internal val DIRECT_BUFFER = ClassName("com.kgl.core", "DirectMemory")
 internal val C_OPAQUE_POINTER = ClassName("kotlinx.cinterop", "COpaquePointer")
 internal val BYTE_VAR = ClassName("kotlinx.cinterop", "ByteVar")
 

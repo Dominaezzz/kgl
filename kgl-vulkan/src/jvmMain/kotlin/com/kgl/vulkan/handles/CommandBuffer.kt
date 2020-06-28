@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
@@ -405,7 +405,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: ByteBuffer) {
+	actual fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: DirectMemory) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
@@ -596,7 +596,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: ByteBuffer
+			values: DirectMemory
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
@@ -824,7 +824,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: ByteBuffer
+			data: DirectMemory
 	) {
 		TODO()
 		val commandBuffer = this
@@ -979,7 +979,7 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		}
 	}
 
-	actual fun setCheckpointNV(pCheckpointMarker: ByteBuffer) {
+	actual fun setCheckpointNV(pCheckpointMarker: DirectMemory) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()

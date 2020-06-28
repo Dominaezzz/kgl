@@ -15,22 +15,22 @@
  */
 package com.kgl.stb
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.core.Closeable
 
 expect class STBImage : Closeable {
-	val buffer: ByteBuffer
+	val buffer: DirectMemory
 	val info: STBInfo
 
 	companion object {
-		fun load(buffer: ByteBuffer, desiredChannels: Channels? = null): STBImage
+		fun load(buffer: DirectMemory, desiredChannels: Channels? = null): STBImage
 		fun load(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
 		// fun loadGif(buffer: ByteBuffer, desiredChannels: Channels? = null): STBImage
 
-		fun load16(buffer: ByteBuffer, desiredChannels: Channels? = null): STBImage
+		fun load16(buffer: DirectMemory, desiredChannels: Channels? = null): STBImage
 		fun load16(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
 
-		fun loadf(buffer: ByteBuffer, desiredChannels: Channels? = null): STBImage
+		fun loadf(buffer: DirectMemory, desiredChannels: Channels? = null): STBImage
 		fun loadf(callbacks: STBIOCallbacks, desiredChannels: Channels? = null): STBImage
 
 		fun setHdrToLdrGamma(gamma: Float)
@@ -40,15 +40,15 @@ expect class STBImage : Closeable {
 		fun setLdrToHdrScale(scale: Float)
 
 		fun isHdr(callbacks: STBIOCallbacks): Boolean
-		fun isHdr(buffer: ByteBuffer): Boolean
+		fun isHdr(buffer: DirectMemory): Boolean
 
 		val failureReason: String?
 
-		fun loadInfo(buffer: ByteBuffer): STBInfo
+		fun loadInfo(buffer: DirectMemory): STBInfo
 		fun loadInfo(callbacks: STBIOCallbacks): STBInfo
 
 		fun is16Bit(callbacks: STBIOCallbacks): Boolean
-		fun is16Bit(buffer: ByteBuffer): Boolean
+		fun is16Bit(buffer: DirectMemory): Boolean
 
 		/**
 		 * For image formats that explicitly notate that they have premultiplied alpha,

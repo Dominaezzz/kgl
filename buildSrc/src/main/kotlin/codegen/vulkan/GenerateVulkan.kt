@@ -845,7 +845,7 @@ open class GenerateVulkan : DefaultTask() {
 					1 -> {
 						when(typeName) {
 							"char" -> STRING
-							"void" -> if (len.isNotEmpty()) BYTE_BUFFER else LONG
+							"void" -> if (len.isNotEmpty()) DIRECT_BUFFER else LONG
 							else -> {
 								val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
 								arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
@@ -1458,7 +1458,7 @@ open class GenerateVulkan : DefaultTask() {
 									}
 									val isOptional = member.optional || lengthParam?.optional == true
 									if (lengthParam != null) {
-										addParameter(memberNameKt, BYTE_BUFFER.copy(nullable = isOptional))
+										addParameter(memberNameKt, DIRECT_BUFFER.copy(nullable = isOptional))
 
 										val assert = if (isOptional) "?" else ""
 										if (platform == Platform.JVM) {

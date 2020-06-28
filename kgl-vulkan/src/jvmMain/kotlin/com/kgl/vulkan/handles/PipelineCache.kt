@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
@@ -54,7 +54,7 @@ actual class PipelineCache(override val ptr: Long, actual val device: Device) : 
 			}
 		}
 
-	actual fun getData(data: ByteBuffer): Boolean {
+	actual fun getData(data: DirectMemory): Boolean {
 		val pipelineCache = this
 		val device = pipelineCache.device
 		MemoryStack.stackPush()

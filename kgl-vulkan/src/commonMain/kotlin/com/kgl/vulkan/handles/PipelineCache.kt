@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.utils.VkHandle
 
 expect class PipelineCache : VkHandle {
@@ -23,7 +23,7 @@ expect class PipelineCache : VkHandle {
 
 	val dataSize: ULong
 
-	fun getData(data: ByteBuffer): Boolean
+	fun getData(data: DirectMemory): Boolean
 
 	fun merge(srcCaches: Collection<PipelineCache>)
 }

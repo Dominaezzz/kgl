@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.VkFlag
@@ -97,7 +97,7 @@ expect class CommandBuffer : VkHandle {
 
 	fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: BufferImageCopysBuilder.() -> Unit)
 
-	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: ByteBuffer)
+	fun updateBuffer(dstBuffer: Buffer, dstOffset: ULong, data: DirectMemory)
 
 	fun fillBuffer(dstBuffer: Buffer, dstOffset: ULong, size: ULong, data: UInt)
 
@@ -148,7 +148,7 @@ expect class CommandBuffer : VkHandle {
 			layout: PipelineLayout,
 			stageFlags: VkFlag<ShaderStage>,
 			offset: UInt,
-			values: ByteBuffer
+			values: DirectMemory
 	)
 
 	fun beginRenderPass(
@@ -225,7 +225,7 @@ expect class CommandBuffer : VkHandle {
 			descriptorUpdateTemplate: DescriptorUpdateTemplate,
 			layout: PipelineLayout,
 			set: UInt,
-			data: ByteBuffer
+			data: DirectMemory
 	)
 
 	fun setViewportWScalingNV(firstViewport: UInt, block: ViewportWScalingNVsBuilder.() -> Unit)
@@ -262,7 +262,7 @@ expect class CommandBuffer : VkHandle {
 			stride: UInt
 	)
 
-	fun setCheckpointNV(pCheckpointMarker: ByteBuffer)
+	fun setCheckpointNV(pCheckpointMarker: DirectMemory)
 
 	fun bindTransformFeedbackBuffersEXT(
 			firstBinding: UInt,

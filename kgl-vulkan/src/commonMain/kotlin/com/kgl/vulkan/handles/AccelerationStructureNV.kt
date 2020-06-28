@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
 import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
 import com.kgl.vulkan.structs.MemoryRequirements2
@@ -24,7 +24,7 @@ import com.kgl.vulkan.utils.VkHandle
 expect class AccelerationStructureNV : VkHandle {
 	val device: Device
 
-	fun getHandle(pData: ByteBuffer)
+	fun getHandle(pData: DirectMemory)
 
 	fun getMemoryRequirements(type: AccelerationStructureMemoryRequirementsTypeNV, block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit = {}): MemoryRequirements2
 }

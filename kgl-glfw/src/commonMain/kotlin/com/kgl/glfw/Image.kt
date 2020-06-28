@@ -15,6 +15,6 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 
-data class Image(val pixels: ByteBuffer, val width: Int, val height: Int)
+data class Image(val pixels: DirectMemory, val width: Int, val height: Int)

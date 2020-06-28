@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.DescriptorSetLayoutSupport
@@ -60,7 +60,7 @@ expect class Device : VkHandle {
 
 	fun createShaderModule(code: UByteArray, block: ShaderModuleCreateInfoBuilder.() -> Unit = {}): ShaderModule
 
-	fun createPipelineCache(initialData: ByteBuffer? = null, block: PipelineCacheCreateInfoBuilder.() -> Unit = {}): PipelineCache
+	fun createPipelineCache(initialData: DirectMemory? = null, block: PipelineCacheCreateInfoBuilder.() -> Unit = {}): PipelineCache
 
 	fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>? = null, block: PipelineLayoutCreateInfoBuilder.() -> Unit = {}): PipelineLayout
 
@@ -93,7 +93,7 @@ expect class Device : VkHandle {
 
 	fun debugMarkerSetObjectNameEXT(block: DebugMarkerObjectNameInfoEXTBuilder.() -> Unit = {})
 
-	fun debugMarkerSetObjectTagEXT(tag: ByteBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit = {})
+	fun debugMarkerSetObjectTagEXT(tag: DirectMemory, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit = {})
 
 	fun createIndirectCommandsLayoutNVX(block: IndirectCommandsLayoutCreateInfoNVXBuilder.() -> Unit): IndirectCommandsLayoutNVX
 
@@ -126,13 +126,13 @@ expect class Device : VkHandle {
 
 	fun getQueue2(block: DeviceQueueInfo2Builder.() -> Unit = {}): Queue
 
-	fun createValidationCacheEXT(initialData: ByteBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}): ValidationCacheEXT
+	fun createValidationCacheEXT(initialData: DirectMemory?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}): ValidationCacheEXT
 
 	fun getDescriptorSetLayoutSupport(block: DescriptorSetLayoutCreateInfoBuilder.() -> Unit): DescriptorSetLayoutSupport
 
 	fun setDebugUtilsObjectNameEXT(block: DebugUtilsObjectNameInfoEXTBuilder.() -> Unit = {})
 
-	fun setDebugUtilsObjectTagEXT(tag: ByteBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
+	fun setDebugUtilsObjectTagEXT(tag: DirectMemory, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
 
 	fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: Long): MemoryHostPointerPropertiesEXT
 

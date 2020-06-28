@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
 import com.kgl.vulkan.utils.handleVkResult
@@ -37,7 +37,7 @@ actual class ValidationCacheEXT(override val ptr: Long, actual val device: Devic
 		}
 	}
 
-	actual fun getData(data: ByteBuffer?) {
+	actual fun getData(data: DirectMemory?) {
 		TODO()
 		val validationCache = this
 		val device = validationCache.device

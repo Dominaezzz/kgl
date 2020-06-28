@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
 import com.kgl.vulkan.utils.VkHandle
 import com.kgl.vulkan.utils.VkHandleJVM
@@ -56,7 +56,7 @@ actual class DeviceMemory(override val ptr: Long,
 		}
 	}
 
-	actual fun map(offset: ULong, size: ULong): ByteBuffer {
+	actual fun map(offset: ULong, size: ULong): DirectMemory {
 		val memory = this
 		val device = memory.device
 		MemoryStack.stackPush()
@@ -65,7 +65,7 @@ actual class DeviceMemory(override val ptr: Long,
 			val result = vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
 					size.toVkType(), 0U.toVkType(), outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return ByteBuffer(outputPtr.getByteBuffer(size.toInt()))
+			return DirectMemory(outputPtr.getByteBuffer(size.toInt()))
 		} finally {
 			MemoryStack.stackPop()
 		}

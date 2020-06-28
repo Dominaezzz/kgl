@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.vulkan.enums.ShaderInfoTypeAMD
 import com.kgl.vulkan.enums.ShaderStage
 import com.kgl.vulkan.utils.VkHandle
@@ -26,7 +26,7 @@ expect class Pipeline : VkHandle {
 	fun getShaderInfoAMD(
 			shaderStage: ShaderStage,
 			infoType: ShaderInfoTypeAMD,
-			info: ByteBuffer?
+			info: DirectMemory?
 	)
 
 	fun compileDeferredNV(shader: UInt)
@@ -34,7 +34,7 @@ expect class Pipeline : VkHandle {
 	fun getRayTracingShaderGroupHandlesNV(
 			firstGroup: UInt,
 			groupCount: UInt,
-			data: ByteBuffer
+			data: DirectMemory
 	)
 }
 

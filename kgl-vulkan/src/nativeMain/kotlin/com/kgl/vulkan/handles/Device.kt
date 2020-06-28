@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.ByteBuffer
+import com.kgl.core.DirectMemory
 import com.kgl.core.VirtualStack
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
@@ -294,7 +294,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createPipelineCache(initialData: ByteBuffer?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
+	actual fun createPipelineCache(initialData: DirectMemory?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -555,7 +555,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun debugMarkerSetObjectTagEXT(tag: ByteBuffer, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun debugMarkerSetObjectTagEXT(tag: DirectMemory, block: DebugMarkerObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -786,7 +786,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createValidationCacheEXT(initialData: ByteBuffer?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
+	actual fun createValidationCacheEXT(initialData: DirectMemory?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
 		val device = this
 		VirtualStack.push()
 		try {
@@ -836,7 +836,7 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun setDebugUtilsObjectTagEXT(tag: ByteBuffer, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
+	actual fun setDebugUtilsObjectTagEXT(tag: DirectMemory, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit) {
 		val device = this
 		VirtualStack.push()
 		try {
