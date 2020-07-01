@@ -504,7 +504,6 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		JNINativeInterface.DeleteGlobalRef(globalRef)
 
 		glfwDestroyWindow(ptr)
-		glfwTerminate()
 	}
 
 	actual companion object {

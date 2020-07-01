@@ -512,7 +512,6 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	override fun close() {
 		glfwGetWindowUserPointer(ptr)!!.asStableRef<Window>().dispose()
 		glfwDestroyWindow(ptr)
-		glfwTerminate()
 	}
 
 	actual companion object {
