@@ -104,6 +104,7 @@ expect class Window : Closeable {
 		var contextVersionMinor: Int
 		var contextRobustness: Robustness
 		var releaseBehaviour: ReleaseBehaviour
+		var contextNoError: Boolean
 		var openGLForwardCompat: Boolean
 		var openGLDebugContext: Boolean
 		var openGLProfile: OpenGLProfile
@@ -130,7 +131,10 @@ expect class Window : Closeable {
 		var autoIconify: Boolean
 		var floating: Boolean
 		var maximized: Boolean
+		var centerCursor: Boolean
 		var transparentFramebuffer: Boolean
+		var focusOnShow: Boolean
+		var scaleToMonitor: Boolean
 
 		var refreshRate: Int
 	}

@@ -570,6 +570,12 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 				glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, value.value)
 			}
 
+		actual var contextNoError: Boolean
+			get() = TODO("Querying window hints is not supported")
+			set(value) {
+				glfwWindowHint(GLFW_CONTEXT_NO_ERROR, if (value) GLFW_TRUE else GLFW_FALSE)
+			}
+
 		actual var openGLForwardCompat: Boolean
 			get() = TODO("Querying window hints is not supported")
 			set(value) {
@@ -715,10 +721,28 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 				glfwWindowHint(GLFW_MAXIMIZED, if (value) GLFW_TRUE else GLFW_FALSE)
 			}
 
+		actual var centerCursor: Boolean
+			get() = TODO("Querying window hints is not supported")
+			set(value) {
+				glfwWindowHint(GLFW_CENTER_CURSOR, if (value) GLFW_TRUE else GLFW_FALSE)
+			}
+
 		actual var transparentFramebuffer: Boolean
 			get() = TODO("Querying window hints is not supported")
 			set(value) {
 				glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
+			}
+
+		actual var focusOnShow: Boolean
+			get() = TODO("Querying window hints is not supported")
+			set(value) {
+				glfwWindowHint(GLFW_FOCUS_ON_SHOW, if (value) GLFW_TRUE else GLFW_FALSE)
+			}
+
+		actual var scaleToMonitor: Boolean
+			get() = TODO("Querying window hints is not supported")
+			set(value) {
+				glfwWindowHint(GLFW_SCALE_TO_MONITOR, if (value) GLFW_TRUE else GLFW_FALSE)
 			}
 
 		actual var refreshRate: Int
