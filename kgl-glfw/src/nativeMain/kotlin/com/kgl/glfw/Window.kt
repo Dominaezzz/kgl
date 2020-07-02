@@ -179,7 +179,7 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 	actual val isHovered: Boolean
 		get() = glfwGetWindowAttrib(ptr, GLFW_HOVERED) == GLFW_TRUE
 
-	actual val isTransparentFramebuffer: Boolean
+	actual val hasTransparentFramebuffer: Boolean
 		get() = glfwGetWindowAttrib(ptr, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE
 
 	actual val clientApi: ClientApi
@@ -187,6 +187,15 @@ actual class Window @PublishedApi internal constructor(val ptr: CPointer<GLFWwin
 
 	actual val contextCreationApi: CreationApi
 		get() = CreationApi.from(glfwGetWindowAttrib(ptr, GLFW_CONTEXT_CREATION_API))
+
+	actual val contextVersionMajor: Int
+		get() = glfwGetWindowAttrib(ptr, GLFW_CONTEXT_VERSION_MAJOR)
+
+	actual val contextVersionMinor: Int
+		get() = glfwGetWindowAttrib(ptr, GLFW_CONTEXT_VERSION_MINOR)
+
+	actual val contextRevision: Int
+		get() = glfwGetWindowAttrib(ptr, GLFW_CONTEXT_REVISION)
 
 	actual val openGLForwardCompat: Boolean
 		get() = glfwGetWindowAttrib(ptr, GLFW_OPENGL_FORWARD_COMPAT) == GLFW_TRUE

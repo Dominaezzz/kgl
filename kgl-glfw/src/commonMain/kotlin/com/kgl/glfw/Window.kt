@@ -35,9 +35,12 @@ expect class Window : Closeable {
 	val isFocused: Boolean
 	val isMaximized: Boolean
 	val isHovered: Boolean
-	val isTransparentFramebuffer: Boolean
+	val hasTransparentFramebuffer: Boolean
 	val clientApi: ClientApi
 	val contextCreationApi: CreationApi
+	val contextVersionMajor: Int
+	val contextVersionMinor: Int
+	val contextRevision: Int
 	val openGLForwardCompat: Boolean
 	val openGLDebugContext: Boolean
 	val openGLProfile: OpenGLProfile
