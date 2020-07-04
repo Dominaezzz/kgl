@@ -58,6 +58,178 @@ actual object Glfw {
 		}
 	actual val versionString: String get() = glfwGetVersionString()
 
+	actual val windowHints = object : WindowHints {
+		override var resizable: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_RESIZABLE, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var visible: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_VISIBLE, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var decorated: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_DECORATED, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var focused: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_FOCUSED, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var autoIconify: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_AUTO_ICONIFY, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var floating: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_FLOATING, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var maximized: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_MAXIMIZED, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var centerCursor: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CENTER_CURSOR, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var transparentFrameBuffer: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var focusOnShow: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_FOCUS_ON_SHOW, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var scaleToMonitor: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_SCALE_TO_MONITOR, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var redBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_RED_BITS, value)
+
+		override var greenBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_GREEN_BITS, value)
+
+		override var blueBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_BLUE_BITS, value)
+
+		override var alphaBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_ALPHA_BITS, value)
+
+		override var depthBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_DEPTH_BITS, value)
+
+		override var stencilBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_STENCIL_BITS, value)
+
+		override var accumRedBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_ACCUM_RED_BITS, value)
+
+		override var accumGreenBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_ACCUM_GREEN_BITS, value)
+
+		override var accumBlueBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_ACCUM_BLUE_BITS, value)
+
+		override var accumAlphaBits: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, value)
+
+		override var auxBuffers: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_AUX_BUFFERS, value)
+
+		override var stereo: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_STEREO, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var samples: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_SAMPLES, value)
+
+		override var srgbCapable: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_SRGB_CAPABLE, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var doubleBuffer: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_DOUBLEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var refreshRate: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_REFRESH_RATE, value)
+
+		override var clientApi: ClientApi
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CLIENT_API, value.value)
+
+		override var contextCreationApi: CreationApi
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_CREATION_API, value.value)
+
+		override var contextVersionMajor: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, value)
+
+		override var contextVersionMinor: Int
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, value)
+
+		override var openGLForwardCompat: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var openGLDebugContext: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var openGLProfile: OpenGLProfile
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_OPENGL_PROFILE, value.value)
+
+		override var contextRobustness: Robustness
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, value.value)
+
+		override var contextReleaseBehavior: ReleaseBehaviour
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, value.value)
+
+		override var contextNoError: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_CONTEXT_NO_ERROR, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var cocoaRetinaFrameBuffer: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var cocoaFrameName: String
+			get() = error("")
+			set(value) = glfwWindowHintString(GLFW_COCOA_FRAME_NAME, value)
+
+		override var cocoaGraphicsSwitching: Boolean
+			get() = error("")
+			set(value) = glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, if (value) GLFW_TRUE else GLFW_FALSE)
+
+		override var x11ClassName: String
+			get() = error("")
+			set(value) = glfwWindowHintString(GLFW_X11_CLASS_NAME, value)
+
+		override var x11InstanceName: String
+			get() = error("")
+			set(value) = glfwWindowHintString(GLFW_X11_INSTANCE_NAME, value)
+
+		override fun restoreDefaults() = glfwDefaultWindowHints()
+	}
+
 	actual fun init(): Boolean = glfwInit()
 	actual fun terminate() {
 		glfwTerminate()

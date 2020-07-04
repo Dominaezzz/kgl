@@ -28,6 +28,7 @@ expect object Glfw {
 
 	val version: GlfwVersion
 	val versionString: String
+	val windowHints: WindowHints
 
 	fun init(): Boolean
 	fun terminate()

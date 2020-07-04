@@ -15,9 +15,7 @@
  */
 package com.kgl.glfw
 
-import kotlin.test.Ignore
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlin.test.*
 
 class SampleTests {
 	@Test
@@ -29,23 +27,26 @@ class SampleTests {
 	@Test
 	@Ignore
 	fun testBasicWindow() {
-		val window = Window(640, 480, "Test window", null, null) {
-			clientApi = ClientApi.None
-		}
+		Glfw.init()
+		Glfw.windowHints.clientApi = ClientApi.None
+
+		val window = Window(640, 480, "Test window")
 
 		while (!window.shouldClose) {
 			Glfw.pollEvents()
 		}
 
 		window.close()
+		Glfw.terminate()
 	}
 
 	@Test
 	@Ignore
 	fun testPerformance() {
-		val window = Window(640, 480, "Test window", null, null) {
-			clientApi = ClientApi.None
-		}
+		Glfw.init()
+		Glfw.windowHints.clientApi = ClientApi.None
+
+		val window = Window(640, 480, "Test window", null, null)
 
 		val start = Glfw.time
 
@@ -60,5 +61,6 @@ class SampleTests {
 		println("Per: ${(end - start) / 10000}")
 
 		window.close()
+		Glfw.terminate()
 	}
 }
