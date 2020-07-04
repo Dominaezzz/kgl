@@ -15,18 +15,26 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.Flag
-import io.ktor.utils.io.core.Closeable
-import org.lwjgl.PointerBuffer
+import com.kgl.core.*
+import io.ktor.utils.io.core.*
+import org.lwjgl.*
 import org.lwjgl.glfw.*
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.system.Callback
-import org.lwjgl.system.CallbackI
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.MemoryUtil
-import org.lwjgl.system.jni.JNINativeInterface
+import org.lwjgl.system.*
+import org.lwjgl.system.jni.*
 
-actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeable {
+actual class Window private constructor(val ptr: Long) : Closeable {
+	actual constructor(
+		width: Int,
+		height: Int,
+		title: String,
+		monitor: Monitor?,
+		share: Window?
+	) : this(
+		glfwCreateWindow(width, height, title, monitor?.ptr ?: 0L, share?.ptr ?: 0L)
+			.takeIf { it != 0L }
+			?: throw Exception("Could not create window.")
+	)
 
 	init {
 		check(glfwGetWindowUserPointer(ptr) == 0L) {
@@ -309,11 +317,11 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 	private var charModsCallback: CharModsCallback? = null
 
 	private inline fun <TCallback, TNativeCallback : Callback, TNativeCallbackI : CallbackI> setCallback(
-			callback: TCallback?,
-			propGetter: () -> TCallback?,
-			propSetter: (TCallback?) -> Unit,
-			realSetter: (Long, TNativeCallbackI?) -> TNativeCallback?,
-			getNativeCallback: () -> TNativeCallbackI
+		callback: TCallback?,
+		propGetter: () -> TCallback?,
+		propSetter: (TCallback?) -> Unit,
+		realSetter: (Long, TNativeCallbackI?) -> TNativeCallback?,
+		getNativeCallback: () -> TNativeCallbackI
 	): TCallback? {
 		val previous = propGetter()
 		propSetter(callback)
@@ -513,244 +521,5 @@ actual class Window @PublishedApi internal constructor(val ptr: Long) : Closeabl
 		JNINativeInterface.DeleteGlobalRef(globalRef)
 
 		glfwDestroyWindow(ptr)
-	}
-
-	actual companion object {
-		actual inline operator fun invoke(
-				width: Int,
-				height: Int,
-				title: String,
-				monitor: Monitor?,
-				share: Window?,
-				block: Builder.() -> Unit
-		): Window {
-			check(glfwInit()) { "Could not init GLFW." }
-
-			glfwDefaultWindowHints()
-			Builder().block()
-
-			return Window(glfwCreateWindow(
-					width, height, title, monitor?.ptr ?: 0L, share?.ptr ?: 0L
-			).takeIf { it != 0L } ?: throw Exception("Could not create window."))
-		}
-	}
-
-	actual class Builder {
-		actual var clientApi: ClientApi
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CLIENT_API, value.value)
-			}
-
-		actual var contextCreationApi: CreationApi
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_CREATION_API, value.value)
-			}
-
-		actual var contextVersionMajor: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, value)
-			}
-
-		actual var contextVersionMinor: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, value)
-			}
-
-		actual var contextRobustness: Robustness
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_ROBUSTNESS, value.value)
-			}
-
-		actual var releaseBehaviour: ReleaseBehaviour
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_RELEASE_BEHAVIOR, value.value)
-			}
-
-		actual var contextNoError: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CONTEXT_NO_ERROR, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var openGLForwardCompat: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var openGLDebugContext: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var openGLProfile: OpenGLProfile
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_OPENGL_PROFILE, value.value)
-			}
-
-		actual var redBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_RED_BITS, value)
-			}
-
-		actual var greenBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_GREEN_BITS, value)
-			}
-
-		actual var blueBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_BLUE_BITS, value)
-			}
-
-		actual var alphaBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_ALPHA_BITS, value)
-			}
-
-		actual var depthBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_DEPTH_BITS, value)
-			}
-
-		actual var stencilBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_STENCIL_BITS, value)
-			}
-
-		actual var accumRedBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_ACCUM_RED_BITS, value)
-			}
-
-		actual var accumGreenBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_ACCUM_GREEN_BITS, value)
-			}
-
-		actual var accumBlueBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_ACCUM_BLUE_BITS, value)
-			}
-
-		actual var accumAlphaBits: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_ACCUM_ALPHA_BITS, value)
-			}
-
-		actual var samples: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_SAMPLES, value)
-			}
-
-		actual var stereo: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_STEREO, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var srgbCapable: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_SRGB_CAPABLE, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var doubleBuffer: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_DOUBLEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-
-		actual var resizable: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_RESIZABLE, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var visible: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_VISIBLE, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var decorated: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_DECORATED, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var focused: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_FOCUSED, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var autoIconify: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_AUTO_ICONIFY, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var floating: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_FLOATING, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var maximized: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_MAXIMIZED, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var centerCursor: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_CENTER_CURSOR, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var transparentFramebuffer: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var focusOnShow: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_FOCUS_ON_SHOW, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var scaleToMonitor: Boolean
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_SCALE_TO_MONITOR, if (value) GLFW_TRUE else GLFW_FALSE)
-			}
-
-		actual var refreshRate: Int
-			get() = TODO("Querying window hints is not supported")
-			set(value) {
-				glfwWindowHint(GLFW_REFRESH_RATE, value)
-			}
 	}
 }

@@ -17,7 +17,13 @@ package com.kgl.glfw
 
 import io.ktor.utils.io.core.Closeable
 
-expect class Window : Closeable {
+expect class Window(
+	width: Int,
+	height: Int,
+	title: String,
+	monitor: Monitor? = null,
+	share: Window? = null
+) : Closeable {
 	var position: Pair<Int, Int>
 	var size: Pair<Int, Int>
 	val frameBufferSize: Pair<Int, Int>
@@ -88,57 +94,4 @@ expect class Window : Closeable {
 	fun setMouseButtonCallback(callback: MouseButtonCallback?): MouseButtonCallback?
 	fun setCharCallback(callback: CharCallback?): CharCallback?
 	fun setCharModsCallback(callback: CharModsCallback?): CharModsCallback?
-
-	companion object {
-		inline operator fun invoke(
-				width: Int,
-				height: Int,
-				title: String,
-				monitor: Monitor? = null,
-				share: Window? = null,
-				block: Builder.() -> Unit
-		): Window
-	}
-
-	class Builder {
-		var clientApi: ClientApi
-		var contextCreationApi: CreationApi
-		var contextVersionMajor: Int
-		var contextVersionMinor: Int
-		var contextRobustness: Robustness
-		var releaseBehaviour: ReleaseBehaviour
-		var contextNoError: Boolean
-		var openGLForwardCompat: Boolean
-		var openGLDebugContext: Boolean
-		var openGLProfile: OpenGLProfile
-
-		var redBits: Int
-		var greenBits: Int
-		var blueBits: Int
-		var alphaBits: Int
-		var depthBits: Int
-		var stencilBits: Int
-		var accumRedBits: Int
-		var accumGreenBits: Int
-		var accumBlueBits: Int
-		var accumAlphaBits: Int
-		var samples: Int
-		var stereo: Boolean
-		var srgbCapable: Boolean
-		var doubleBuffer: Boolean
-
-		var resizable: Boolean
-		var visible: Boolean
-		var decorated: Boolean
-		var focused: Boolean
-		var autoIconify: Boolean
-		var floating: Boolean
-		var maximized: Boolean
-		var centerCursor: Boolean
-		var transparentFramebuffer: Boolean
-		var focusOnShow: Boolean
-		var scaleToMonitor: Boolean
-
-		var refreshRate: Int
-	}
 }
