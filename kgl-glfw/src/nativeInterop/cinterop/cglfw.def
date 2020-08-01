@@ -2,10 +2,6 @@ package = cglfw
 headers = GLFW/glfw3.h
 headerFilter = GLFW/glfw3.h
 
-depends.osx = posix
-depends.mingw = posix windows
-depends.linux = posix
-
 compilerOpts = -DGLFW_INCLUDE_VULKAN
 compilerOpts.linux = -I/usr/include -I/usr/local/include
 compilerOpts.osx = -I/usr/local/include

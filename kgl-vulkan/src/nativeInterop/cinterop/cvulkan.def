@@ -2,8 +2,4 @@ package = cvulkan
 headers = vulkan/vulkan.h
 headerFilter = vulkan/*.h
 
-depends.osx = posix
-depends.mingw = posix windows
-depends.linux = posix
-
 compilerOpts = -DVK_NO_PROTOTYPES
