@@ -26,48 +26,6 @@ val unzipArchive by tasks.registering(Copy::class) {
 	into(downloadsDir)
 }
 
-val konanUserDir = file(System.getenv("KONAN_DATA_DIR") ?: "${System.getProperty("user.home")}/.konan")
-val toolChainFolderName = when {
-	Config.OS.isLinux -> "clang-llvm-8.0.0-linux-x86-64"
-	Config.OS.isMacOsX -> "clang-llvm-apple-8.0.0-darwin-macos"
-	Config.OS.isWindows -> "msys2-mingw-w64-x86_64-clang-llvm-lld-compiler_rt-8.0.1"
-	else -> TODO()
-}
-val llvmBinFolder = konanUserDir.resolve("dependencies/${toolChainFolderName}/bin")
-
-val cppFile = file("src/nativeInterop/cinterop/stb.cpp")
-val objFile = buildDir.resolve("lib/stb.o")
-val staticLibFile = buildDir.resolve("lib/libstb.a")
-
-val compileStb by tasks.registering(Exec::class) {
-	dependsOn(unzipArchive)
-	commandLine(
-			llvmBinFolder.resolve("clang++").absolutePath,
-			"-c", "-w",
-			"-o", objFile.absolutePath,
-			"-I", stbDir.absolutePath,
-			cppFile.absolutePath
-	)
-	environment(
-			"PATH" to "$llvmBinFolder;${System.getenv("PATH")}",
-			"CPATH" to "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include"
-	)
-	inputs.file(cppFile)
-	outputs.file(objFile)
-}
-val archiveStb by tasks.registering(Exec::class) {
-	dependsOn(compileStb)
-
-	commandLine(
-			llvmBinFolder.resolve("llvm-ar").absolutePath,
-			"rc", staticLibFile.absolutePath,
-			objFile.absolutePath
-	)
-	environment("PATH", "$llvmBinFolder;${System.getenv("PATH")}")
-	inputs.file(objFile)
-	outputs.file(staticLibFile)
-}
-
 kotlin {
 	sourceSets {
 		commonMain {
@@ -113,18 +71,14 @@ kotlin {
 						tasks[interopProcessingTaskName].dependsOn(unzipArchive)
 
 						includeDirs(stbDir)
+
+						extraOpts("-Xsource-compiler-option", "-I${stbDir.absolutePath}")
+						extraOpts("-Xcompile-source", file("src/nativeInterop/cinterop/stb.cpp").absolutePath)
 					}
 				}
 				defaultSourceSet {
 					kotlin.srcDir("src/nativeMain/kotlin")
 					resources.srcDir("src/nativeMain/resources")
-				}
-
-				compileKotlinTask.apply {
-					dependsOn(archiveStb)
-					kotlinOptions {
-						freeCompilerArgs = listOf("-include-binary", staticLibFile.absolutePath)
-					}
 				}
 			}
 			"test" {
