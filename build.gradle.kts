@@ -23,9 +23,9 @@ subprojects {
 	version = rootProject.version
 
 	repositories {
-		mavenCentral()
 		jcenter()
-		mavenLocal()
+		//mavenCentral()
+		//mavenLocal()
 	}
 
 	afterEvaluate {
