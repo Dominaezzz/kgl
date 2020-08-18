@@ -92,7 +92,9 @@ kotlin {
 				dependencies {
 					implementation(kotlin("test"))
 					implementation(kotlin("test-junit"))
-					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					if (Versions.LWJGL_NATIVES == "natives-macos") {
+						implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+					}
 				}
 			}
 		}
