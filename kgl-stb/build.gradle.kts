@@ -120,7 +120,7 @@ kotlin {
 					resources.srcDir("src/nativeMain/resources")
 				}
 
-				compileKotlinTaskHolder.configure {
+				compileKotlinTask.apply {
 					dependsOn(archiveStb)
 					kotlinOptions {
 						freeCompilerArgs = listOf("-include-binary", staticLibFile.absolutePath)
