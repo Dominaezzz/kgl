@@ -64,11 +64,11 @@ class Registry(vkXML: Document) {
 	val handles = typeNodes.asSequence()
 		.filter { it.getAttribute("category") == "handle" }
 		.filter { !it.hasAttribute("alias") }
-		.map {
+		.map { handleNode ->
 			VkHandle(
-				it.getChild("name").textContent,
-				it.getChild("type").textContent == "VK_DEFINE_NON_DISPATCHABLE_HANDLE",
-				it.getAttribute("parent").split(",").filter { it.isNotBlank() }
+				handleNode.getChild("name").textContent,
+				handleNode.getChild("type").textContent == "VK_DEFINE_NON_DISPATCHABLE_HANDLE",
+				handleNode.getAttribute("parent").split(",").filter { it.isNotBlank() }
 			)
 		}
 		.toList()
@@ -94,10 +94,10 @@ class Registry(vkXML: Document) {
 					.trim('(', ')')
 					.splitToSequence(',')
 					.map { it.trim() }
-					.map {
+					.map { typeName ->
 						VkFuncPointer.Param(
-							it.takeLastWhile { it.isJavaIdentifierPart() },
-							toType(it, "[A-Za-z0-9_]+", "[A-Za-z0-9_]+")
+							typeName.takeLastWhile { it.isJavaIdentifierPart() },
+							toType(typeName, "[A-Za-z0-9_]+", "[A-Za-z0-9_]+")
 						)
 					}
 					.toList()
@@ -174,10 +174,10 @@ class Registry(vkXML: Document) {
 
 	val constants = root.getChildren("enums")
 		.single { it.getAttribute("name") == "API Constants" }
-		.getChildren("enum").map {
+		.getChildren("enum").map { enumNode ->
 			Constant(
-				it.getAttribute("name"),
-				it.getAttribute("value").takeIf { it.isNotBlank() } ?: it.getAttribute("alias")
+				enumNode.getAttribute("name"),
+				enumNode.getAttribute("value").takeIf { it.isNotBlank() } ?: enumNode.getAttribute("alias")
 			)
 		}.toList()
 
@@ -186,10 +186,10 @@ class Registry(vkXML: Document) {
 		.map { enumsNode ->
 			VkEnum(
 				enumsNode.getAttribute("name"),
-				when (enumsNode.getAttribute("type")) {
+				when (val type = enumsNode.getAttribute("type")) {
 					"enum" -> false
 					"bitmask" -> true
-					else -> TODO()
+					else -> error("'$type' was unexpected")
 				},
 				enumsNode.getChildren("enum")
 					.filter { !it.hasAttribute("alias") }
@@ -262,7 +262,10 @@ class Registry(vkXML: Document) {
 						}.toList(),
 					requireNode.getChildren("enum")
 						.filter { !it.hasAttribute("extends") }
-						.associate { it.getAttribute("name") to it.getAttribute("value").takeIf { it.isNotBlank() } },
+						.associate { enumNode ->
+							enumNode.getAttribute("name") to
+								enumNode.getAttribute("value").takeIf { it.isNotBlank() }
+						},
 					requireNode.getChildren("type").map { it.getAttribute("name") }.toSet(),
 					requireNode.getChildren("command").map { it.getAttribute("name") }.toSet()
 				)
@@ -289,8 +292,9 @@ class Registry(vkXML: Document) {
 							}.toList(),
 						requireNode.getChildren("enum")
 							.filter { !it.hasAttribute("extends") }
-							.associate {
-								it.getAttribute("name") to it.getAttribute("value").takeIf { it.isNotBlank() }
+							.associate { enumNode ->
+								enumNode.getAttribute("name") to
+									enumNode.getAttribute("value").takeIf { it.isNotBlank() }
 							},
 						requireNode.getChildren("type").map { it.getAttribute("name") }.toSet(),
 						requireNode.getChildren("command").map { it.getAttribute("name") }.toSet()
@@ -349,7 +353,7 @@ class VkFlag(name: String, val requires: String?) : VkType(name)
 
 class VkHandle(name: String, val isNonDispatchable: Boolean, val parents: List<String>) : VkType(name)
 
-class VkFuncPointer(name: String, val returnType: CTypeDecl, val params: List<VkFuncPointer.Param>) : VkType(name) {
+class VkFuncPointer(name: String, val returnType: CTypeDecl, val params: List<Param>) : VkType(name) {
 	data class Param(override val name: String, override val type: CTypeDecl) : IVkParam {
 		override val len: List<String> get() = emptyList()
 		override val optional: Boolean get() = false

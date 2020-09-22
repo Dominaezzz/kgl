@@ -27,7 +27,7 @@ internal fun String.escapeKt(): String = when (this) {
 }
 
 internal fun toType(typeDecl: String, type: String, name: String): CTypeDecl {
-	val matchResult = getTypeDeclRegex(type, name).matchEntire(typeDecl) ?: TODO("$typeDecl failed TypeDecl regex")
+	val matchResult = getTypeDeclRegex(type, name).matchEntire(typeDecl) ?: error("$typeDecl failed TypeDecl regex")
 	val (const, actualType, stars, count) = matchResult.destructured
 	return CTypeDecl(actualType, const.isNotBlank(), stars.count { it == '*' }, count)
 }

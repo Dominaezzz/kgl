@@ -487,7 +487,7 @@ open class GenerateVulkan : DefaultTask() {
 			val mainJvmEnumClass = extensionInvMap[enum.name]?.getLWJGLClass() ?: VK11
 
 			for (entry in enum.entries) {
-				val value = entry.value ?: entry.bitPosition ?: TODO("${enum.name}.${entry.name} has no value")
+				val value = entry.value ?: entry.bitPosition ?: error("${enum.name}.${entry.name} has no value")
 				yield(EnumEntry(value, entry.name, mainJvmEnumClass))
 			}
 
@@ -495,7 +495,7 @@ open class GenerateVulkan : DefaultTask() {
 				val featureClass = when (feature.number) {
 					"1.0" -> VK10
 					"1.1" -> VK11
-					else -> throw TODO("Unkown Vulkan feature '${feature.number}'.")
+					else -> error("Unkown Vulkan feature '${feature.number}'.")
 				}
 				for (require in feature.requires) {
 					for ((entryName, enumName, value) in require.enums) {
@@ -757,7 +757,7 @@ open class GenerateVulkan : DefaultTask() {
 							val constantType = when {
 								name.endsWith("_NAME") -> STRING
 								name.endsWith("_VERSION") -> INT
-								else -> TODO("Extension constant $name not expected.")
+								else -> error("Extension constant $name not expected.")
 							}
 
 							val nameKt = name.removePrefix("VK_")
@@ -876,7 +876,7 @@ open class GenerateVulkan : DefaultTask() {
 				val typeName = registry.structAliases[type.name] ?: type.name
 				return when (type.asteriskCount) {
 					0 -> {
-						val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
+						val mainType = kglClassMap[typeName] ?: error("$type has no KGL representation.")
 						when {
 							type.count.isEmpty() -> mainType
 							type.name == "char" -> STRING
@@ -888,7 +888,7 @@ open class GenerateVulkan : DefaultTask() {
 							"char" -> STRING
 							"void" -> if (len.isNotEmpty()) MEMORY else LONG
 							else -> {
-								val mainType = kglClassMap[typeName] ?: TODO("$type has no KGL representation.")
+								val mainType = kglClassMap[typeName] ?: error("$type has no KGL representation.")
 								arrayClassesMap[typeName] ?: collectionType.parameterizedBy(mainType)
 							}
 						}
@@ -900,10 +900,10 @@ open class GenerateVulkan : DefaultTask() {
 							} else {
 								collectionType.parameterizedBy(STRING)
 							}
-							else -> TODO("$type has no KGL representation.")
+							else -> error("$type has no KGL representation.")
 						}
 					}
-					else -> TODO("$type has no KGL representation.")
+					else -> error("$type has no KGL representation.")
 				}
 			}
 
@@ -914,9 +914,9 @@ open class GenerateVulkan : DefaultTask() {
 					1 -> typeName != "char" && typeName != "void"
 					2 -> when (typeName) {
 						"char" -> !type.isWritable
-						else -> TODO("$type has no KGL representation.")
+						else -> error("$type has no KGL representation.")
 					}
-					else -> TODO("$type has no KGL representation.")
+					else -> error("$type has no KGL representation.")
 				}
 			}
 
@@ -1002,11 +1002,15 @@ open class GenerateVulkan : DefaultTask() {
 												add(member.type.count)
 											} else {
 												add("ptr.")
-												if (member.len.isNotEmpty()) {
-													add(member.len.first())
-												} else if (member.name.endsWith("s")) {
-													add(member.name.removeSuffix("s") + "Count")
-												} else TODO("Cannot find count!")
+												when {
+													member.len.isNotEmpty() -> {
+														add(member.len.first())
+													}
+													member.name.endsWith("s") -> {
+														add(member.name.removeSuffix("s") + "Count")
+													}
+													else -> error("Cannot find count!")
+												}
 												add("()")
 												add(".toInt()")
 											}
@@ -1123,7 +1127,7 @@ open class GenerateVulkan : DefaultTask() {
 											add("TODO()")
 										}
 									}
-									null -> TODO(struct.name + "->" + member.name + " has no KGL representation")
+									null -> error(struct.name + "->" + member.name + " has no KGL representation")
 								}
 							}
 
@@ -1349,7 +1353,7 @@ open class GenerateVulkan : DefaultTask() {
 					}
 				}
 
-				if (resolvedNoStruct) TODO("Struct dependency graph couldn't be resolved")
+				if (resolvedNoStruct) error("Struct dependency graph couldn't be resolved")
 			}
 
 			fun getContainingLWJGLClass(symbolName: String): ClassName {
