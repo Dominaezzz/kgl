@@ -15,11 +15,8 @@
  */
 package com.kgl.core
 
-import kotlinx.cinterop.Arena
-import kotlinx.cinterop.AutofreeScope
-import kotlinx.cinterop.NativePlacement
-import kotlinx.cinterop.NativePointed
-import kotlin.native.concurrent.ThreadLocal
+import kotlinx.cinterop.*
+import kotlin.native.concurrent.*
 
 // TODO: Replace this with actual stack implementation.
 @ThreadLocal

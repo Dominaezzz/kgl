@@ -15,10 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.vulkan.VK11
-import org.lwjgl.vulkan.VkShaderModuleCreateInfo
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
 
 actual class ShaderModuleCreateInfoBuilder(internal val target: VkShaderModuleCreateInfo) {
 	actual fun next(block: Next<ShaderModuleCreateInfoBuilder>.() -> Unit) {

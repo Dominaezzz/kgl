@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.utils
 
-import kotlinx.cinterop.CPointer
+import kotlinx.cinterop.*
 
 abstract class VkHandleNative<T : CPointer<*>> : VkHandle {
 	abstract val ptr: T

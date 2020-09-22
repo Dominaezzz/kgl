@@ -15,15 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.structs.Extent2D
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.VK11.vkDestroyRenderPass
-import org.lwjgl.vulkan.VK11.vkGetRenderAreaGranularity
-import org.lwjgl.vulkan.VkExtent2D
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class RenderPass(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	actual val renderAreaGranularity: Extent2D
@@ -51,4 +47,3 @@ actual class RenderPass(override val ptr: Long, actual val device: Device) : VkH
 		}
 	}
 }
-

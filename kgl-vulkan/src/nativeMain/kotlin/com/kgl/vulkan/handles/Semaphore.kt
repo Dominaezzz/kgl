@@ -15,20 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.ImportSemaphoreFdInfoKHRBuilder
-import com.kgl.vulkan.dsls.SemaphoreGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkImportSemaphoreFdInfoKHR
-import cvulkan.VkSemaphore
-import cvulkan.VkSemaphoreGetFdInfoKHR
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Semaphore(override val ptr: VkSemaphore, actual val device: Device) : VkHandleNative<VkSemaphore>(), VkHandle {
+actual class Semaphore(
+	override val ptr: VkSemaphore,
+	actual val device: Device
+) : VkHandleNative<VkSemaphore>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -77,4 +73,3 @@ actual class Semaphore(override val ptr: VkSemaphore, actual val device: Device)
 		}
 	}
 }
-

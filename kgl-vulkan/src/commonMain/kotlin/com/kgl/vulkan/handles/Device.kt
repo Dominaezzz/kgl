@@ -17,13 +17,9 @@ package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
-import com.kgl.vulkan.structs.DescriptorSetLayoutSupport
-import com.kgl.vulkan.structs.DeviceGroupPresentCapabilitiesKHR
-import com.kgl.vulkan.structs.MemoryFdPropertiesKHR
-import com.kgl.vulkan.structs.MemoryHostPointerPropertiesEXT
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class Device : VkHandle {
 	val physicalDevice: PhysicalDevice
@@ -60,15 +56,30 @@ expect class Device : VkHandle {
 
 	fun createShaderModule(code: UByteArray, block: ShaderModuleCreateInfoBuilder.() -> Unit = {}): ShaderModule
 
-	fun createPipelineCache(initialData: Memory? = null, block: PipelineCacheCreateInfoBuilder.() -> Unit = {}): PipelineCache
+	fun createPipelineCache(
+		initialData: Memory? = null,
+		block: PipelineCacheCreateInfoBuilder.() -> Unit = {}
+	): PipelineCache
 
-	fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>? = null, block: PipelineLayoutCreateInfoBuilder.() -> Unit = {}): PipelineLayout
+	fun createPipelineLayout(
+		setLayouts: Collection<DescriptorSetLayout>? = null,
+		block: PipelineLayoutCreateInfoBuilder.() -> Unit = {}
+	): PipelineLayout
 
-	fun createGraphicsPipelines(pipelineCache: PipelineCache? = null, block: GraphicsPipelineCreateInfosBuilder.() -> Unit): List<Pipeline>
+	fun createGraphicsPipelines(
+		pipelineCache: PipelineCache? = null,
+		block: GraphicsPipelineCreateInfosBuilder.() -> Unit
+	): List<Pipeline>
 
-	fun createComputePipelines(pipelineCache: PipelineCache? = null, block: ComputePipelineCreateInfosBuilder.() -> Unit): List<Pipeline>
+	fun createComputePipelines(
+		pipelineCache: PipelineCache? = null,
+		block: ComputePipelineCreateInfosBuilder.() -> Unit
+	): List<Pipeline>
 
-	fun createRayTracingPipelinesNV(pipelineCache: PipelineCache? = null, block: RayTracingPipelineCreateInfoNVsBuilder.() -> Unit): List<Pipeline>
+	fun createRayTracingPipelinesNV(
+		pipelineCache: PipelineCache? = null,
+		block: RayTracingPipelineCreateInfoNVsBuilder.() -> Unit
+	): List<Pipeline>
 
 	fun createSampler(block: SamplerCreateInfoBuilder.() -> Unit = {}): Sampler
 
@@ -83,13 +94,17 @@ expect class Device : VkHandle {
 	fun createSharedSwapchainsKHR(block: CreateSharedSwapchainsKHRBuilder.() -> Unit): List<SwapchainKHR>
 
 	fun createSwapchainKHR(
-			surface: SurfaceKHR,
-			queueFamilyIndices: UIntArray? = null,
-			oldSwapchain: SwapchainKHR? = null,
-			block: SwapchainCreateInfoKHRBuilder.() -> Unit
+		surface: SurfaceKHR,
+		queueFamilyIndices: UIntArray? = null,
+		oldSwapchain: SwapchainKHR? = null,
+		block: SwapchainCreateInfoKHRBuilder.() -> Unit
 	): SwapchainKHR
 
-	fun createFramebuffer(renderPass: RenderPass, attachments: Collection<ImageView>?, block: FramebufferCreateInfoBuilder.() -> Unit = {}): Framebuffer
+	fun createFramebuffer(
+		renderPass: RenderPass,
+		attachments: Collection<ImageView>?,
+		block: FramebufferCreateInfoBuilder.() -> Unit = {}
+	): Framebuffer
 
 	fun debugMarkerSetObjectNameEXT(block: DebugMarkerObjectNameInfoEXTBuilder.() -> Unit = {})
 
@@ -98,10 +113,10 @@ expect class Device : VkHandle {
 	fun createIndirectCommandsLayoutNVX(block: IndirectCommandsLayoutCreateInfoNVXBuilder.() -> Unit): IndirectCommandsLayoutNVX
 
 	fun createObjectTableNVX(
-			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
-			objectEntryCounts: UIntArray,
-			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>,
-			block: ObjectTableCreateInfoNVXBuilder.() -> Unit = {}
+		objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+		objectEntryCounts: UIntArray,
+		objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>,
+		block: ObjectTableCreateInfoNVXBuilder.() -> Unit = {}
 	): ObjectTableNVX
 
 	fun getMemoryFdPropertiesKHR(handleType: ExternalMemoryHandleType, fd: Int): MemoryFdPropertiesKHR
@@ -112,7 +127,11 @@ expect class Device : VkHandle {
 
 	fun registerDisplayEventEXT(display: DisplayKHR, block: DisplayEventInfoEXTBuilder.() -> Unit = {}): Fence
 
-	fun getGroupPeerMemoryFeatures(heapIndex: UInt, localDeviceIndex: UInt, remoteDeviceIndex: UInt): VkFlag<PeerMemoryFeature>
+	fun getGroupPeerMemoryFeatures(
+		heapIndex: UInt,
+		localDeviceIndex: UInt,
+		remoteDeviceIndex: UInt
+	): VkFlag<PeerMemoryFeature>
 
 	fun bindBufferMemory2(block: BindBufferMemoryInfosBuilder.() -> Unit)
 
@@ -126,7 +145,10 @@ expect class Device : VkHandle {
 
 	fun getQueue2(block: DeviceQueueInfo2Builder.() -> Unit = {}): Queue
 
-	fun createValidationCacheEXT(initialData: Memory?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}): ValidationCacheEXT
+	fun createValidationCacheEXT(
+		initialData: Memory?,
+		block: ValidationCacheCreateInfoEXTBuilder.() -> Unit = {}
+	): ValidationCacheEXT
 
 	fun getDescriptorSetLayoutSupport(block: DescriptorSetLayoutCreateInfoBuilder.() -> Unit): DescriptorSetLayoutSupport
 
@@ -134,9 +156,15 @@ expect class Device : VkHandle {
 
 	fun setDebugUtilsObjectTagEXT(tag: Memory, block: DebugUtilsObjectTagInfoEXTBuilder.() -> Unit = {})
 
-	fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: Long): MemoryHostPointerPropertiesEXT
+	fun getMemoryHostPointerPropertiesEXT(
+		handleType: ExternalMemoryHandleType,
+		pHostPointer: Long
+	): MemoryHostPointerPropertiesEXT
 
-	fun createRenderPass2KHR(correlatedViewMasks: UIntArray, block: RenderPassCreateInfo2KHRBuilder.() -> Unit): RenderPass
+	fun createRenderPass2KHR(
+		correlatedViewMasks: UIntArray,
+		block: RenderPassCreateInfo2KHRBuilder.() -> Unit
+	): RenderPass
 
 	fun createAccelerationStructureNV(block: AccelerationStructureCreateInfoNVBuilder.() -> Unit): AccelerationStructureNV
 
@@ -144,4 +172,3 @@ expect class Device : VkHandle {
 
 	fun updateDescriptorSets(block: UpdateDescriptorSetsBuilder.() -> Unit)
 }
-

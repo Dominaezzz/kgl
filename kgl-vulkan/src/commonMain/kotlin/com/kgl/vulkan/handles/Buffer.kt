@@ -15,12 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.BufferMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.BufferViewCreateInfoBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.structs.MemoryRequirements
-import com.kgl.vulkan.structs.MemoryRequirements2
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 expect class Buffer : VkHandle {
 	val device: Device
@@ -34,12 +32,11 @@ expect class Buffer : VkHandle {
 	fun bindMemory(memory: DeviceMemory, memoryOffset: ULong)
 
 	fun createView(
-			format: Format,
-			offset: ULong,
-			range: ULong,
-			block: BufferViewCreateInfoBuilder.() -> Unit = {}
+		format: Format,
+		offset: ULong,
+		range: ULong,
+		block: BufferViewCreateInfoBuilder.() -> Unit = {}
 	): BufferView
 
 	fun getMemoryRequirements2(block: BufferMemoryRequirementsInfo2Builder.() -> Unit = {}): MemoryRequirements2
 }
-

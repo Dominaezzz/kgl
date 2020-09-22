@@ -18,10 +18,8 @@ package com.kgl.vulkan
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.handles.*
-import com.kgl.vulkan.utils.VkVersion
-import com.kgl.vulkan.utils.or
-import kotlin.test.Ignore
-import kotlin.test.Test
+import com.kgl.vulkan.utils.*
+import kotlin.test.*
 
 @Ignore
 class DslTests {
@@ -72,10 +70,10 @@ class DslTests {
 				ValidationFlagsEXT(listOf(ValidationCheckEXT.ALL_EXT, ValidationCheckEXT.SHADERS_EXT))
 
 				DebugReportCallbackCreateInfoEXT {
-				    flags = DebugReportEXT.WARNING_BIT_EXT or DebugReportEXT.ERROR_BIT_EXT
-				    callback { _, _, _, _, _, _, message ->
-				        println("Debug Message: $message")
-				    }
+					flags = DebugReportEXT.WARNING_BIT_EXT or DebugReportEXT.ERROR_BIT_EXT
+					callback { _, _, _, _, _, _, message ->
+						println("Debug Message: $message")
+					}
 				}
 
 				DebugUtilsMessengerCreateInfoEXT {
@@ -307,7 +305,8 @@ class DslTests {
 
 					attachments {
 						state {
-							colorWriteMask = ColorComponent.R or ColorComponent.B or ColorComponent.G or ColorComponent.A
+							colorWriteMask =
+								ColorComponent.R or ColorComponent.B or ColorComponent.G or ColorComponent.A
 							blendEnable = true
 							srcColorBlendFactor = BlendFactor.SRC_ALPHA
 							dstColorBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA

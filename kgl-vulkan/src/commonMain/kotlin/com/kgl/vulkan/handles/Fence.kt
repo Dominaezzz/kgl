@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.FenceGetFdInfoKHRBuilder
-import com.kgl.vulkan.dsls.ImportFenceFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
 
 expect class Fence : VkHandle {
 	val device: Device
@@ -28,4 +27,3 @@ expect class Fence : VkHandle {
 
 	fun importFdKHR(block: ImportFenceFdInfoKHRBuilder.() -> Unit = {})
 }
-

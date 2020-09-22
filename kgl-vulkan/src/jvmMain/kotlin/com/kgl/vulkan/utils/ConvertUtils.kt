@@ -17,12 +17,9 @@
  */
 package com.kgl.vulkan.utils
 
-import org.lwjgl.PointerBuffer
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.Pointer
-import org.lwjgl.system.Struct
-import org.lwjgl.system.StructBuffer
-import org.lwjgl.vulkan.VK10.VK_TRUE
+import org.lwjgl.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.VK10.*
 import java.nio.*
 
 internal inline fun Int.toBoolean(): Boolean = this == VK_TRUE
@@ -39,10 +36,12 @@ internal inline fun Long.toVkType(): Long = this
 internal inline fun ULong.toVkType(): Long = this.toLong()
 
 internal inline fun VkFlag<*>.toVkType(): Int = this.value
+
 @JvmName("toNativeType_")
 internal inline fun VkFlag<*>?.toVkType(): Int = this?.value ?: 0
 
 internal inline fun VkEnum<*>.toVkType(): Int = this.value
+
 @JvmName("toNativeType_")
 internal inline fun VkEnum<*>?.toVkType(): Int = this?.value ?: 0
 
@@ -150,7 +149,7 @@ internal inline fun <reified T : Pointer> Array<out VkHandleJVM<T>>.toVkType(): 
 }
 
 internal inline fun <reified TStruct : Struct, reified TBuffer : StructBuffer<TStruct, TBuffer>, TBuilder> Collection<(TBuilder) -> Unit>.mapToStackArray(
-		mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
+	mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
 ): TBuffer {
 	return mallocStack(size, MemoryStack.stackGet()).also {
 		forEachIndexed { index, item ->
@@ -160,7 +159,7 @@ internal inline fun <reified TStruct : Struct, reified TBuffer : StructBuffer<TS
 }
 
 internal inline fun <reified TStruct : Struct, reified TBuffer : StructBuffer<TStruct, TBuffer>, TBuilder> Collection<(TBuilder) -> Unit>.mapToJaggedArray(
-		mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
+	mallocStack: (Int, MemoryStack) -> TBuffer, createBuilder: (TStruct) -> TBuilder
 ): PointerBuffer {
 	val array = mapToStackArray(mallocStack, createBuilder)
 	val result = MemoryStack.stackGet().mallocPointer(size)

@@ -15,16 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.enums.QueryResult
+import com.kgl.core.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import cvulkan.VK_NOT_READY
-import cvulkan.VK_SUCCESS
-import cvulkan.VkQueryPool
-import io.ktor.utils.io.bits.Memory
-import kotlinx.cinterop.invoke
+import cvulkan.*
+import io.ktor.utils.io.bits.*
+import kotlinx.cinterop.*
 
-actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(), VkHandle {
+actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device) : VkHandleNative<VkQueryPool>(),
+	VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -39,20 +38,22 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 	}
 
 	actual fun getResults(
-			firstQuery: UInt,
-			queryCount: UInt,
-			data: Memory,
-			stride: ULong,
-			flags: VkFlag<QueryResult>?
+		firstQuery: UInt,
+		queryCount: UInt,
+		data: Memory,
+		stride: ULong,
+		flags: VkFlag<QueryResult>?
 	): Boolean {
 		val queryPool = this
 		val device = queryPool.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkGetQueryPoolResults(device.toVkType(), queryPool.toVkType(),
-					firstQuery.toVkType(), queryCount.toVkType(),
-					data.size.toULong(), data.pointer,
-					stride.toVkType(), flags.toVkType())
+			val result = dispatchTable.vkGetQueryPoolResults(
+				device.toVkType(), queryPool.toVkType(),
+				firstQuery.toVkType(), queryCount.toVkType(),
+				data.size.toULong(), data.pointer,
+				stride.toVkType(), flags.toVkType()
+			)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_NOT_READY -> false
@@ -63,4 +64,3 @@ actual class QueryPool(override val ptr: VkQueryPool, actual val device: Device)
 		}
 	}
 }
-

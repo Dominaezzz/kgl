@@ -15,12 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class DescriptorSet : VkHandle {
 	val descriptorPool: DescriptorPool
 
 	fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory)
 }
-

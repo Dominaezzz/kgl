@@ -1,6 +1,6 @@
 package com.kgl.opengl.utils
 
-import org.khronos.webgl.WebGLRenderingContext
+import org.khronos.webgl.*
 
 actual object Loader {
 	fun init() {

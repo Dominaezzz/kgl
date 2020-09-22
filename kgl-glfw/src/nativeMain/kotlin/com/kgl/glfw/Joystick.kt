@@ -16,8 +16,7 @@
 package com.kgl.glfw
 
 import cglfw.*
-import com.kgl.core.Flag
-import com.kgl.core.VirtualStack
+import com.kgl.core.*
 import kotlinx.cinterop.*
 
 actual enum class Joystick(val value: Int) {
@@ -105,8 +104,8 @@ actual val Joystick.gamepadState: GamepadState?
 			val state = VirtualStack.alloc<GLFWgamepadstate>()
 			if (glfwGetGamepadState(value, state.ptr) == GLFW_TRUE) {
 				return GamepadState(
-						List(15) { Action.from(state.buttons[it].toInt()) },
-						FloatArray(6) { state.axes[it] }
+					List(15) { Action.from(state.buttons[it].toInt()) },
+					FloatArray(6) { state.axes[it] }
 				)
 			}
 			return null

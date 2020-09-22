@@ -15,10 +15,9 @@
  */
 package codegen
 
-import org.w3c.dom.Element
-import org.w3c.dom.Node
+import org.w3c.dom.*
 
-internal fun getTypeDeclRegex(type: String, name: String) : Regex {
+internal fun getTypeDeclRegex(type: String, name: String): Regex {
 	return Regex("""^(const )?(?:struct )?($type)\s*(\*(?:(?:\s?const)?\*)?)?\s*$name(?:\[([0-9]+|[A-Z_]+)])?$""")
 }
 
@@ -35,9 +34,9 @@ internal fun toType(typeDecl: String, type: String, name: String): CTypeDecl {
 
 internal fun Node.getChildren(name: String): Sequence<Element> {
 	return childNodes.run { (0 until length).asSequence().map { item(it) } }
-			.filter { it.nodeName == name }
-			.filter { it.nodeType == Node.ELEMENT_NODE }
-			.map { it as Element }
+		.filter { it.nodeName == name }
+		.filter { it.nodeType == Node.ELEMENT_NODE }
+		.map { it as Element }
 }
 
 internal fun Node.getChild(name: String) = getChildren(name).single()

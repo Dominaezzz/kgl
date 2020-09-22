@@ -16,11 +16,9 @@
 package com.kgl.glfw
 
 import cglfw.*
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.handles.Instance
-import com.kgl.vulkan.handles.PhysicalDevice
-import com.kgl.vulkan.handles.SurfaceKHR
-import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.core.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 import kotlinx.cinterop.*
 
 actual val Glfw.isVulkanSupported: Boolean get() = glfwVulkanSupported() == GLFW_TRUE

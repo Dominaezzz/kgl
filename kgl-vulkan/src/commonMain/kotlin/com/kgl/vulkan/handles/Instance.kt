@@ -16,16 +16,9 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.*
-import com.kgl.vulkan.enums.DebugReportEXT
-import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.ExtensionProperties
-import com.kgl.vulkan.structs.LayerProperties
-import com.kgl.vulkan.structs.PhysicalDeviceGroupProperties
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkVersion
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 expect class Instance : VkHandle {
 	val physicalDevices: List<PhysicalDevice>
@@ -34,26 +27,29 @@ expect class Instance : VkHandle {
 
 	fun getProcAddr(name: String): Long
 
-	fun createDisplayPlaneSurfaceKHR(displayMode: DisplayModeKHR, block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit): SurfaceKHR
+	fun createDisplayPlaneSurfaceKHR(
+		displayMode: DisplayModeKHR,
+		block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit
+	): SurfaceKHR
 
 	fun createDebugUtilsMessengerEXT(block: DebugUtilsMessengerCreateInfoEXTBuilder.() -> Unit): DebugUtilsMessengerEXT
 
 	fun createDebugReportCallbackEXT(block: DebugReportCallbackCreateInfoEXTBuilder.() -> Unit): DebugReportCallbackEXT
 
 	fun debugReportMessageEXT(
-			flags: VkFlag<DebugReportEXT>,
-			objectType: DebugReportObjectTypeEXT,
-			`object`: ULong,
-			location: ULong,
-			messageCode: Int,
-			layerPrefix: String,
-			message: String
+		flags: VkFlag<DebugReportEXT>,
+		objectType: DebugReportObjectTypeEXT,
+		`object`: ULong,
+		location: ULong,
+		messageCode: Int,
+		layerPrefix: String,
+		message: String
 	)
 
 	fun submitDebugUtilsMessageEXT(
-			messageSeverity: DebugUtilsMessageSeverityEXT,
-			messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
-			block: DebugUtilsMessengerCallbackDataEXTBuilder.() -> Unit
+		messageSeverity: DebugUtilsMessageSeverityEXT,
+		messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
+		block: DebugUtilsMessengerCallbackDataEXTBuilder.() -> Unit
 	)
 
 	companion object {
@@ -64,10 +60,9 @@ expect class Instance : VkHandle {
 		fun getExtensionProperties(layerName: String? = null): List<ExtensionProperties>
 
 		fun create(
-				enabledLayerNames: Collection<String>? = null,
-				enabledExtensionNames: Collection<String>? = null,
-				block: InstanceCreateInfoBuilder.() -> Unit = {}
+			enabledLayerNames: Collection<String>? = null,
+			enabledExtensionNames: Collection<String>? = null,
+			block: InstanceCreateInfoBuilder.() -> Unit = {}
 		): Instance
 	}
 }
-

@@ -17,8 +17,8 @@
  */
 package com.kgl.vulkan.utils
 
-import com.kgl.core.VirtualStack
-import cvulkan.VkBool32
+import com.kgl.core.*
+import cvulkan.*
 import kotlinx.cinterop.*
 
 

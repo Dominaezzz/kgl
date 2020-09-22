@@ -15,10 +15,9 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DisplayPlaneInfo2KHRBuilder
-import com.kgl.vulkan.structs.DisplayPlaneCapabilities2KHR
-import com.kgl.vulkan.structs.DisplayPlaneCapabilitiesKHR
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 expect class DisplayModeKHR : VkHandle {
 	val physicalDevice: PhysicalDevice
@@ -29,4 +28,3 @@ expect class DisplayModeKHR : VkHandle {
 
 	fun getDisplayPlaneCapabilities2(block: DisplayPlaneInfo2KHRBuilder.() -> Unit = {}): DisplayPlaneCapabilities2KHR
 }
-

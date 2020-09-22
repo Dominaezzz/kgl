@@ -15,16 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.CommandBufferAllocateInfoBuilder
-import com.kgl.vulkan.enums.CommandBufferLevel
-import com.kgl.vulkan.enums.CommandPoolReset
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.VK11.*
-import org.lwjgl.vulkan.VkCommandBuffer
-import org.lwjgl.vulkan.VkCommandBufferAllocateInfo
 
-actual class CommandPool(override val ptr: Long, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleJVM<Long>(), VkHandle {
+actual class CommandPool(
+	override val ptr: Long,
+	actual val device: Device,
+	actual val queueFamilyIndex: UInt
+) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val commandPool = this
 		val device = commandPool.device
@@ -41,8 +43,10 @@ actual class CommandPool(override val ptr: Long, actual val device: Device, actu
 		val device = commandPool.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkResetCommandPool(device.toVkType(), commandPool.toVkType(),
-					flags.toVkType())
+			val result = vkResetCommandPool(
+				device.toVkType(), commandPool.toVkType(),
+				flags.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
@@ -89,4 +93,3 @@ actual class CommandPool(override val ptr: Long, actual val device: Device, actu
 		}
 	}
 }
-

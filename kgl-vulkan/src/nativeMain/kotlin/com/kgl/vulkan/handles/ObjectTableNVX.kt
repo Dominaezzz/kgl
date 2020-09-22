@@ -15,16 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXBuilder
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import cvulkan.VK_SUCCESS
-import cvulkan.VkObjectTableNVX
-import kotlinx.cinterop.invoke
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val device: Device) : VkHandleNative<VkObjectTableNVX>(), VkHandle {
+actual class ObjectTableNVX(
+	override val ptr: VkObjectTableNVX,
+	actual val device: Device
+) : VkHandleNative<VkObjectTableNVX>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -45,8 +46,10 @@ actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val devic
 		try {
 			val targets = ObjectTableEntryNVXsBuilder().apply(block).targets
 			val targetArray = targets.mapToJaggedArray(::ObjectTableEntryNVXBuilder)
-			val result = dispatchTable.vkRegisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
-					targets.size.toUInt(), targetArray, objectIndices.toVkType())
+			val result = dispatchTable.vkRegisterObjectsNVX!!(
+				device.toVkType(), objectTable.toVkType(),
+				targets.size.toUInt(), targetArray, objectIndices.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -58,13 +61,14 @@ actual class ObjectTableNVX(override val ptr: VkObjectTableNVX, actual val devic
 		val device = objectTable.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkUnregisterObjectsNVX!!(device.toVkType(), objectTable.toVkType(),
-					objectEntryTypes.size.toUInt(), objectEntryTypes.toVkType(),
-					objectIndices.toVkType())
+			val result = dispatchTable.vkUnregisterObjectsNVX!!(
+				device.toVkType(), objectTable.toVkType(),
+				objectEntryTypes.size.toUInt(), objectEntryTypes.toVkType(),
+				objectIndices.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

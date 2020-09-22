@@ -15,11 +15,8 @@
  */
 package com.kgl.glfw
 
-import cglfw.GLFW_MOD_ALT
-import cglfw.GLFW_MOD_CONTROL
-import cglfw.GLFW_MOD_SHIFT
-import cglfw.GLFW_MOD_SUPER
-import com.kgl.core.Flag
+import cglfw.*
+import com.kgl.core.*
 
 actual enum class Mod(override val value: Int) : Flag<Mod> {
 	Shift(GLFW_MOD_SHIFT),

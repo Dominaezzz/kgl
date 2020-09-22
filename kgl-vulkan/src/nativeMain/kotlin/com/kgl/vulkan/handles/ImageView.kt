@@ -15,14 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkImageView
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class ImageView(override val ptr: VkImageView, actual val image: Image) : VkHandleNative<VkImageView>(), VkHandle {
+actual class ImageView(override val ptr: VkImageView, actual val image: Image) : VkHandleNative<VkImageView>(),
+	VkHandle {
 	internal val dispatchTable = image.dispatchTable
 
 	override fun close() {
@@ -36,4 +35,3 @@ actual class ImageView(override val ptr: VkImageView, actual val image: Image) :
 		}
 	}
 }
-

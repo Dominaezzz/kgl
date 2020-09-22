@@ -1,7 +1,6 @@
 package com.kgl.glfw
 
-import com.kgl.core.Flag
-import com.kgl.core.or
+import com.kgl.core.*
 
 expect enum class Hat : Flag<Hat> {
 	UP,

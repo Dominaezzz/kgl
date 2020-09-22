@@ -16,20 +16,14 @@
 package codegen.vulkan
 
 import codegen.*
-import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Parser
+import com.beust.klaxon.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Element
-import org.jsoup.nodes.TextNode
-import javax.xml.parsers.DocumentBuilderFactory
+import org.gradle.api.*
+import org.gradle.api.tasks.*
+import org.jsoup.*
+import org.jsoup.nodes.*
+import javax.xml.parsers.*
 
 @Suppress("UnstableApiUsage")
 open class GenerateVulkan : DefaultTask() {
@@ -53,20 +47,20 @@ open class GenerateVulkan : DefaultTask() {
 
 	private val hiddenEntries: Set<String> by lazy {
 		(Parser.default()
-				.parse(this::class.java.getResourceAsStream("/vk_hidden_entries.json")) as JsonArray<*>)
-				.map { it as String }.toSet()
+			.parse(this::class.java.getResourceAsStream("/vk_hidden_entries.json")) as JsonArray<*>)
+			.map { it as String }.toSet()
 	}
 
 	private val typeOverrides: Map<String, String> by lazy {
 		(Parser.default()
-				.parse(this::class.java.getResourceAsStream("/vk_type_overrides.json")) as JsonObject)
-				.mapValues { it.value as String }
+			.parse(this::class.java.getResourceAsStream("/vk_type_overrides.json")) as JsonObject)
+			.mapValues { it.value as String }
 	}
 
 	private val structInitMembers: Map<String, Set<String>> by lazy {
 		(Parser.default()
-				.parse(this::class.java.getResourceAsStream("/vk_struct_init_params.json")) as JsonObject)
-				.mapValues { (it.value as JsonArray<*>).map { it as String }.toSet() }
+			.parse(this::class.java.getResourceAsStream("/vk_struct_init_params.json")) as JsonObject)
+			.mapValues { (it.value as JsonArray<*>).map { it as String }.toSet() }
 	}
 
 	private val availableStructInits: Map<String, List<List<ParameterSpec>>> by lazy {
@@ -75,110 +69,130 @@ open class GenerateVulkan : DefaultTask() {
 			if (type.isNullable) param.defaultValue("null")
 			return param.build()
 		}
+
 		fun lambdaParam(builderName: String, withDefault: Boolean = false): ParameterSpec {
 			val buildClass = ClassName("com.kgl.vulkan.dsls", builderName)
 			val param = ParameterSpec.builder(
-					"block", LambdaTypeName.get(buildClass, returnType = UNIT)
+				"block", LambdaTypeName.get(buildClass, returnType = UNIT)
 			)
 			if (withDefault) param.defaultValue("{}")
 			return param.build()
 		}
+
 		fun handle(name: String) = ClassName("com.kgl.vulkan.handles", name)
 
 		mapOf(
-				"VkDescriptorSetLayoutBinding" to listOf(
-						listOf(
-								param("immutableSamplers", COLLECTION.parameterizedBy(handle("Sampler"))),
-								lambdaParam("DescriptorSetLayoutBindingBuilder", withDefault = true)
-						),
-						listOf(
-								param("descriptorCount", U_INT),
-								lambdaParam("DescriptorSetLayoutBindingBuilder")
-						)
+			"VkDescriptorSetLayoutBinding" to listOf(
+				listOf(
+					param("immutableSamplers", COLLECTION.parameterizedBy(handle("Sampler"))),
+					lambdaParam("DescriptorSetLayoutBindingBuilder", withDefault = true)
 				),
-				"VkSubmitInfo" to listOf(
-						listOf(
-								param("waitSemaphores", COLLECTION.parameterizedBy(
-										PAIR.parameterizedBy(
-												handle("Semaphore"),
-												VK_FLAG.parameterizedBy(
-														ClassName("com.kgl.vulkan.enums", "PipelineStage")
-												)
-										)
-								).copy(nullable = true)),
-								param("commandBuffers", COLLECTION.parameterizedBy(handle("CommandBuffer")).copy(nullable = true)),
-								param("signalSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
-								lambdaParam("SubmitInfoBuilder", withDefault = true)
-						)
-				),
-				"VkPresentInfoKHR" to listOf(
-						listOf(
-								param("swapchains", COLLECTION.parameterizedBy(
-										PAIR.parameterizedBy(handle("SwapchainKHR"), U_INT)
-								)),
-								param("waitSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
-								lambdaParam("PresentInfoKHRBuilder", withDefault = true)
-						)
-				),
-				"VkSubpassDescription" to listOf(
-						listOf(
-								param(
-										"preserveAttachments",
-										ClassName("kotlin", "UIntArray").copy(nullable = true)
-								),
-								lambdaParam("SubpassDescriptionBuilder")
-						)
-				),
-				"VkSubpassDescription2KHR" to listOf(
-						listOf(
-								param("preserveAttachments", ClassName("kotlin", "UIntArray")),
-								lambdaParam("SubpassDescription2KHRBuilder")
-						)
-				),
-				"VkWriteDescriptorSet" to listOf(
-						listOf(
-								param("dstSet", handle("DescriptorSet")),
-								param(
-										"texelBufferView",
-										COLLECTION.parameterizedBy(handle("BufferView") )
-												.copy(nullable = true)),
-								lambdaParam("WriteDescriptorSetBuilder")
-						)
-				),
-				"VkClearValue" to listOf(
-						listOf(lambdaParam("ClearValueBuilder"))
-				),
-				"VkDeviceQueueCreateInfo" to listOf(
-						listOf(
-								param("queueFamilyIndex", U_INT),
-								param("queuePriorities", FLOAT, KModifier.VARARG),
-								lambdaParam("DeviceQueueCreateInfoBuilder", true)
-						)
-				),
-				"VkDebugUtilsMessengerCreateInfoEXT" to listOf(
-						listOf(
-								lambdaParam("DebugUtilsMessengerCreateInfoEXTBuilder")
-						)
-				),
-				"VkDebugReportCallbackCreateInfoEXT" to listOf(
-						listOf(
-								lambdaParam("DebugReportCallbackCreateInfoEXTBuilder")
-						)
-				),
-				"VkShaderModuleCreateInfo" to listOf(
-						listOf(
-								param("code", U_BYTE_ARRAY),
-								lambdaParam("ShaderModuleCreateInfoBuilder", true)
-						)
-				),
-				"VkObjectTableCreateInfoNVX" to listOf(
-						listOf(
-								param("objectEntryTypes", COLLECTION.parameterizedBy(ClassName("com.kgl.vulkan.enums", "ObjectEntryTypeNVX"))),
-								param("objectEntryCounts", U_INT_ARRAY),
-								param("objectEntryUsageFlags", COLLECTION.parameterizedBy(VK_FLAG.parameterizedBy(ClassName("com.kgl.vulkan.enums", "ObjectEntryUsageNVX")))),
-								lambdaParam("ObjectTableCreateInfoNVXBuilder", true)
-						)
+				listOf(
+					param("descriptorCount", U_INT),
+					lambdaParam("DescriptorSetLayoutBindingBuilder")
 				)
+			),
+			"VkSubmitInfo" to listOf(
+				listOf(
+					param(
+						"waitSemaphores", COLLECTION.parameterizedBy(
+							PAIR.parameterizedBy(
+								handle("Semaphore"),
+								VK_FLAG.parameterizedBy(
+									ClassName("com.kgl.vulkan.enums", "PipelineStage")
+								)
+							)
+						).copy(nullable = true)
+					),
+					param("commandBuffers", COLLECTION.parameterizedBy(handle("CommandBuffer")).copy(nullable = true)),
+					param("signalSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
+					lambdaParam("SubmitInfoBuilder", withDefault = true)
+				)
+			),
+			"VkPresentInfoKHR" to listOf(
+				listOf(
+					param(
+						"swapchains", COLLECTION.parameterizedBy(
+							PAIR.parameterizedBy(handle("SwapchainKHR"), U_INT)
+						)
+					),
+					param("waitSemaphores", COLLECTION.parameterizedBy(handle("Semaphore")).copy(nullable = true)),
+					lambdaParam("PresentInfoKHRBuilder", withDefault = true)
+				)
+			),
+			"VkSubpassDescription" to listOf(
+				listOf(
+					param(
+						"preserveAttachments",
+						ClassName("kotlin", "UIntArray").copy(nullable = true)
+					),
+					lambdaParam("SubpassDescriptionBuilder")
+				)
+			),
+			"VkSubpassDescription2KHR" to listOf(
+				listOf(
+					param("preserveAttachments", ClassName("kotlin", "UIntArray")),
+					lambdaParam("SubpassDescription2KHRBuilder")
+				)
+			),
+			"VkWriteDescriptorSet" to listOf(
+				listOf(
+					param("dstSet", handle("DescriptorSet")),
+					param(
+						"texelBufferView",
+						COLLECTION.parameterizedBy(handle("BufferView"))
+							.copy(nullable = true)
+					),
+					lambdaParam("WriteDescriptorSetBuilder")
+				)
+			),
+			"VkClearValue" to listOf(
+				listOf(lambdaParam("ClearValueBuilder"))
+			),
+			"VkDeviceQueueCreateInfo" to listOf(
+				listOf(
+					param("queueFamilyIndex", U_INT),
+					param("queuePriorities", FLOAT, KModifier.VARARG),
+					lambdaParam("DeviceQueueCreateInfoBuilder", true)
+				)
+			),
+			"VkDebugUtilsMessengerCreateInfoEXT" to listOf(
+				listOf(
+					lambdaParam("DebugUtilsMessengerCreateInfoEXTBuilder")
+				)
+			),
+			"VkDebugReportCallbackCreateInfoEXT" to listOf(
+				listOf(
+					lambdaParam("DebugReportCallbackCreateInfoEXTBuilder")
+				)
+			),
+			"VkShaderModuleCreateInfo" to listOf(
+				listOf(
+					param("code", U_BYTE_ARRAY),
+					lambdaParam("ShaderModuleCreateInfoBuilder", true)
+				)
+			),
+			"VkObjectTableCreateInfoNVX" to listOf(
+				listOf(
+					param(
+						"objectEntryTypes",
+						COLLECTION.parameterizedBy(ClassName("com.kgl.vulkan.enums", "ObjectEntryTypeNVX"))
+					),
+					param("objectEntryCounts", U_INT_ARRAY),
+					param(
+						"objectEntryUsageFlags",
+						COLLECTION.parameterizedBy(
+							VK_FLAG.parameterizedBy(
+								ClassName(
+									"com.kgl.vulkan.enums",
+									"ObjectEntryUsageNVX"
+								)
+							)
+						)
+					),
+					lambdaParam("ObjectTableCreateInfoNVXBuilder", true)
+				)
+			)
 		)
 	}
 
@@ -188,16 +202,17 @@ open class GenerateVulkan : DefaultTask() {
 		outputDir.get().asFile.deleteRecursively()
 
 		val registry = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder()
-				.parse(registryFile.get().asFile)
-				.let {
-					it.documentElement.normalize()
-					Registry(it)
-				}
+			.newDocumentBuilder()
+			.parse(registryFile.get().asFile)
+			.let {
+				it.documentElement.normalize()
+				Registry(it)
+			}
 
 		val apiSpecDoc = Jsoup.parse(docsDir.file("out/apispec.html").get().asFile, Charsets.UTF_8.name())
 
-		val vkTypeMap = (registry.enums + registry.structs + registry.unions + registry.handles + registry.funcPointers + registry.flags + primitives)
+		val vkTypeMap =
+			(registry.enums + registry.structs + registry.unions + registry.handles + registry.funcPointers + registry.flags + primitives)
 				.associateBy { it.name }
 
 		val outputStructs: Set<VkStruct> = run {
@@ -213,10 +228,10 @@ open class GenerateVulkan : DefaultTask() {
 			}
 
 			val rootOutputStructs = registry.commands.asSequence()
-					.flatMap { command -> command.params.takeLastWhile { it.type.isWritable }.asSequence() }
-					.plus(registry.funcPointers.asSequence().flatMap { it.params.asSequence() })
-					.map { vkTypeMap[it.type.name] }
-					.filterIsInstance<VkStruct>()
+				.flatMap { command -> command.params.takeLastWhile { it.type.isWritable }.asSequence() }
+				.plus(registry.funcPointers.asSequence().flatMap { it.params.asSequence() })
+				.map { vkTypeMap[it.type.name] }
+				.filterIsInstance<VkStruct>()
 
 			rootOutputStructs.forEach(::crawlOutputStruct)
 
@@ -238,16 +253,20 @@ open class GenerateVulkan : DefaultTask() {
 				put(struct.name, ClassName("com.kgl.vulkan.structs", struct.name.removePrefix("Vk")))
 			}
 			for (enum in registry.enums) {
-				put(enum.name, ClassName("com.kgl.vulkan.enums", if (enum.isBitMask) {
-					val enumName = enum.name.removePrefix("Vk").replace("FlagBits", "")
-					if (containsKey("Vk$enumName")) {
-						enumName + "Flag"
-					} else {
-						enumName
-					}
-				} else {
-					enum.name.removePrefix("Vk")
-				}))
+				put(
+					enum.name, ClassName(
+						"com.kgl.vulkan.enums", if (enum.isBitMask) {
+							val enumName = enum.name.removePrefix("Vk").replace("FlagBits", "")
+							if (containsKey("Vk$enumName")) {
+								enumName + "Flag"
+							} else {
+								enumName
+							}
+						} else {
+							enum.name.removePrefix("Vk")
+						}
+					)
+				)
 			}
 			for (flag in registry.flags) {
 				if (flag.requires != null) {
@@ -288,15 +307,15 @@ open class GenerateVulkan : DefaultTask() {
 					require.constants.keys.forEach { putIfAbsent(it, extension) }
 
 					require.commands.asSequence()
-							.map { commandLookup[it] }
-							.filterNotNull()
-							.flatMap { it.params.asSequence() }
-							.forEach(::crawl)
+						.map { commandLookup[it] }
+						.filterNotNull()
+						.flatMap { it.params.asSequence() }
+						.forEach(::crawl)
 
 					require.types.asSequence().map { vkTypeMap[it] }
-							.filterIsInstance<VkStruct>()
-							.flatMap { it.members.asSequence() }
-							.forEach(::crawl)
+						.filterIsInstance<VkStruct>()
+						.flatMap { it.members.asSequence() }
+						.forEach(::crawl)
 				}
 			}
 		}
@@ -329,7 +348,7 @@ open class GenerateVulkan : DefaultTask() {
 
 					if (headers.isNotEmpty()) {
 						headers.mapIndexed { index, it -> it.padEnd(columnWidths[index], ' ') }
-								.joinTo(this, "|", "|", "|")
+							.joinTo(this, "|", "|", "|")
 						appendln()
 					}
 
@@ -343,7 +362,7 @@ open class GenerateVulkan : DefaultTask() {
 							append('|')
 							for ((columnIndex, rowList) in rowLines.withIndex()) {
 								val subRow = rowList.getOrElse(subRowIndex) { " " }
-										.padEnd(columnWidths[columnIndex], ' ')
+									.padEnd(columnWidths[columnIndex], ' ')
 
 								append(subRow)
 								append("|")
@@ -395,9 +414,9 @@ open class GenerateVulkan : DefaultTask() {
 		// Generate dispatch tables for native
 		fun generateDispatchTables() {
 			val getProcAddrType = LambdaTypeName.get(
-					parameters = *arrayOf(STRING),
-					returnType = ClassName("cvulkan", "PFN_vkVoidFunction")
-							.copy(nullable = true)
+				parameters = *arrayOf(STRING),
+				returnType = ClassName("cvulkan", "PFN_vkVoidFunction")
+					.copy(nullable = true)
 			)
 
 			val globalDispatchTable = TypeSpec.classBuilder("GlobalDispatchTable").addModifiers(KModifier.INTERNAL)
@@ -405,14 +424,15 @@ open class GenerateVulkan : DefaultTask() {
 			val deviceDispatchTable = TypeSpec.classBuilder("DeviceDispatchTable").addModifiers(KModifier.INTERNAL)
 
 			val ctor = FunSpec.constructorBuilder()
-					.addParameter("getProcAddr", getProcAddrType)
-					.build()
+				.addParameter("getProcAddr", getProcAddrType)
+				.build()
 
 			globalDispatchTable.primaryConstructor(ctor)
 			instanceDispatchTable.primaryConstructor(ctor)
 			deviceDispatchTable.primaryConstructor(ctor)
 
-			val coreCommands = registry.features.single { it.name == "VK_VERSION_1_0" }.requires.flatMap { it.commands }.toSet()
+			val coreCommands =
+				registry.features.single { it.name == "VK_VERSION_1_0" }.requires.flatMap { it.commands }.toSet()
 			for (command in registry.commands) {
 				// Cannot load itself.
 				if (command.name == "vkGetInstanceProcAddr") continue
@@ -424,7 +444,7 @@ open class GenerateVulkan : DefaultTask() {
 					if (extension.supported != "vulkan") continue
 
 					// Skip platform specific extensions.
-					if (extension.platform != null)  continue
+					if (extension.platform != null) continue
 				}
 
 				val firstParam = command.params[0]
@@ -442,16 +462,18 @@ open class GenerateVulkan : DefaultTask() {
 				val mustBeAvailable = command.name in coreCommands
 
 				val commandProtoType = ClassName("cvulkan", "PFN_${command.name}")
-				dispatchTable.addProperty(PropertySpec.builder(command.name, commandProtoType.copy(nullable = !mustBeAvailable))
+				dispatchTable.addProperty(
+					PropertySpec.builder(command.name, commandProtoType.copy(nullable = !mustBeAvailable))
 						.initializer(
-								if (mustBeAvailable) {
-									"getProcAddr(%S)!!.%M()"
-								} else {
-									"getProcAddr(%S)?.%M()"
-								},
-								command.name, KtxC.REINTERPRET
+							if (mustBeAvailable) {
+								"getProcAddr(%S)!!.%M()"
+							} else {
+								"getProcAddr(%S)?.%M()"
+							},
+							command.name, KtxC.REINTERPRET
 						)
-						.build())
+						.build()
+				)
 			}
 
 			FileSpec.get("com.kgl.vulkan.utils", globalDispatchTable.build()).writeTo(nativeDir.get().asFile)
@@ -460,6 +482,7 @@ open class GenerateVulkan : DefaultTask() {
 		}
 
 		data class EnumEntry(val value: Int, val nameVk: String, val jvmClass: ClassName)
+
 		fun getEnumEntries(enum: VkEnum): List<EnumEntry> = sequence {
 			val mainJvmEnumClass = extensionInvMap[enum.name]?.getLWJGLClass() ?: VK11
 
@@ -535,7 +558,7 @@ open class GenerateVulkan : DefaultTask() {
 				}
 
 				fun String.entryKtName() = removeSuffix(entrySuffix)
-						.removePrefix(enumVkPrefix.commonPrefixWith(this))
+					.removePrefix(enumVkPrefix.commonPrefixWith(this))
 
 				val enumEntries = getEnumEntries(enum)
 
@@ -545,7 +568,7 @@ open class GenerateVulkan : DefaultTask() {
 				val summary = divs[0].select("div.paragraph").single().toKDocText()
 				val description = divs[2]
 				val entryDescriptionMap = description.select("> div.ulist:first-of-type > ul > li > p")
-						.associateBy({ it.child(0).text() }, { it.toKDocText() })
+					.associateBy({ it.child(0).text() }, { it.toKDocText() })
 				val paragraphs = description.select("div.paragraph,table.tableblock").map { it.toKDocText() }
 
 				val seeAlso = divs[3].select("div.paragraph > p > a")
@@ -593,11 +616,13 @@ open class GenerateVulkan : DefaultTask() {
 							else -> throw Exception("Ummm, Kotlin broke.")
 						}
 
-						primaryConstructor(FunSpec.constructorBuilder()
+						primaryConstructor(
+							FunSpec.constructorBuilder()
 								.addParameter("value", wrappedType)
 								.build()
 						)
-						addProperty(PropertySpec.builder("value", wrappedType, KModifier.OVERRIDE)
+						addProperty(
+							PropertySpec.builder("value", wrappedType, KModifier.OVERRIDE)
 								.initializer("value")
 								.build()
 						)
@@ -612,17 +637,17 @@ open class GenerateVulkan : DefaultTask() {
 							}
 
 							companionBuilder.addFunction(
-									FunSpec.builder("fromMultiple")
-											.addParameter("value", flagsType)
-											.returns(VK_FLAG.parameterizedBy(enumClassKt))
-											.addStatement("return %T(value)", VK_FLAG)
-											.build()
+								FunSpec.builder("fromMultiple")
+									.addParameter("value", flagsType)
+									.returns(VK_FLAG.parameterizedBy(enumClassKt))
+									.addStatement("return %T(value)", VK_FLAG)
+									.build()
 							)
 						}
 
 						val fromBuilder = FunSpec.builder("from")
-								.addParameter("value", wrappedType)
-								.returns(enumClassKt)
+							.addParameter("value", wrappedType)
+							.returns(enumClassKt)
 
 						if (!enum.isBitMask && enumEntries.withIndex().all { (index, it) -> it.value == index }) {
 							val converter = if (platform == Platform.NATIVE) ".toInt()" else ""
@@ -630,11 +655,13 @@ open class GenerateVulkan : DefaultTask() {
 						} else {
 							fromBuilder.addStatement("return enumLookUpMap[value]!!")
 
-							companionBuilder.addProperty(PropertySpec.builder(
+							companionBuilder.addProperty(
+								PropertySpec.builder(
 									"enumLookUpMap",
 									Map::class.asClassName().parameterizedBy(wrappedType, enumClassKt),
 									KModifier.PRIVATE
-							).initializer("enumValues<%T>().associateBy({ it.value })", enumClassKt).build())
+								).initializer("enumValues<%T>().associateBy({ it.value })", enumClassKt).build()
+							)
 						}
 
 						companionBuilder.addFunction(fromBuilder.build())
@@ -646,23 +673,27 @@ open class GenerateVulkan : DefaultTask() {
 				val enumFileName = enumClassKt.simpleName
 
 				FileSpec.builder("com.kgl.vulkan.enums", enumFileName)
-						.addType(enumTypeSpec.common)
-						.apply {
-							for ((name, alias) in enum.aliases) {
-								if (name in hiddenEntries) continue
+					.addType(enumTypeSpec.common)
+					.apply {
+						for ((name, alias) in enum.aliases) {
+							if (name in hiddenEntries) continue
 
-								val nameKt = name.entryKtName()
-								val aliasKt = alias.entryKtName()
+							val nameKt = name.entryKtName()
+							val aliasKt = alias.entryKtName()
 
-								addProperty(PropertySpec.builder(nameKt, enumClassKt)
-										.receiver(enumClassKt.nestedClass("Companion"))
-										.getter(FunSpec.getterBuilder().addModifiers(KModifier.INLINE)
-												.addStatement("return %T.$aliasKt", enumClassKt).build())
-										.build())
-							}
+							addProperty(
+								PropertySpec.builder(nameKt, enumClassKt)
+									.receiver(enumClassKt.nestedClass("Companion"))
+									.getter(
+										FunSpec.getterBuilder().addModifiers(KModifier.INLINE)
+											.addStatement("return %T.$aliasKt", enumClassKt).build()
+									)
+									.build()
+							)
 						}
-						.build()
-						.writeTo(commonDir.get().asFile)
+					}
+					.build()
+					.writeTo(commonDir.get().asFile)
 
 				FileSpec.get("com.kgl.vulkan.enums", enumTypeSpec.jvm).writeTo(jvmDir.get().asFile)
 				FileSpec.get("com.kgl.vulkan.enums", enumTypeSpec.native).writeTo(nativeDir.get().asFile)
@@ -691,16 +722,16 @@ open class GenerateVulkan : DefaultTask() {
 
 						if (platform == Platform.JVM) {
 							property.initializer(
-									buildString {
-										append("%T.")
-										append(name)
-										if (constantType.simpleName[0] == 'U') {
-											append(".to")
-											append(constantType.simpleName)
-											append("()")
-										}
-									},
-									extensionInvMap[name]?.getLWJGLClass() ?: VK11
+								buildString {
+									append("%T.")
+									append(name)
+									if (constantType.simpleName[0] == 'U') {
+										append(".to")
+										append(constantType.simpleName)
+										append("()")
+									}
+								},
+								extensionInvMap[name]?.getLWJGLClass() ?: VK11
 							)
 						} else {
 							property.initializer("%M", MemberName("cvulkan", name))
@@ -735,11 +766,13 @@ open class GenerateVulkan : DefaultTask() {
 							if (platform != Platform.COMMON) {
 								property.addModifiers(KModifier.ACTUAL)
 
-								property.initializer("%M", if (platform == Platform.JVM) {
-									MemberName(lwjglClass, name)
-								} else {
-									MemberName("cvulkan", name)
-								})
+								property.initializer(
+									"%M", if (platform == Platform.JVM) {
+										MemberName(lwjglClass, name)
+									} else {
+										MemberName("cvulkan", name)
+									}
+								)
 							}
 							addProperty(property.build())
 						}
@@ -754,17 +787,19 @@ open class GenerateVulkan : DefaultTask() {
 
 		fun generateExceptions() {
 			val errorsFile = MultiPlatform(
-					FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
-					FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
-					FileSpec.builder("com.kgl.vulkan.utils", "Errors")
+				FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
+				FileSpec.builder("com.kgl.vulkan.utils", "Errors"),
+				FileSpec.builder("com.kgl.vulkan.utils", "Errors")
 			)
 
 			val vulkanError = ClassName("com.kgl.vulkan.utils", "VulkanError")
 
-			errorsFile.common.addType(TypeSpec.classBuilder(vulkanError)
+			errorsFile.common.addType(
+				TypeSpec.classBuilder(vulkanError)
 					.superclass(ClassName("kotlin", "Error"))
 					.addModifiers(KModifier.SEALED)
-					.build())
+					.build()
+			)
 
 			val handleResultJvm = FunSpec.builder("handleVkResult").addParameter("resultCode", INT)
 			val handleResultNative = FunSpec.builder("handleVkResult").addParameter("resultCode", INT)
@@ -780,23 +815,25 @@ open class GenerateVulkan : DefaultTask() {
 
 			val description = divs[2]
 			val entryDescriptionMap = description.select("div#fundamentals-errorcodes > ul > li > p")
-					.associateBy({ it.child(0).text() }, { it.toKDocText() })
+				.associateBy({ it.child(0).text() }, { it.toKDocText() })
 
 			for (entry in getEnumEntries(registry.enums.single { it.name == "VkResult" })) {
 				if (!entry.nameVk.startsWith("VK_ERROR_")) continue
 
-				val errorType = ClassName("com.kgl.vulkan.utils",
-						entry.nameVk.removePrefix("VK_ERROR_").snakeToPascalCase() + "Error")
+				val errorType = ClassName(
+					"com.kgl.vulkan.utils",
+					entry.nameVk.removePrefix("VK_ERROR_").snakeToPascalCase() + "Error"
+				)
 
 				errorsFile.common.addType(TypeSpec.classBuilder(errorType)
-						.superclass(vulkanError)
-						.apply {
-							val doc = entryDescriptionMap[entry.nameVk]
-							if (doc != null) {
-								addKdoc(doc)
-							}
+					.superclass(vulkanError)
+					.apply {
+						val doc = entryDescriptionMap[entry.nameVk]
+						if (doc != null) {
+							addKdoc(doc)
 						}
-						.build())
+					}
+					.build())
 
 				handleResultJvm.addStatement("%T.${entry.nameVk} -> throw %T()", entry.jvmClass, errorType)
 				handleResultNative.addStatement("%M -> throw %T()", MemberName("cvulkan", entry.nameVk), errorType)
@@ -804,12 +841,16 @@ open class GenerateVulkan : DefaultTask() {
 
 			val unknownVulkanError = ClassName("com.kgl.vulkan.utils", "UnknownVulkanError")
 
-			errorsFile.common.addType(TypeSpec.classBuilder(unknownVulkanError)
+			errorsFile.common.addType(
+				TypeSpec.classBuilder(unknownVulkanError)
 					.superclass(vulkanError)
-					.primaryConstructor(FunSpec.constructorBuilder()
-							.addParameter("resultCode", INT).build())
+					.primaryConstructor(
+						FunSpec.constructorBuilder()
+							.addParameter("resultCode", INT).build()
+					)
 					.addProperty(PropertySpec.builder("resultCode", INT).initializer("resultCode").build())
-					.build())
+					.build()
+			)
 			handleResultJvm.addStatement("else -> throw %T(resultCode)", unknownVulkanError)
 			handleResultNative.addStatement("else -> throw %T(resultCode)", unknownVulkanError)
 
@@ -843,7 +884,7 @@ open class GenerateVulkan : DefaultTask() {
 						}
 					}
 					1 -> {
-						when(typeName) {
+						when (typeName) {
 							"char" -> STRING
 							"void" -> if (len.isNotEmpty()) MEMORY else LONG
 							else -> {
@@ -865,6 +906,7 @@ open class GenerateVulkan : DefaultTask() {
 					else -> TODO("$type has no KGL representation.")
 				}
 			}
+
 			fun IVkParam.isArray(): Boolean {
 				val typeName = registry.structAliases[type.name] ?: type.name
 				return when (type.asteriskCount) {
@@ -897,7 +939,10 @@ open class GenerateVulkan : DefaultTask() {
 					receiver(structClass.nestedClass("Companion"))
 					returns(structClass)
 
-					addParameter("ptr", ClassName(if (platform == Platform.JVM) LWJGLVulkanPackage else "cvulkan", struct.name))
+					addParameter(
+						"ptr",
+						ClassName(if (platform == Platform.JVM) LWJGLVulkanPackage else "cvulkan", struct.name)
+					)
 
 					addCode(buildCodeBlock {
 						add("return %T(", structClass)
@@ -921,7 +966,8 @@ open class GenerateVulkan : DefaultTask() {
 							val propertyClass = when {
 								isVkVersion -> VK_VERSION
 								member.name == "pNext" -> BASE_OUT_STRUCTURE.copy(nullable = true)
-								else -> member.getKGLClass(LIST).copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
+								else -> member.getKGLClass(LIST)
+									.copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
 							}
 
 							if (member.type.count.isNotBlank()) {
@@ -1093,7 +1139,7 @@ open class GenerateVulkan : DefaultTask() {
 				val summary = divs[0].select("div.paragraph").single().toKDocText()
 				val description = divs[2]
 				val memberDescriptionMap = description.select("> div.ulist:first-of-type > ul > li > p")
-						.associateBy({ it.children().first { it.tagName() == "code" }.text() }, { it.toKDocText() })
+					.associateBy({ it.children().first { it.tagName() == "code" }.text() }, { it.toKDocText() })
 				val paragraphs = description.select("div.paragraph").map { it.toKDocText() }
 
 				val seeAlso = divs[4].select("div.paragraph > p > a")
@@ -1116,7 +1162,8 @@ open class GenerateVulkan : DefaultTask() {
 					val propertyClass = when {
 						isVkVersion -> VK_VERSION
 						member.name == "pNext" -> BASE_OUT_STRUCTURE.copy(nullable = true)
-						else -> member.getKGLClass(LIST).copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
+						else -> member.getKGLClass(LIST)
+							.copy(nullable = member.optional && !(type is VkPrimitive && member.type.asteriskCount == 0))
 					}
 
 					val memberNameKt = if (member.name[0] == 'p' && member.name[1].isUpperCase()) {
@@ -1127,23 +1174,23 @@ open class GenerateVulkan : DefaultTask() {
 
 					commonConstructor.addParameter(memberNameKt, propertyClass)
 					commonStruct.addProperty(PropertySpec.builder(memberNameKt, propertyClass)
-							.initializer(memberNameKt)
-							.apply {
-								if (member.name == "pNext" || member.name == "sType") {
-									addModifiers(KModifier.OVERRIDE)
-								}
-
-								val desc = memberDescriptionMap[member.name]
-								if (desc != null) {
-									addKdoc(desc)
-								}
+						.initializer(memberNameKt)
+						.apply {
+							if (member.name == "pNext" || member.name == "sType") {
+								addModifiers(KModifier.OVERRIDE)
 							}
-							.build())
+
+							val desc = memberDescriptionMap[member.name]
+							if (desc != null) {
+								addKdoc(desc)
+							}
+						}
+						.build())
 				}
 
 				commonStruct.primaryConstructor(commonConstructor.build())
-						.addType(TypeSpec.companionObjectBuilder().build())
-						.addKdoc(summary)
+					.addType(TypeSpec.companionObjectBuilder().build())
+					.addKdoc(summary)
 				paragraphs.forEach { commonStruct.addKdoc(it) }
 				seeAlso.forEach {
 					val kglClass = kglClassMap[it.text()]
@@ -1159,17 +1206,17 @@ open class GenerateVulkan : DefaultTask() {
 				FileSpec.get("com.kgl.vulkan.structs", commonStruct.build()).writeTo(commonDir.get().asFile)
 
 				jvmStructFile.addFunction(fromFun.jvm!!)
-						.build()
-						.writeTo(jvmDir.get().asFile)
+					.build()
+					.writeTo(jvmDir.get().asFile)
 
 				nativeStructFile.addImport("com.kgl.vulkan.utils", "toBoolean")
-						.addImport("kotlinx.cinterop", "get")
-						.addImport("kotlinx.cinterop", "pointed")
-						.addImport("kotlinx.cinterop", "toLong")
-						.addImport("kotlinx.cinterop", "toKString")
-						.addFunction(fromFun.native!!)
-						.build()
-						.writeTo(nativeDir.get().asFile)
+					.addImport("kotlinx.cinterop", "get")
+					.addImport("kotlinx.cinterop", "pointed")
+					.addImport("kotlinx.cinterop", "toLong")
+					.addImport("kotlinx.cinterop", "toKString")
+					.addFunction(fromFun.native!!)
+					.build()
+					.writeTo(nativeDir.get().asFile)
 			}
 
 
@@ -1180,13 +1227,18 @@ open class GenerateVulkan : DefaultTask() {
 				addParameter("ptr", if (platform == Platform.JVM) LONG else C_OPAQUE_POINTER.copy(nullable = true))
 
 				if (platform == Platform.JVM) {
-					addStatement("val base = %T.createSafe(ptr) ?: return null", ClassName(LWJGLVulkanPackage, "VkBaseOutStructure"))
+					addStatement(
+						"val base = %T.createSafe(ptr) ?: return null",
+						ClassName(LWJGLVulkanPackage, "VkBaseOutStructure")
+					)
 				} else {
 					addStatement("if (ptr == null) return null")
-					addStatement("val base = ptr.%M<%T>().%M",
-							KtxC.REINTERPRET,
-							ClassName("cvulkan", "VkBaseOutStructure"),
-							KtxC.POINTED)
+					addStatement(
+						"val base = ptr.%M<%T>().%M",
+						KtxC.REINTERPRET,
+						ClassName("cvulkan", "VkBaseOutStructure"),
+						KtxC.POINTED
+					)
 				}
 
 				beginControlFlow(buildString {
@@ -1207,19 +1259,19 @@ open class GenerateVulkan : DefaultTask() {
 
 					if (platform == Platform.JVM) {
 						addStatement(
-								"%T.${sTypeMember.values[0]} -> %T.from(%T.create(ptr))",
-								extension?.getLWJGLClass() ?: VK11,
-								structClassKt,
-								ClassName(LWJGLVulkanPackage, struct.name)
+							"%T.${sTypeMember.values[0]} -> %T.from(%T.create(ptr))",
+							extension?.getLWJGLClass() ?: VK11,
+							structClassKt,
+							ClassName(LWJGLVulkanPackage, struct.name)
 						)
 					} else {
 						addStatement(
-								"%M -> %T.from(ptr.%M<%T>().%M)",
-								MemberName("cvulkan", sTypeMember.values[0]),
-								structClassKt,
-								KtxC.REINTERPRET,
-								ClassName("cvulkan", struct.name),
-								KtxC.POINTED
+							"%M -> %T.from(ptr.%M<%T>().%M)",
+							MemberName("cvulkan", sTypeMember.values[0]),
+							structClassKt,
+							KtxC.REINTERPRET,
+							ClassName("cvulkan", struct.name),
+							KtxC.POINTED
 						)
 					}
 				}
@@ -1233,12 +1285,12 @@ open class GenerateVulkan : DefaultTask() {
 			}
 
 			FileSpec.builder("com.kgl.vulkan.structs", "BaseOutStructure")
-					.addFunction(baseOutFrom.jvm!!)
-					.build().writeTo(jvmDir.get().asFile)
+				.addFunction(baseOutFrom.jvm!!)
+				.build().writeTo(jvmDir.get().asFile)
 
 			FileSpec.builder("com.kgl.vulkan.structs", "BaseOutStructure")
-					.addFunction(baseOutFrom.native!!)
-					.build().writeTo(nativeDir.get().asFile)
+				.addFunction(baseOutFrom.native!!)
+				.build().writeTo(nativeDir.get().asFile)
 		}
 
 		fun generateInputStructBuilders() {
@@ -1247,7 +1299,7 @@ open class GenerateVulkan : DefaultTask() {
 			val requiredArrayBuilders = mutableSetOf<String>()
 
 			val structExtensions = registry.structs.flatMap { struct -> struct.structExtends.map { struct.name to it } }
-					.groupBy({ it.second }, { it.first })
+				.groupBy({ it.second }, { it.first })
 			val structDependencies = mutableMapOf<String, Set<String>>()
 			fun crawlInputStruct(struct: VkStruct) {
 				if (struct.name in structDependencies) return
@@ -1276,16 +1328,16 @@ open class GenerateVulkan : DefaultTask() {
 				structDependencies[struct.name] = deps
 			}
 			registry.commands.asSequence().flatMap { it.params.asSequence() }
-					.filter { it.type.isConst }
-					.forEach {
-						val type = vkTypeMap[it.type.name]
-						if (type is VkStruct) {
-							crawlInputStruct(type)
-							if (it.len.isNotEmpty()) {
-								requiredArrayBuilders += type.name
-							}
+				.filter { it.type.isConst }
+				.forEach {
+					val type = vkTypeMap[it.type.name]
+					if (type is VkStruct) {
+						crawlInputStruct(type)
+						if (it.len.isNotEmpty()) {
+							requiredArrayBuilders += type.name
 						}
 					}
+				}
 
 			while (resolvedStructs.size < structDependencies.size) {
 				var resolvedNoStruct = true
@@ -1300,13 +1352,13 @@ open class GenerateVulkan : DefaultTask() {
 				if (resolvedNoStruct) TODO("Struct dependency graph couldn't be resolved")
 			}
 
-			fun getContainingLWJGLClass(symbolName: String) : ClassName {
+			fun getContainingLWJGLClass(symbolName: String): ClassName {
 				return extensionInvMap[symbolName]?.getLWJGLClass() ?: VK11
 			}
 
 			val structInits = availableStructInits.toMutableMap()
 
-			structLoop@for (struct in inputStructs) {
+			structLoop@ for (struct in inputStructs) {
 				if (extensionInvMap[struct.name]?.platform != null) {
 					val platform = extensionInvMap[struct.name]?.platform
 					println("Skipping `${struct.name}` because it is exclusive to $platform.")
@@ -1316,10 +1368,10 @@ open class GenerateVulkan : DefaultTask() {
 				if (struct.name in hiddenEntries) continue
 
 				val maxLengthGroupSize = struct.members.flatMap { it.len }
-						.filter { it != NULL_TERMINATED }
-						.groupBy { it }
-						.map { it.value.size }
-						.max() ?: 0
+					.filter { it != NULL_TERMINATED }
+					.groupBy { it }
+					.map { it.value.size }
+					.max() ?: 0
 				if (maxLengthGroupSize > 1) {
 					println("Skipping `${struct.name}` because length member is shared.")
 					continue
@@ -1343,21 +1395,25 @@ open class GenerateVulkan : DefaultTask() {
 						}
 
 						if (struct.members.any { it.name == "pNext" }) {
-							addStatement(if (platform == Platform.JVM) {
-								"target.pNext(0)"
-							} else {
-								"target.pNext = null"
-							})
+							addStatement(
+								if (platform == Platform.JVM) {
+									"target.pNext(0)"
+								} else {
+									"target.pNext = null"
+								}
+							)
 						}
 
 						struct.members.singleOrNull { it.name == "flags" }?.also { member ->
 							val memberType = vkTypeMap[member.type.name]
 							if (memberType is VkFlag && memberType.requires == null) {
-								addStatement(if (platform == Platform.JVM) {
-									"target.flags(0)"
-								} else {
-									"target.flags = 0U"
-								})
+								addStatement(
+									if (platform == Platform.JVM) {
+										"target.flags(0)"
+									} else {
+										"target.flags = 0U"
+									}
+								)
 							}
 						}
 
@@ -1368,8 +1424,8 @@ open class GenerateVulkan : DefaultTask() {
 							checkNotNull(memberType)
 
 							val memberNameKt = member.name
-									.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
-									.decapitalize()
+								.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
+								.decapitalize()
 
 							if (memberType is VkStruct || memberType is VkUnion) continue
 
@@ -1398,11 +1454,13 @@ open class GenerateVulkan : DefaultTask() {
 								addParameter(memberNameKt, typeCollection.copy(nullable = isOptional))
 
 								if (platform == Platform.JVM) {
-									addStatement(if (isOptional) {
-										"target.${member.name}($memberNameKt?.%M())"
-									} else {
-										"target.${member.name}($memberNameKt.%M())"
-									}, KglUtils.TO_VKTYPE)
+									addStatement(
+										if (isOptional) {
+											"target.${member.name}($memberNameKt?.%M())"
+										} else {
+											"target.${member.name}($memberNameKt.%M())"
+										}, KglUtils.TO_VKTYPE
+									)
 								} else {
 									if (isOptional && lengthParam == null) {
 										addStatement("target.${member.name} = $memberNameKt?.%M()", KglUtils.TO_VKTYPE)
@@ -1466,7 +1524,10 @@ open class GenerateVulkan : DefaultTask() {
 										} else {
 											if (isOptional) beginControlFlow("if ($memberNameKt != null)")
 											addStatement("target.${member.name} = $memberNameKt.pointer")
-											addStatement("target.${member.len[0]} = $memberNameKt.size.%M()", KtxC.CONVERT)
+											addStatement(
+												"target.${member.len[0]} = $memberNameKt.size.%M()",
+												KtxC.CONVERT
+											)
 											if (isOptional) {
 												nextControlFlow("else")
 												addStatement("target.${member.name} = null")
@@ -1531,21 +1592,28 @@ open class GenerateVulkan : DefaultTask() {
 					addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
 
 					if (platform != Platform.COMMON) {
-						val vkStructClass = ClassName(if (platform == Platform.JVM) {
-							LWJGLVulkanPackage
-						} else {
-							"cvulkan"
-						}, struct.name)
+						val vkStructClass = ClassName(
+							if (platform == Platform.JVM) {
+								LWJGLVulkanPackage
+							} else {
+								"cvulkan"
+							}, struct.name
+						)
 
 						primaryConstructor(FunSpec.constructorBuilder().addParameter("target", vkStructClass).build())
-						addProperty(PropertySpec.builder("target", vkStructClass, KModifier.INTERNAL).initializer("target").build())
+						addProperty(
+							PropertySpec.builder("target", vkStructClass, KModifier.INTERNAL).initializer("target")
+								.build()
+						)
 					}
 
-					addFunction(when (platform) {
-						Platform.COMMON -> initFun.common
-						Platform.JVM -> initFun.jvm
-						Platform.NATIVE -> initFun.native
-					})
+					addFunction(
+						when (platform) {
+							Platform.COMMON -> initFun.common
+							Platform.JVM -> initFun.jvm
+							Platform.NATIVE -> initFun.native
+						}
+					)
 				}.map { it.toBuilder() }
 
 				var requiredCount = 0
@@ -1557,9 +1625,9 @@ open class GenerateVulkan : DefaultTask() {
 					checkNotNull(memberType)
 
 					val memberNameKt = member.name
-							.replace("CreateInfo", "")
-							.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
-							.decapitalize()
+						.replace("CreateInfo", "")
+						.removePrefix("".padEnd(member.type.asteriskCount, 'p'))
+						.decapitalize()
 
 					if (memberType is VkStruct || memberType is VkUnion) {
 						val subBuilderName: String = memberType.name.removePrefix("Vk") + "Builder"
@@ -1587,13 +1655,20 @@ open class GenerateVulkan : DefaultTask() {
 											addParameters(commonParams)
 										} else {
 											addParameters(platformParams)
-											addStatement(if (it == Platform.JVM) {
-												"val subTarget = target.${member.name}($i)"
-											} else {
-												"val subTarget = target.${member.name}[$i]"
-											})
+											addStatement(
+												if (it == Platform.JVM) {
+													"val subTarget = target.${member.name}($i)"
+												} else {
+													"val subTarget = target.${member.name}[$i]"
+												}
+											)
 											addStatement("val builder = %T(subTarget)", subBuilderTypeName)
-											addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+											addStatement(
+												passedParams.joinToString(
+													", ",
+													prefix = "builder.init(",
+													postfix = ")"
+												) { it.name })
 											if (hasLambda) addStatement("builder.apply(block)")
 										}
 									}
@@ -1602,8 +1677,10 @@ open class GenerateVulkan : DefaultTask() {
 							}
 						} else {
 							if (member.type.asteriskCount > 0 && member.len.isNotEmpty() && member.len[0] != "1") {
-								val builderType = ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "sBuilder")
-								val subBuilderType = ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "Builder")
+								val builderType =
+									ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "sBuilder")
+								val subBuilderType =
+									ClassName("com.kgl.vulkan.dsls", memberType.name.removePrefix("Vk") + "Builder")
 
 								val lambdaTypeName = LambdaTypeName.get(builderType, returnType = UNIT)
 								val function = buildFunSpec({ FunSpec.builder(memberNameKt) }) {
@@ -1612,16 +1689,18 @@ open class GenerateVulkan : DefaultTask() {
 									if (it == Platform.JVM) {
 										addStatement("val targets = %T().apply(block).targets", builderType)
 										addStatement(
-												"target.${member.name}(targets.%M(%T::callocStack, ::%T))",
-												KglUtils.MAP_TO_STACK_ARRAY,
-												ClassName(LWJGLVulkanPackage, member.type.name),
-												subBuilderType
+											"target.${member.name}(targets.%M(%T::callocStack, ::%T))",
+											KglUtils.MAP_TO_STACK_ARRAY,
+											ClassName(LWJGLVulkanPackage, member.type.name),
+											subBuilderType
 										)
 										// TODO: INIT JVM COUNT!!!!!
 									} else {
 										addStatement("val targets = %T().apply(block).targets", builderType)
-										addStatement("target.${member.name} = targets.%M(::%T)",
-												KglUtils.MAP_TO_STACK_ARRAY, subBuilderType)
+										addStatement(
+											"target.${member.name} = targets.%M(::%T)",
+											KglUtils.MAP_TO_STACK_ARRAY, subBuilderType
+										)
 										val lengthParam = member.len.firstOrNull { it != NULL_TERMINATED }
 										if (lengthParam != null) {
 											addStatement("target.$lengthParam = targets.size.toUInt()")
@@ -1650,16 +1729,26 @@ open class GenerateVulkan : DefaultTask() {
 													if (it == Platform.JVM) append("()")
 												})
 											} else if (it == Platform.JVM) {
-												addStatement("val subTarget = %T.callocStack()", ClassName(LWJGLVulkanPackage, member.type.name))
+												addStatement(
+													"val subTarget = %T.callocStack()",
+													ClassName(LWJGLVulkanPackage, member.type.name)
+												)
 												addStatement("target.${member.name}(subTarget)")
 											} else {
-												addStatement("val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
-														KtxC.ALLOC, ClassName("cvulkan", member.type.name))
+												addStatement(
+													"val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
+													KtxC.ALLOC, ClassName("cvulkan", member.type.name)
+												)
 												addStatement("target.${member.name} = subTarget.%M", KtxC.PTR)
 											}
 
 											addStatement("val builder = %T(subTarget)", subBuilderTypeName)
-											addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+											addStatement(
+												passedParams.joinToString(
+													", ",
+													prefix = "builder.init(",
+													postfix = ")"
+												) { it.name })
 											if (hasLambda) addStatement("builder.apply(block)")
 										}
 									}
@@ -1714,7 +1803,12 @@ open class GenerateVulkan : DefaultTask() {
 
 						val flagClassKt = kglClassMap.getValue(memberType.name)
 						val enumClassKt = kglClassMap.getValue(memberType.requires)
-						val property = buildPropertySpec({ PropertySpec.builder(memberNameKt, flagClassKt.copy(nullable = true)) }) {
+						val property = buildPropertySpec({
+							PropertySpec.builder(
+								memberNameKt,
+								flagClassKt.copy(nullable = true)
+							)
+						}) {
 							mutable()
 							val getter = FunSpec.getterBuilder()
 							val setter = FunSpec.setterBuilder().addParameter("value", flagClassKt)
@@ -1732,7 +1826,12 @@ open class GenerateVulkan : DefaultTask() {
 					}
 					if (memberType is VkEnum) {
 						val enumClassKt = kglClassMap.getValue(memberType.name)
-						val property = buildPropertySpec({ PropertySpec.builder(memberNameKt, enumClassKt.copy(nullable = true)) }) {
+						val property = buildPropertySpec({
+							PropertySpec.builder(
+								memberNameKt,
+								enumClassKt.copy(nullable = true)
+							)
+						}) {
 							mutable()
 							val getter = FunSpec.getterBuilder()
 							val setter = FunSpec.setterBuilder().addParameter("value", enumClassKt)
@@ -1756,10 +1855,19 @@ open class GenerateVulkan : DefaultTask() {
 								val setter = FunSpec.setterBuilder().addParameter("value", STRING)
 								if (it == Platform.JVM) {
 									getter.addStatement("return target.${member.name.escapeKt()}String()")
-									setter.addStatement("target.${member.name.escapeKt()}(value?.%M())", KglUtils.TO_VKTYPE)
+									setter.addStatement(
+										"target.${member.name.escapeKt()}(value?.%M())",
+										KglUtils.TO_VKTYPE
+									)
 								} else {
-									getter.addStatement("return target.${member.name.escapeKt()}?.%M()", KtxC.TO_KSTRING)
-									setter.addStatement("target.${member.name.escapeKt()} = value?.%M()", KglUtils.TO_VKTYPE)
+									getter.addStatement(
+										"return target.${member.name.escapeKt()}?.%M()",
+										KtxC.TO_KSTRING
+									)
+									setter.addStatement(
+										"target.${member.name.escapeKt()} = value?.%M()",
+										KglUtils.TO_VKTYPE
+									)
 								}
 								getter(getter.build())
 								setter(setter.build())
@@ -1777,26 +1885,31 @@ open class GenerateVulkan : DefaultTask() {
 									append("target.")
 									append(member.name.escapeKt())
 									if (platform == Platform.JVM) append("()")
-									val vkType = memberType.run { if (platform == Platform.JVM) fromJVMVkType else fromNativeVkType }
+									val vkType =
+										memberType.run { if (platform == Platform.JVM) fromJVMVkType else fromNativeVkType }
 									if (vkType.isNotBlank()) {
 										append('.')
 										append(vkType)
 									}
 									if (isVkVersion) append(")")
 								}).build())
-								setter(FunSpec.setterBuilder().addParameter("value", memberTypeKt).addStatement(buildString {
-									append("target.")
-									append(member.name.escapeKt())
-									if (platform == Platform.JVM) append("(") else append(" = ")
-									append("value")
-									if (isVkVersion) append(".value")
-									val vkType = memberType.run { if (platform == Platform.JVM) toJVMVkType else toNativeVkType }
-									if (vkType.isNotBlank()) {
-										append('.')
-										append(vkType)
-									}
-									if (platform == Platform.JVM) append(")")
-								}).build())
+								setter(
+									FunSpec.setterBuilder().addParameter("value", memberTypeKt)
+										.addStatement(buildString {
+											append("target.")
+											append(member.name.escapeKt())
+											if (platform == Platform.JVM) append("(") else append(" = ")
+											append("value")
+											if (isVkVersion) append(".value")
+											val vkType =
+												memberType.run { if (platform == Platform.JVM) toJVMVkType else toNativeVkType }
+											if (vkType.isNotBlank()) {
+												append('.')
+												append(vkType)
+											}
+											if (platform == Platform.JVM) append(")")
+										}).build()
+								)
 							}
 						}
 						builder.doForEach(property) { addProperty(it) }
@@ -1808,13 +1921,13 @@ open class GenerateVulkan : DefaultTask() {
 				if (hasPNext) {
 					val param = LambdaTypeName.get(NEXT.parameterizedBy(structBuilderClass), returnType = UNIT)
 					val common = FunSpec.builder("next")
-							.addParameter("block", param)
-							.build()
+						.addParameter("block", param)
+						.build()
 					val platform = FunSpec.builder("next")
-							.addParameter("block", param)
-							.addModifiers(KModifier.ACTUAL)
-							.addStatement("%T(this).apply(block)", NEXT)
-							.build()
+						.addParameter("block", param)
+						.addModifiers(KModifier.ACTUAL)
+						.addStatement("%T(this).apply(block)", NEXT)
+						.build()
 
 					builder.common.addFunction(common)
 					builder.jvm.addFunction(platform)
@@ -1836,13 +1949,13 @@ open class GenerateVulkan : DefaultTask() {
 				FileSpec.get("com.kgl.vulkan.dsls", builder.common.build()).writeTo(commonDir.get().asFile)
 				FileSpec.get("com.kgl.vulkan.dsls", builder.jvm.build()).writeTo(jvmDir.get().asFile)
 				FileSpec.builder("com.kgl.vulkan.dsls", structBuilderName)
-						.addType(builder.native.build())
-						.addImport("com.kgl.vulkan.utils", "toVkBool")
-						.addImport("com.kgl.vulkan.utils", "toBoolean")
-						.addImport("kotlinx.cinterop", "get")
-						.addImport("kotlinx.cinterop", "set")
-						.build()
-						.writeTo(nativeDir.get().asFile)
+					.addType(builder.native.build())
+					.addImport("com.kgl.vulkan.utils", "toVkBool")
+					.addImport("com.kgl.vulkan.utils", "toBoolean")
+					.addImport("kotlinx.cinterop", "get")
+					.addImport("kotlinx.cinterop", "set")
+					.build()
+					.writeTo(nativeDir.get().asFile)
 			}
 
 			for (structName in requiredArrayBuilders) {
@@ -1860,7 +1973,7 @@ open class GenerateVulkan : DefaultTask() {
 
 				val functionName = run {
 					val startIndex = cleanStructName.dropLastWhile { it.isDigit() || it.isUpperCase() }
-							.indexOfLast { it.isUpperCase() }
+						.indexOfLast { it.isUpperCase() }
 					check(startIndex >= 0) { "Cannot name $structName for struct array builder function." }
 
 					cleanStructName.substring(startIndex).decapitalize()
@@ -1868,8 +1981,10 @@ open class GenerateVulkan : DefaultTask() {
 
 				val builder = with(TypeSpec.classBuilder(structName.removePrefix("Vk") + "sBuilder")) {
 					val lamdaType = LambdaTypeName.get(parameters = *arrayOf(structBuilderClass), returnType = UNIT)
-					addProperty(PropertySpec.builder("targets", MUTABLE_LIST.parameterizedBy(lamdaType), KModifier.INTERNAL)
-							.initializer("mutableListOf()").build())
+					addProperty(
+						PropertySpec.builder("targets", MUTABLE_LIST.parameterizedBy(lamdaType), KModifier.INTERNAL)
+							.initializer("mutableListOf()").build()
+					)
 					addAnnotation(AnnotationSpec.builder(STRUCT_MARKER).build())
 
 					for (commonParams in commonParamss) {
@@ -1883,7 +1998,12 @@ open class GenerateVulkan : DefaultTask() {
 							addParameters(commonParams)
 
 							beginControlFlow("targets += {")
-							addStatement(passedParams.joinToString(", ", prefix = "it.init(", postfix = ")") { it.name })
+							addStatement(
+								passedParams.joinToString(
+									", ",
+									prefix = "it.init(",
+									postfix = ")"
+								) { it.name })
 							if (hasLambda) addStatement("it.apply(block)")
 							endControlFlow()
 							build()
@@ -1927,24 +2047,36 @@ open class GenerateVulkan : DefaultTask() {
 							} else {
 								addParameters(platformParams)
 								if (it == Platform.JVM) {
-									addStatement("val subTarget = %T.callocStack()", ClassName(LWJGLVulkanPackage, struct.name))
+									addStatement(
+										"val subTarget = %T.callocStack()",
+										ClassName(LWJGLVulkanPackage, struct.name)
+									)
 									addStatement("subTarget.pNext(targetBuilder.target.pNext())")
 									addStatement("targetBuilder.target.pNext(subTarget.address())")
 								} else {
-									addStatement("val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
-											KtxC.ALLOC, ClassName("cvulkan", struct.name))
+									addStatement(
+										"val subTarget = %T.%M<%T>()", VIRTUAL_STACK,
+										KtxC.ALLOC, ClassName("cvulkan", struct.name)
+									)
 									addStatement("subTarget.pNext = targetBuilder.target.pNext")
 									addStatement("targetBuilder.target.pNext = subTarget.%M", KtxC.PTR)
 								}
 
 								addStatement("val builder = %T(subTarget)", structBuilderClass)
-								addStatement(passedParams.joinToString(", ", prefix = "builder.init(", postfix = ")") { it.name })
+								addStatement(
+									passedParams.joinToString(
+										", ",
+										prefix = "builder.init(",
+										postfix = ")"
+									) { it.name })
 								if (hasLambda) addStatement("builder.apply(block)")
 
 								if (it == Platform.JVM && struct.structExtends.size > 1) {
-									addAnnotation(AnnotationSpec.builder(JvmName::class)
+									addAnnotation(
+										AnnotationSpec.builder(JvmName::class)
 											.addMember("%S", "${extendee}_${struct.name}")
-											.build())
+											.build()
+									)
 								}
 							}
 						}

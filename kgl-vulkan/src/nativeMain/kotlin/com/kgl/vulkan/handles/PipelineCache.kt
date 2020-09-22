@@ -15,18 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_INCOMPLETE
-import cvulkan.VK_SUCCESS
-import cvulkan.VkPipelineCache
-import io.ktor.utils.io.bits.Memory
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
 import kotlinx.cinterop.*
 
-actual class PipelineCache(override val ptr: VkPipelineCache, actual val device: Device) : VkHandleNative<VkPipelineCache>(), VkHandle {
+actual class PipelineCache(
+	override val ptr: VkPipelineCache,
+	actual val device: Device
+) : VkHandleNative<VkPipelineCache>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -48,7 +46,12 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 			try {
 				val outputSize = VirtualStack.alloc<ULongVar>()
 
-				val result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, null)
+				val result = dispatchTable.vkGetPipelineCacheData(
+					device.toVkType(),
+					pipelineCache.toVkType(),
+					outputSize.ptr,
+					null
+				)
 				return when (result) {
 					VK_SUCCESS -> outputSize.value
 					VK_INCOMPLETE -> 0UL
@@ -67,7 +70,12 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 			val outputSize = VirtualStack.alloc<ULongVar>()
 			outputSize.value = data.size.toULong()
 
-			val result = dispatchTable.vkGetPipelineCacheData(device.toVkType(), pipelineCache.toVkType(), outputSize.ptr, data.pointer)
+			val result = dispatchTable.vkGetPipelineCacheData(
+				device.toVkType(),
+				pipelineCache.toVkType(),
+				outputSize.ptr,
+				data.pointer
+			)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_INCOMPLETE -> false
@@ -83,12 +91,13 @@ actual class PipelineCache(override val ptr: VkPipelineCache, actual val device:
 		val device = dstCache.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkMergePipelineCaches(device.toVkType(), dstCache.toVkType(),
-					srcCaches.size.toUInt(), srcCaches.toVkType())
+			val result = dispatchTable.vkMergePipelineCaches(
+				device.toVkType(), dstCache.toVkType(),
+				srcCaches.size.toUInt(), srcCaches.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

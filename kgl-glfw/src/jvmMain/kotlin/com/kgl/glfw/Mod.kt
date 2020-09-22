@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.Flag
+import com.kgl.core.*
 import org.lwjgl.glfw.GLFW.*
 
 actual enum class Mod(override val value: Int) : Flag<Mod> {

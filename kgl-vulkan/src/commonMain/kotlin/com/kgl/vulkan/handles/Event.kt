@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.*
 
 expect class Event : VkHandle {
 	val device: Device
@@ -26,4 +26,3 @@ expect class Event : VkHandle {
 
 	fun reset()
 }
-

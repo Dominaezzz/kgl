@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkPipelineLayout
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class PipelineLayout(override val ptr: VkPipelineLayout, actual val device: Device) : VkHandleNative<VkPipelineLayout>(), VkHandle {
+actual class PipelineLayout(
+	override val ptr: VkPipelineLayout,
+	actual val device: Device
+) : VkHandleNative<VkPipelineLayout>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -36,4 +37,3 @@ actual class PipelineLayout(override val ptr: VkPipelineLayout, actual val devic
 		}
 	}
 }
-

@@ -15,26 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
-import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
-import com.kgl.vulkan.structs.MemoryRequirements2
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkAccelerationStructureMemoryRequirementsInfoNV
-import cvulkan.VkAccelerationStructureNV
-import cvulkan.VkMemoryRequirements2
-import io.ktor.utils.io.bits.Memory
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.invoke
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.ptr
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
+import kotlinx.cinterop.*
 
-actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV, actual val device: Device) : VkHandleNative<VkAccelerationStructureNV>(), VkHandle {
+actual class AccelerationStructureNV(
+	override val ptr: VkAccelerationStructureNV,
+	actual val device: Device
+) : VkHandleNative<VkAccelerationStructureNV>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -42,8 +35,10 @@ actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV
 		val device = accelerationStructure.device
 		VirtualStack.push()
 		try {
-			dispatchTable.vkDestroyAccelerationStructureNV!!(device.toVkType(), accelerationStructure.toVkType(),
-					null)
+			dispatchTable.vkDestroyAccelerationStructureNV!!(
+				device.toVkType(), accelerationStructure.toVkType(),
+				null
+			)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -54,15 +49,20 @@ actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV
 		val device = accelerationStructure.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkGetAccelerationStructureHandleNV!!(device.toVkType(),
-					accelerationStructure.toVkType(), pData.size.toULong(), pData.pointer)
+			val result = dispatchTable.vkGetAccelerationStructureHandleNV!!(
+				device.toVkType(),
+				accelerationStructure.toVkType(), pData.size.toULong(), pData.pointer
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 
-	actual fun getMemoryRequirements(type: AccelerationStructureMemoryRequirementsTypeNV, block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit): MemoryRequirements2 {
+	actual fun getMemoryRequirements(
+		type: AccelerationStructureMemoryRequirementsTypeNV,
+		block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit
+	): MemoryRequirements2 {
 		VirtualStack.push()
 		try {
 			val target = VirtualStack.alloc<VkAccelerationStructureMemoryRequirementsInfoNV>().ptr
@@ -78,4 +78,3 @@ actual class AccelerationStructureNV(override val ptr: VkAccelerationStructureNV
 		}
 	}
 }
-

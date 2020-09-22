@@ -15,20 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.enums.QueryResult
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class QueryPool : VkHandle {
 	val device: Device
 
 	fun getResults(
-			firstQuery: UInt,
-			queryCount: UInt,
-			data: Memory,
-			stride: ULong,
-			flags: VkFlag<QueryResult>?
+		firstQuery: UInt,
+		queryCount: UInt,
+		data: Memory,
+		stride: ULong,
+		flags: VkFlag<QueryResult>?
 	): Boolean
 }
-

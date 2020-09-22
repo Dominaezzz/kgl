@@ -15,14 +15,9 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.PipelineBindPoint
-import com.kgl.vulkan.enums.SubpassDescription
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.mapToStackArray
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.vulkan.VkAttachmentReference
-import org.lwjgl.vulkan.VkSubpassDescription
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
 
 actual class SubpassDescriptionBuilder(internal val target: VkSubpassDescription) {
 	actual var flags: VkFlag<SubpassDescription>?
@@ -39,18 +34,33 @@ actual class SubpassDescriptionBuilder(internal val target: VkSubpassDescription
 
 	actual fun inputAttachments(block: AttachmentReferencesBuilder.() -> Unit) {
 		val targets = AttachmentReferencesBuilder().apply(block).targets
-		target.pInputAttachments(targets.mapToStackArray(VkAttachmentReference::callocStack, ::AttachmentReferenceBuilder))
+		target.pInputAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference::callocStack,
+				::AttachmentReferenceBuilder
+			)
+		)
 	}
 
 	actual fun colorAttachments(block: AttachmentReferencesBuilder.() -> Unit) {
 		val targets = AttachmentReferencesBuilder().apply(block).targets
-		target.pColorAttachments(targets.mapToStackArray(VkAttachmentReference::callocStack, ::AttachmentReferenceBuilder))
+		target.pColorAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference::callocStack,
+				::AttachmentReferenceBuilder
+			)
+		)
 		target.colorAttachmentCount(targets.size)
 	}
 
 	actual fun resolveAttachments(block: AttachmentReferencesBuilder.() -> Unit) {
 		val targets = AttachmentReferencesBuilder().apply(block).targets
-		target.pResolveAttachments(targets.mapToStackArray(VkAttachmentReference::callocStack, ::AttachmentReferenceBuilder))
+		target.pResolveAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference::callocStack,
+				::AttachmentReferenceBuilder
+			)
+		)
 	}
 
 	actual fun depthStencilAttachment(block: AttachmentReferenceBuilder.() -> Unit) {

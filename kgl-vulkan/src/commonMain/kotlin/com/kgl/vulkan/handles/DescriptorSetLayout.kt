@@ -15,12 +15,14 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DescriptorUpdateTemplateCreateInfoBuilder
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
 
 expect class DescriptorSetLayout : VkHandle {
 	val device: Device
 
-	fun createDescriptorUpdateTemplate(pipelineLayout: PipelineLayout, block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit): DescriptorUpdateTemplate
+	fun createDescriptorUpdateTemplate(
+		pipelineLayout: PipelineLayout,
+		block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit
+	): DescriptorUpdateTemplate
 }
-

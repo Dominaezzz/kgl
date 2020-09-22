@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import org.lwjgl.glfw.GLFWGammaRamp
+import org.lwjgl.glfw.*
 
 actual class GammaRamp(val ptr: GLFWGammaRamp) {
 //	var red: UShortArray

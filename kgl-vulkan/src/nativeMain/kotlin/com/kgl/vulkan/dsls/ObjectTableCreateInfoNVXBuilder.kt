@@ -15,12 +15,9 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.enums.ObjectEntryUsageNVX
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkObjectTableCreateInfoNVX
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 
 actual class ObjectTableCreateInfoNVXBuilder(internal val target: VkObjectTableCreateInfoNVX) {
 	actual var maxUniformBuffersPerDescriptor: UInt
@@ -58,9 +55,9 @@ actual class ObjectTableCreateInfoNVXBuilder(internal val target: VkObjectTableC
 	}
 
 	internal actual fun init(
-			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
-			objectEntryCounts: UIntArray,
-			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>
+		objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+		objectEntryCounts: UIntArray,
+		objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>
 	) {
 		target.sType = cvulkan.VK_STRUCTURE_TYPE_OBJECT_TABLE_CREATE_INFO_NVX
 		target.pNext = null

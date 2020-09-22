@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import io.ktor.utils.io.core.Closeable
+import io.ktor.utils.io.core.*
 
 expect class Window(
 	width: Int,

@@ -15,17 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkValidationCacheEXT
-import io.ktor.utils.io.bits.Memory
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
+import kotlinx.cinterop.*
 
-actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual val device: Device) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
+actual class ValidationCacheEXT(
+	override val ptr: VkValidationCacheEXT,
+	actual val device: Device
+) : VkHandleNative<VkValidationCacheEXT>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -62,12 +61,13 @@ actual class ValidationCacheEXT(override val ptr: VkValidationCacheEXT, actual v
 		val device = dstCache.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkMergeValidationCachesEXT!!(device.toVkType(), dstCache.toVkType(),
-					srcCaches.size.toUInt(), srcCaches.toVkType())
+			val result = dispatchTable.vkMergeValidationCachesEXT!!(
+				device.toVkType(), dstCache.toVkType(),
+				srcCaches.size.toUInt(), srcCaches.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

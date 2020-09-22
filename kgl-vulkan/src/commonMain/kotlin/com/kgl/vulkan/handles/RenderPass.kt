@@ -15,12 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.structs.Extent2D
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 expect class RenderPass : VkHandle {
 	val device: Device
 
 	val renderAreaGranularity: Extent2D
 }
-

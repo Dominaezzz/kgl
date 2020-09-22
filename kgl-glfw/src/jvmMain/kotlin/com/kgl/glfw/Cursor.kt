@@ -15,10 +15,10 @@
  */
 package com.kgl.glfw
 
-import io.ktor.utils.io.core.Closeable
+import io.ktor.utils.io.core.*
+import org.lwjgl.glfw.*
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.glfw.GLFWImage
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 
 actual class Cursor : Closeable {
 	val ptr: Long

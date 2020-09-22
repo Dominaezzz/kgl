@@ -15,14 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.enums.SurfaceCounterEXT
-import com.kgl.vulkan.structs.Extent2D
-import com.kgl.vulkan.structs.PastPresentationTimingGOOGLE
-import com.kgl.vulkan.structs.RefreshCycleDurationGOOGLE
-import com.kgl.vulkan.utils.Acquire
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 expect class SwapchainKHR : VkHandle {
 	val surface: SurfaceKHR
@@ -35,15 +31,15 @@ expect class SwapchainKHR : VkHandle {
 	val status: Boolean
 
 	fun acquireNextImage(
-			timeout: ULong = ULong.MAX_VALUE,
-			semaphore: Semaphore? = null,
-			fence: Fence? = null
+		timeout: ULong = ULong.MAX_VALUE,
+		semaphore: Semaphore? = null,
+		fence: Fence? = null
 	): Acquire
 
 	fun acquireNextImage2(
-			semaphore: Semaphore? = null,
-			fence: Fence? = null,
-			block: AcquireNextImageInfoKHRBuilder.() -> Unit = {}
+		semaphore: Semaphore? = null,
+		fence: Fence? = null,
+		block: AcquireNextImageInfoKHRBuilder.() -> Unit = {}
 	): Acquire
 
 	fun getCounterEXT(counter: SurfaceCounterEXT): ULong
@@ -52,4 +48,3 @@ expect class SwapchainKHR : VkHandle {
 
 	val pastPresentationTimingGOOGLE: List<PastPresentationTimingGOOGLE>
 }
-

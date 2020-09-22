@@ -15,16 +15,12 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import org.lwjgl.vulkan.EXTDebugUtils.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-import org.lwjgl.vulkan.VK10.VK_FALSE
-import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT
-import org.lwjgl.vulkan.VkDebugUtilsMessengerCreateInfoEXT
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.EXTDebugUtils.*
+import org.lwjgl.vulkan.VK10.*
 
 actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebugUtilsMessengerCreateInfoEXT) {
 	actual var messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>?
@@ -43,9 +39,9 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 		target.pUserData(0)
 		target.pfnUserCallback { severity, type, callbackData, _ ->
 			callback(
-					DebugUtilsMessageSeverityEXT.from(severity),
-					DebugUtilsMessageTypeEXT.from(type),
-					DebugUtilsMessengerCallbackDataEXT.from(VkDebugUtilsMessengerCallbackDataEXT.createSafe(callbackData)!!)
+				DebugUtilsMessageSeverityEXT.from(severity),
+				DebugUtilsMessageTypeEXT.from(type),
+				DebugUtilsMessengerCallbackDataEXT.from(VkDebugUtilsMessengerCallbackDataEXT.createSafe(callbackData)!!)
 			)
 			VK_FALSE
 		}
@@ -61,4 +57,3 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 		target.flags(0)
 	}
 }
-

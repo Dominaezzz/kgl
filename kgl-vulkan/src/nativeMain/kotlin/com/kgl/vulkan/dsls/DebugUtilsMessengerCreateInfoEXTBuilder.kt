@@ -15,19 +15,11 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import cvulkan.VK_FALSE
-import cvulkan.VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT
-import cvulkan.VkDebugUtilsMessengerCreateInfoEXT
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.asStableRef
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.staticCFunction
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebugUtilsMessengerCreateInfoEXT) {
 	actual var messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>?
@@ -48,9 +40,9 @@ actual class DebugUtilsMessengerCreateInfoEXTBuilder(internal val target: VkDebu
 			val theCallback = userData!!.asStableRef<DebugUtilsMessengerCallbackEXT>().get()
 
 			theCallback(
-					DebugUtilsMessageSeverityEXT.from(severity),
-					DebugUtilsMessageTypeEXT.from(type),
-					DebugUtilsMessengerCallbackDataEXT.from(callbackData!!.pointed)
+				DebugUtilsMessageSeverityEXT.from(severity),
+				DebugUtilsMessageTypeEXT.from(type),
+				DebugUtilsMessengerCallbackDataEXT.from(callbackData!!.pointed)
 			)
 
 			VK_FALSE.toUInt()

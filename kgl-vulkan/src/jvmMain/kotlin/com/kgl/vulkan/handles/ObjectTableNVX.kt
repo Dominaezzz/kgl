@@ -15,14 +15,13 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXBuilder
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.*
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
-import org.lwjgl.vulkan.VkObjectTableEntryNVX
+import org.lwjgl.vulkan.VK11.*
 
 actual class ObjectTableNVX(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -43,8 +42,10 @@ actual class ObjectTableNVX(override val ptr: Long, actual val device: Device) :
 		try {
 			val targets = ObjectTableEntryNVXsBuilder().apply(block).targets
 			val targetArray = targets.mapToJaggedArray(VkObjectTableEntryNVX::callocStack, ::ObjectTableEntryNVXBuilder)
-			val result = vkRegisterObjectsNVX(device.toVkType(), objectTable.toVkType(),
-					targetArray, objectIndices.toVkType())
+			val result = vkRegisterObjectsNVX(
+				device.toVkType(), objectTable.toVkType(),
+				targetArray, objectIndices.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
@@ -56,12 +57,13 @@ actual class ObjectTableNVX(override val ptr: Long, actual val device: Device) :
 		val device = objectTable.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkUnregisterObjectsNVX(device.toVkType(), objectTable.toVkType(),
-					objectEntryTypes.toVkType(), objectIndices.toVkType())
+			val result = vkUnregisterObjectsNVX(
+				device.toVkType(), objectTable.toVkType(),
+				objectEntryTypes.toVkType(), objectIndices.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

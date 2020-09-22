@@ -15,12 +15,9 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DescriptorType
-import com.kgl.vulkan.enums.ShaderStage
-import com.kgl.vulkan.handles.Sampler
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.StructMarker
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 expect class DescriptorSetLayoutBindingBuilder {

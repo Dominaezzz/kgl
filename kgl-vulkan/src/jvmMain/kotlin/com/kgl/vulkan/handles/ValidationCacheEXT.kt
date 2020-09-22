@@ -15,15 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.EXTValidationCache.vkDestroyValidationCacheEXT
-import org.lwjgl.vulkan.EXTValidationCache.vkMergeValidationCachesEXT
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.EXTValidationCache.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class ValidationCacheEXT(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -67,4 +63,3 @@ actual class ValidationCacheEXT(override val ptr: Long, actual val device: Devic
 		}
 	}
 }
-

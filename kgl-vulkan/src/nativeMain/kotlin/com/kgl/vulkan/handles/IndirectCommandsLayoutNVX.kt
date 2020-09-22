@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkIndirectCommandsLayoutNVX
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class IndirectCommandsLayoutNVX(override val ptr: VkIndirectCommandsLayoutNVX, actual val device: Device) : VkHandleNative<VkIndirectCommandsLayoutNVX>(), VkHandle {
+actual class IndirectCommandsLayoutNVX(
+	override val ptr: VkIndirectCommandsLayoutNVX,
+	actual val device: Device
+) : VkHandleNative<VkIndirectCommandsLayoutNVX>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -30,10 +31,13 @@ actual class IndirectCommandsLayoutNVX(override val ptr: VkIndirectCommandsLayou
 		val device = indirectCommandsLayout.device
 		VirtualStack.push()
 		try {
-			dispatchTable.vkDestroyIndirectCommandsLayoutNVX!!(device.toVkType(), indirectCommandsLayout.toVkType(), null)
+			dispatchTable.vkDestroyIndirectCommandsLayoutNVX!!(
+				device.toVkType(),
+				indirectCommandsLayout.toVkType(),
+				null
+			)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

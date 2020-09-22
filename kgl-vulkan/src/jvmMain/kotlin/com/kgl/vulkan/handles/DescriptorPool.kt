@@ -15,16 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DescriptorSetAllocateInfoBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.VK11.*
-import org.lwjgl.vulkan.VkDescriptorSetAllocateInfo
 
-actual class DescriptorPool(override val ptr: Long, actual val device: Device, actual val maxSets: UInt) : VkHandleJVM<Long>(), VkHandle {
+actual class DescriptorPool(
+	override val ptr: Long,
+	actual val device: Device,
+	actual val maxSets: UInt
+) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val descriptorPool = this
 		val device = descriptorPool.device
@@ -41,8 +42,10 @@ actual class DescriptorPool(override val ptr: Long, actual val device: Device, a
 		val device = descriptorPool.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkResetDescriptorPool(device.toVkType(), descriptorPool.toVkType(),
-					0U.toVkType())
+			val result = vkResetDescriptorPool(
+				device.toVkType(), descriptorPool.toVkType(),
+				0U.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()

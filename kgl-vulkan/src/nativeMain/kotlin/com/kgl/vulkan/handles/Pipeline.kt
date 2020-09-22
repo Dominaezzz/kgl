@@ -15,19 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.enums.ShaderInfoTypeAMD
-import com.kgl.vulkan.enums.ShaderStage
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkPipeline
-import io.ktor.utils.io.bits.Memory
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
+import kotlinx.cinterop.*
 
-actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(), VkHandle {
+actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) : VkHandleNative<VkPipeline>(),
+	VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -42,18 +38,19 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 	}
 
 	actual fun getShaderInfoAMD(
-			shaderStage: ShaderStage,
-			infoType: ShaderInfoTypeAMD,
-			info: Memory?
+		shaderStage: ShaderStage,
+		infoType: ShaderInfoTypeAMD,
+		info: Memory?
 	) {
 		TODO()
 		val pipeline = this
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-//			val result = dispatchTable.vkGetShaderInfoAMD!!(device.toVkType(), pipeline.toVkType(),
-//					shaderStage.toVkType(), infoType.toVkType(), info?.writeRemaining?.toULong() ?:
-//			0U, info.toVkType())
+//			val result = dispatchTable.vkGetShaderInfoAMD!!(
+//				device.toVkType(), pipeline.toVkType(),
+//				shaderStage.toVkType(), infoType.toVkType(), info?.writeRemaining?.toULong() ?: 0U, info.toVkType()
+//			)
 //			when (result) {
 //				VK_SUCCESS -> Unit
 //				VK_INCOMPLETE -> Unit
@@ -69,8 +66,10 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkCompileDeferredNV!!(device.toVkType(), pipeline.toVkType(),
-					shader.toVkType())
+			val result = dispatchTable.vkCompileDeferredNV!!(
+				device.toVkType(), pipeline.toVkType(),
+				shader.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -82,12 +81,13 @@ actual class Pipeline(override val ptr: VkPipeline, actual val device: Device) :
 		val device = pipeline.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(device.toVkType(), pipeline.toVkType(),
-					firstGroup.toVkType(), groupCount.toVkType(), data.size.toULong(), data.pointer)
+			val result = dispatchTable.vkGetRayTracingShaderGroupHandlesNV!!(
+				device.toVkType(), pipeline.toVkType(),
+				firstGroup.toVkType(), groupCount.toVkType(), data.size.toULong(), data.pointer
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

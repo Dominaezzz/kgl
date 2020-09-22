@@ -15,19 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.DescriptorUpdateTemplateCreateInfoBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkDescriptorSetLayout
-import cvulkan.VkDescriptorUpdateTemplateCreateInfo
-import cvulkan.VkDescriptorUpdateTemplateVar
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual val device: Device) : VkHandleNative<VkDescriptorSetLayout>(), VkHandle {
+actual class DescriptorSetLayout(
+	override val ptr: VkDescriptorSetLayout,
+	actual val device: Device
+) : VkHandleNative<VkDescriptorSetLayout>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -41,7 +38,10 @@ actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual
 		}
 	}
 
-	actual fun createDescriptorUpdateTemplate(pipelineLayout: PipelineLayout, block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit): DescriptorUpdateTemplate {
+	actual fun createDescriptorUpdateTemplate(
+		pipelineLayout: PipelineLayout,
+		block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit
+	): DescriptorUpdateTemplate {
 		val descriptorSetLayout = this
 		val device = descriptorSetLayout.device
 		VirtualStack.push()
@@ -52,8 +52,10 @@ actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDescriptorUpdateTemplateVar>()
 			val outputPtr = outputVar.ptr
-			val result = dispatchTable.vkCreateDescriptorUpdateTemplate!!(device.toVkType(), target, null,
-					outputPtr)
+			val result = dispatchTable.vkCreateDescriptorUpdateTemplate!!(
+				device.toVkType(), target, null,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DescriptorUpdateTemplate(outputVar.value!!, this.device)
 		} finally {
@@ -61,4 +63,3 @@ actual class DescriptorSetLayout(override val ptr: VkDescriptorSetLayout, actual
 		}
 	}
 }
-

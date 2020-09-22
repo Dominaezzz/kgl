@@ -15,7 +15,7 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.Flag
+import com.kgl.core.*
 
 expect enum class Joystick {
 	_1,

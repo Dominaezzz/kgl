@@ -19,29 +19,26 @@ import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.EXTDebugMarker.vkDebugMarkerSetObjectNameEXT
-import org.lwjgl.vulkan.EXTDebugMarker.vkDebugMarkerSetObjectTagEXT
-import org.lwjgl.vulkan.EXTDebugUtils.vkSetDebugUtilsObjectNameEXT
-import org.lwjgl.vulkan.EXTDebugUtils.vkSetDebugUtilsObjectTagEXT
+import org.lwjgl.vulkan.EXTDebugMarker.*
+import org.lwjgl.vulkan.EXTDebugUtils.*
 import org.lwjgl.vulkan.EXTDisplayControl.*
-import org.lwjgl.vulkan.EXTExternalMemoryHost.vkGetMemoryHostPointerPropertiesEXT
-import org.lwjgl.vulkan.EXTHdrMetadata.vkSetHdrMetadataEXT
-import org.lwjgl.vulkan.EXTValidationCache.vkCreateValidationCacheEXT
-import org.lwjgl.vulkan.KHRCreateRenderpass2.vkCreateRenderPass2KHR
-import org.lwjgl.vulkan.KHRDisplaySwapchain.vkCreateSharedSwapchainsKHR
-import org.lwjgl.vulkan.KHRExternalMemoryFd.vkGetMemoryFdPropertiesKHR
+import org.lwjgl.vulkan.EXTExternalMemoryHost.*
+import org.lwjgl.vulkan.EXTHdrMetadata.*
+import org.lwjgl.vulkan.EXTValidationCache.*
+import org.lwjgl.vulkan.KHRCreateRenderpass2.*
+import org.lwjgl.vulkan.KHRDisplaySwapchain.*
+import org.lwjgl.vulkan.KHRExternalMemoryFd.*
 import org.lwjgl.vulkan.KHRSwapchain.*
-import org.lwjgl.vulkan.NVRayTracing.vkBindAccelerationStructureMemoryNV
-import org.lwjgl.vulkan.NVRayTracing.vkCreateAccelerationStructureNV
-import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCreateIndirectCommandsLayoutNVX
-import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCreateObjectTableNVX
+import org.lwjgl.vulkan.NVRayTracing.*
+import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.*
 import org.lwjgl.vulkan.VK10.vkUpdateDescriptorSets
 import org.lwjgl.vulkan.VK11.*
 
-actual class Device(override val ptr: VkDevice, actual val physicalDevice: PhysicalDevice) : VkHandleJVM<VkDevice>(), VkHandle {
+actual class Device(override val ptr: VkDevice, actual val physicalDevice: PhysicalDevice) : VkHandleJVM<VkDevice>(),
+	VkHandle {
 	actual val groupPresentCapabilitiesKHR: DeviceGroupPresentCapabilitiesKHR
 		get() {
 			val device = this
@@ -81,8 +78,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocPointer(1)
-			vkGetDeviceQueue(device.toVkType(), queueFamilyIndex.toVkType(), queueIndex.toVkType(),
-					outputPtr)
+			vkGetDeviceQueue(
+				device.toVkType(), queueFamilyIndex.toVkType(), queueIndex.toVkType(),
+				outputPtr
+			)
 			return Queue(VkQueue(outputPtr[0], ptr), this, queueFamilyIndex)
 		} finally {
 			MemoryStack.stackPop()
@@ -175,8 +174,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		val device = this
 		MemoryStack.stackPush()
 		try {
-			val result = vkWaitForFences(device.toVkType(), fences.toVkType(), waitAll.toVkType(),
-					timeout.toVkType())
+			val result = vkWaitForFences(
+				device.toVkType(), fences.toVkType(), waitAll.toVkType(),
+				timeout.toVkType()
+			)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_TIMEOUT -> false
@@ -266,9 +267,11 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreateImage(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Image(outputPtr[0], this,
-					builder.imageType!!, builder.format!!, builder.mipLevels,
-					Extent3D.from(target.extent()), builder.arrayLayers)
+			return Image(
+				outputPtr[0], this,
+				builder.imageType!!, builder.format!!, builder.mipLevels,
+				Extent3D.from(target.extent()), builder.arrayLayers
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -291,7 +294,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createPipelineCache(initialData: Memory?, block: PipelineCacheCreateInfoBuilder.() -> Unit): PipelineCache {
+	actual fun createPipelineCache(
+		initialData: Memory?,
+		block: PipelineCacheCreateInfoBuilder.() -> Unit
+	): PipelineCache {
 		val device = this
 		MemoryStack.stackPush()
 		try {
@@ -308,7 +314,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createPipelineLayout(setLayouts: Collection<DescriptorSetLayout>?, block: PipelineLayoutCreateInfoBuilder.() -> Unit): PipelineLayout {
+	actual fun createPipelineLayout(
+		setLayouts: Collection<DescriptorSetLayout>?,
+		block: PipelineLayoutCreateInfoBuilder.() -> Unit
+	): PipelineLayout {
 		val device = this
 		MemoryStack.stackPush()
 		try {
@@ -325,16 +334,22 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createGraphicsPipelines(pipelineCache: PipelineCache?, block: GraphicsPipelineCreateInfosBuilder.() -> Unit): List<Pipeline> {
+	actual fun createGraphicsPipelines(
+		pipelineCache: PipelineCache?,
+		block: GraphicsPipelineCreateInfosBuilder.() -> Unit
+	): List<Pipeline> {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val targets = GraphicsPipelineCreateInfosBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkGraphicsPipelineCreateInfo::callocStack, ::GraphicsPipelineCreateInfoBuilder)
+			val targetArray =
+				targets.mapToStackArray(VkGraphicsPipelineCreateInfo::callocStack, ::GraphicsPipelineCreateInfoBuilder)
 			val outputCount = targets.size
 			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
-			val result = VK11.vkCreateGraphicsPipelines(device.toVkType(), pipelineCache.toVkType(),
-					targetArray, null, outputPtr)
+			val result = VK11.vkCreateGraphicsPipelines(
+				device.toVkType(), pipelineCache.toVkType(),
+				targetArray, null, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return List(outputCount) { Pipeline(outputPtr[it], this) }
 		} finally {
@@ -342,16 +357,22 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createComputePipelines(pipelineCache: PipelineCache?, block: ComputePipelineCreateInfosBuilder.() -> Unit): List<Pipeline> {
+	actual fun createComputePipelines(
+		pipelineCache: PipelineCache?,
+		block: ComputePipelineCreateInfosBuilder.() -> Unit
+	): List<Pipeline> {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val targets = ComputePipelineCreateInfosBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkComputePipelineCreateInfo::callocStack, ::ComputePipelineCreateInfoBuilder)
+			val targetArray =
+				targets.mapToStackArray(VkComputePipelineCreateInfo::callocStack, ::ComputePipelineCreateInfoBuilder)
 			val outputCount = targets.size
 			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
-			val result = VK11.vkCreateComputePipelines(device.toVkType(), pipelineCache.toVkType(),
-					targetArray, null, outputPtr)
+			val result = VK11.vkCreateComputePipelines(
+				device.toVkType(), pipelineCache.toVkType(),
+				targetArray, null, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return List(outputCount) { Pipeline(outputPtr[it], this) }
 		} finally {
@@ -359,16 +380,24 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createRayTracingPipelinesNV(pipelineCache: PipelineCache?, block: RayTracingPipelineCreateInfoNVsBuilder.() -> Unit): List<Pipeline> {
+	actual fun createRayTracingPipelinesNV(
+		pipelineCache: PipelineCache?,
+		block: RayTracingPipelineCreateInfoNVsBuilder.() -> Unit
+	): List<Pipeline> {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val targets = RayTracingPipelineCreateInfoNVsBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkRayTracingPipelineCreateInfoNV::callocStack, ::RayTracingPipelineCreateInfoNVBuilder)
+			val targetArray = targets.mapToStackArray(
+				VkRayTracingPipelineCreateInfoNV::callocStack,
+				::RayTracingPipelineCreateInfoNVBuilder
+			)
 			val outputCount = targets.size
 			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
-			val result = NVRayTracing.vkCreateRayTracingPipelinesNV(device.toVkType(), pipelineCache.toVkType(),
-					targetArray, null, outputPtr)
+			val result = NVRayTracing.vkCreateRayTracingPipelinesNV(
+				device.toVkType(), pipelineCache.toVkType(),
+				targetArray, null, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return List(outputCount) { Pipeline(outputPtr[it], this) }
 		} finally {
@@ -467,30 +496,35 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		try {
 			val builder = CreateSharedSwapchainsKHRBuilder().apply(block)
 			val targets = builder.targets
-			val targetArray = targets.mapToStackArray(VkSwapchainCreateInfoKHR::callocStack, ::SwapchainCreateInfoKHRBuilder)
+			val targetArray =
+				targets.mapToStackArray(VkSwapchainCreateInfoKHR::callocStack, ::SwapchainCreateInfoKHRBuilder)
 			val outputCount = targets.size
 			val outputPtr = MemoryStack.stackGet().mallocLong(outputCount)
-			val result = vkCreateSharedSwapchainsKHR(device.toVkType(), targetArray, null,
-					outputPtr)
+			val result = vkCreateSharedSwapchainsKHR(
+				device.toVkType(), targetArray, null,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return List(outputCount) { SwapchainKHR(
+			return List(outputCount) {
+				SwapchainKHR(
 					outputPtr[it],
 					builder.surfaces[it],
 					device,
 					Format.from(targetArray[it].imageFormat()),
 					Extent2D.from(targetArray[it].imageExtent()),
 					targetArray[it].imageArrayLayers().toUInt()
-			) }
+				)
+			}
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun createSwapchainKHR(
-			surface: SurfaceKHR,
-			queueFamilyIndices: UIntArray?,
-			oldSwapchain: SwapchainKHR?,
-			block: SwapchainCreateInfoKHRBuilder.() -> Unit
+		surface: SurfaceKHR,
+		queueFamilyIndices: UIntArray?,
+		oldSwapchain: SwapchainKHR?,
+		block: SwapchainCreateInfoKHRBuilder.() -> Unit
 	): SwapchainKHR {
 		val device = this
 		MemoryStack.stackPush()
@@ -502,14 +536,20 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
 			val result = vkCreateSwapchainKHR(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return SwapchainKHR(outputPtr[0], surface, device,
-					builder.imageFormat!!, Extent2D.from(target.imageExtent()), builder.imageArrayLayers)
+			return SwapchainKHR(
+				outputPtr[0], surface, device,
+				builder.imageFormat!!, Extent2D.from(target.imageExtent()), builder.imageArrayLayers
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun createFramebuffer(renderPass: RenderPass, attachments: Collection<ImageView>?, block: FramebufferCreateInfoBuilder.() -> Unit): Framebuffer {
+	actual fun createFramebuffer(
+		renderPass: RenderPass,
+		attachments: Collection<ImageView>?,
+		block: FramebufferCreateInfoBuilder.() -> Unit
+	): Framebuffer {
 		val device = this
 		MemoryStack.stackPush()
 		try {
@@ -520,9 +560,11 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
 			val result = VK11.vkCreateFramebuffer(device.toVkType(), target, null, outputPtr)
 			if (result != VK_SUCCESS) handleVkResult(result)
-			return Framebuffer(outputPtr[0], this,
-					renderPass, attachments?.toTypedArray(),
-					builder.width, builder.height, builder.layers)
+			return Framebuffer(
+				outputPtr[0], this,
+				renderPass, attachments?.toTypedArray(),
+				builder.width, builder.height, builder.layers
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -567,8 +609,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			builder.init()
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
-			val result = vkCreateIndirectCommandsLayoutNVX(device.toVkType(), target, null,
-					outputPtr)
+			val result = vkCreateIndirectCommandsLayoutNVX(
+				device.toVkType(), target, null,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return IndirectCommandsLayoutNVX(outputPtr[0], this)
 		} finally {
@@ -577,10 +621,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 	}
 
 	actual fun createObjectTableNVX(
-			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
-			objectEntryCounts: UIntArray,
-			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>,
-			block: ObjectTableCreateInfoNVXBuilder.() -> Unit
+		objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+		objectEntryCounts: UIntArray,
+		objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>,
+		block: ObjectTableCreateInfoNVXBuilder.() -> Unit
 	): ObjectTableNVX {
 		val device = this
 		MemoryStack.stackPush()
@@ -603,8 +647,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkMemoryFdPropertiesKHR.mallocStack()
-			val result = vkGetMemoryFdPropertiesKHR(device.toVkType(), handleType.toVkType(),
-					fd.toVkType(), outputPtr)
+			val result = vkGetMemoryFdPropertiesKHR(
+				device.toVkType(), handleType.toVkType(),
+				fd.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return MemoryFdPropertiesKHR.from(outputPtr)
 		} finally {
@@ -653,8 +699,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 			builder.init()
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
-			val result = vkRegisterDisplayEventEXT(device.toVkType(), display.toVkType(), target,
-					null, outputPtr)
+			val result = vkRegisterDisplayEventEXT(
+				device.toVkType(), display.toVkType(), target,
+				null, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return Fence(outputPtr[0], this)
 		} finally {
@@ -662,13 +710,19 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun getGroupPeerMemoryFeatures(heapIndex: UInt, localDeviceIndex: UInt, remoteDeviceIndex: UInt): VkFlag<PeerMemoryFeature> {
+	actual fun getGroupPeerMemoryFeatures(
+		heapIndex: UInt,
+		localDeviceIndex: UInt,
+		remoteDeviceIndex: UInt
+	): VkFlag<PeerMemoryFeature> {
 		val device = this
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocInt(1)
-			vkGetDeviceGroupPeerMemoryFeatures(device.toVkType(), heapIndex.toVkType(),
-					localDeviceIndex.toVkType(), remoteDeviceIndex.toVkType(), outputPtr)
+			vkGetDeviceGroupPeerMemoryFeatures(
+				device.toVkType(), heapIndex.toVkType(),
+				localDeviceIndex.toVkType(), remoteDeviceIndex.toVkType(), outputPtr
+			)
 			return PeerMemoryFeature.fromMultiple(outputPtr[0])
 		} finally {
 			MemoryStack.stackPop()
@@ -680,7 +734,8 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		MemoryStack.stackPush()
 		try {
 			val targets = BindBufferMemoryInfosBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkBindBufferMemoryInfo::callocStack, ::BindBufferMemoryInfoBuilder)
+			val targetArray =
+				targets.mapToStackArray(VkBindBufferMemoryInfo::callocStack, ::BindBufferMemoryInfoBuilder)
 			val result = vkBindBufferMemory2(device.toVkType(), targetArray)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -706,8 +761,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetDeviceGroupSurfacePresentModesKHR(device.toVkType(),
-					surface.toVkType(), outputPtr)
+			val result = vkGetDeviceGroupSurfacePresentModesKHR(
+				device.toVkType(),
+				surface.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DeviceGroupPresentModeKHR.fromMultiple(outputPtr[0])
 		} finally {
@@ -760,7 +817,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createValidationCacheEXT(initialData: Memory?, block: ValidationCacheCreateInfoEXTBuilder.() -> Unit): ValidationCacheEXT {
+	actual fun createValidationCacheEXT(
+		initialData: Memory?,
+		block: ValidationCacheCreateInfoEXTBuilder.() -> Unit
+	): ValidationCacheEXT {
 		val device = this
 		MemoryStack.stackPush()
 		try {
@@ -823,12 +883,17 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun getMemoryHostPointerPropertiesEXT(handleType: ExternalMemoryHandleType, pHostPointer: Long): MemoryHostPointerPropertiesEXT {
+	actual fun getMemoryHostPointerPropertiesEXT(
+		handleType: ExternalMemoryHandleType,
+		pHostPointer: Long
+	): MemoryHostPointerPropertiesEXT {
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkMemoryHostPointerPropertiesEXT.mallocStack()
-			val result = vkGetMemoryHostPointerPropertiesEXT(ptr,
-					handleType.toVkType(), pHostPointer.toVkType(), outputPtr)
+			val result = vkGetMemoryHostPointerPropertiesEXT(
+				ptr,
+				handleType.toVkType(), pHostPointer.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return MemoryHostPointerPropertiesEXT.from(outputPtr)
 		} finally {
@@ -836,7 +901,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		}
 	}
 
-	actual fun createRenderPass2KHR(correlatedViewMasks: UIntArray, block: RenderPassCreateInfo2KHRBuilder.() -> Unit): RenderPass {
+	actual fun createRenderPass2KHR(
+		correlatedViewMasks: UIntArray,
+		block: RenderPassCreateInfo2KHRBuilder.() -> Unit
+	): RenderPass {
 		val device = this
 		MemoryStack.stackPush()
 		try {
@@ -876,7 +944,10 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		try {
 			val targets = BindAccelerationStructureMemoryInfoNVsBuilder().apply(block).targets
 			val targetArray =
-					targets.mapToStackArray(VkBindAccelerationStructureMemoryInfoNV::callocStack, ::BindAccelerationStructureMemoryInfoNVBuilder)
+				targets.mapToStackArray(
+					VkBindAccelerationStructureMemoryInfoNV::callocStack,
+					::BindAccelerationStructureMemoryInfoNVBuilder
+				)
 			val result = vkBindAccelerationStructureMemoryNV(device.toVkType(), targetArray)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
@@ -889,12 +960,13 @@ actual class Device(override val ptr: VkDevice, actual val physicalDevice: Physi
 		MemoryStack.stackPush()
 		try {
 			val builder = UpdateDescriptorSetsBuilder().apply(block)
-			vkUpdateDescriptorSets(device.toVkType(),
-					builder.targets0.mapToStackArray(VkWriteDescriptorSet::callocStack, ::WriteDescriptorSetBuilder),
-					builder.targets1.mapToStackArray(VkCopyDescriptorSet::callocStack, ::CopyDescriptorSetBuilder))
+			vkUpdateDescriptorSets(
+				device.toVkType(),
+				builder.targets0.mapToStackArray(VkWriteDescriptorSet::callocStack, ::WriteDescriptorSetBuilder),
+				builder.targets1.mapToStackArray(VkCopyDescriptorSet::callocStack, ::CopyDescriptorSetBuilder)
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

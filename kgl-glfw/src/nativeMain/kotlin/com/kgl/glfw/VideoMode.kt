@@ -15,9 +15,8 @@
  */
 package com.kgl.glfw
 
-import cglfw.GLFWvidmode
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.pointed
+import cglfw.*
+import kotlinx.cinterop.*
 
 actual class VideoMode(val ptr: CPointer<GLFWvidmode>) {
 	actual val width: Int get() = ptr.pointed.width

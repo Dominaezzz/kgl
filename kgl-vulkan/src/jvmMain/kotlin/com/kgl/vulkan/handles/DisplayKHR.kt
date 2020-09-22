@@ -15,12 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
+import com.kgl.vulkan.utils.*
 
 actual class DisplayKHR(override val ptr: Long) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		TODO()
 	}
 }
-

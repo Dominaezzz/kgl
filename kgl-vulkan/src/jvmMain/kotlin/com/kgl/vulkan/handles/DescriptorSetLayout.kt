@@ -15,14 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DescriptorUpdateTemplateCreateInfoBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.VK11.*
-import org.lwjgl.vulkan.VkDescriptorUpdateTemplateCreateInfo
 
 actual class DescriptorSetLayout(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -36,7 +33,10 @@ actual class DescriptorSetLayout(override val ptr: Long, actual val device: Devi
 		}
 	}
 
-	actual fun createDescriptorUpdateTemplate(pipelineLayout: PipelineLayout, block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit): DescriptorUpdateTemplate {
+	actual fun createDescriptorUpdateTemplate(
+		pipelineLayout: PipelineLayout,
+		block: DescriptorUpdateTemplateCreateInfoBuilder.() -> Unit
+	): DescriptorUpdateTemplate {
 		val descriptorSetLayout = this
 		val device = descriptorSetLayout.device
 		MemoryStack.stackPush()
@@ -46,8 +46,10 @@ actual class DescriptorSetLayout(override val ptr: Long, actual val device: Devi
 			builder.init(descriptorSetLayout, pipelineLayout)
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
-			val result = vkCreateDescriptorUpdateTemplate(device.toVkType(), target, null,
-					outputPtr)
+			val result = vkCreateDescriptorUpdateTemplate(
+				device.toVkType(), target, null,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DescriptorUpdateTemplate(outputPtr[0], this.device)
 		} finally {
@@ -55,4 +57,3 @@ actual class DescriptorSetLayout(override val ptr: Long, actual val device: Devi
 		}
 	}
 }
-

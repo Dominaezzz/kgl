@@ -15,19 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.DescriptorSetAllocateInfoBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkDescriptorPool
-import cvulkan.VkDescriptorSetAllocateInfo
-import cvulkan.VkDescriptorSetVar
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val device: Device, actual val maxSets: UInt) : VkHandleNative<VkDescriptorPool>(), VkHandle {
+actual class DescriptorPool(
+	override val ptr: VkDescriptorPool,
+	actual val device: Device,
+	actual val maxSets: UInt
+) : VkHandleNative<VkDescriptorPool>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -46,8 +44,10 @@ actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val devic
 		val device = descriptorPool.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkResetDescriptorPool(device.toVkType(), descriptorPool.toVkType(),
-					0U.toVkType())
+			val result = dispatchTable.vkResetDescriptorPool(
+				device.toVkType(), descriptorPool.toVkType(),
+				0U.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -77,12 +77,13 @@ actual class DescriptorPool(override val ptr: VkDescriptorPool, actual val devic
 		val device = descriptorPool.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkFreeDescriptorSets(device.toVkType(), descriptorPool.toVkType(),
-					descriptorSets.size.toUInt(), descriptorSets.toVkType())
+			val result = dispatchTable.vkFreeDescriptorSets(
+				device.toVkType(), descriptorPool.toVkType(),
+				descriptorSets.size.toUInt(), descriptorSets.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

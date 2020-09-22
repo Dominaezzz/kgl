@@ -15,16 +15,19 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.handles.BufferView
-import com.kgl.vulkan.handles.DescriptorSet
-import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 class UpdateDescriptorSetsBuilder {
 	internal val targets0: MutableList<(WriteDescriptorSetBuilder) -> Unit> = mutableListOf()
 	internal val targets1: MutableList<(CopyDescriptorSetBuilder) -> Unit> = mutableListOf()
 
-	fun write(dstSet: DescriptorSet, texelBufferView: Collection<BufferView>? = null, block: WriteDescriptorSetBuilder.() -> Unit) {
+	fun write(
+		dstSet: DescriptorSet,
+		texelBufferView: Collection<BufferView>? = null,
+		block: WriteDescriptorSetBuilder.() -> Unit
+	) {
 		targets0 += {
 			it.init(dstSet, texelBufferView)
 			it.apply(block)

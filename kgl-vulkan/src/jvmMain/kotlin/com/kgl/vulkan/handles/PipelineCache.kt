@@ -15,12 +15,9 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.VK11.*
 
 actual class PipelineCache(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
@@ -77,12 +74,13 @@ actual class PipelineCache(override val ptr: Long, actual val device: Device) : 
 		val device = dstCache.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkMergePipelineCaches(device.toVkType(), dstCache.toVkType(),
-					srcCaches.toVkType())
+			val result = vkMergePipelineCaches(
+				device.toVkType(), dstCache.toVkType(),
+				srcCaches.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

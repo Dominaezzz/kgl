@@ -15,10 +15,10 @@
  */
 package com.kgl.glfw
 
-import com.kgl.core.Flag
+import com.kgl.core.*
+import org.lwjgl.glfw.*
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.glfw.GLFWGamepadState
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 
 actual enum class Joystick(val value: Int) {
 	_1(GLFW_JOYSTICK_1),
@@ -86,8 +86,8 @@ actual val Joystick.gamepadState: GamepadState?
 			val state = GLFWGamepadState.mallocStack()
 			if (glfwGetGamepadState(value, state)) {
 				return GamepadState(
-						List(15) { Action.from(state.buttons(it).toInt()) },
-						FloatArray(6) { state.axes(it) }
+					List(15) { Action.from(state.buttons(it).toInt()) },
+					FloatArray(6) { state.axes(it) }
 				)
 			}
 			return null

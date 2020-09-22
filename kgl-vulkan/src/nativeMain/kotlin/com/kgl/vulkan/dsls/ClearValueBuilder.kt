@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import cvulkan.VkClearValue
+import cvulkan.*
 
 actual class ClearValueBuilder(internal val target: VkClearValue) {
 	actual fun color(r: Float, g: Float, b: Float, a: Float) {

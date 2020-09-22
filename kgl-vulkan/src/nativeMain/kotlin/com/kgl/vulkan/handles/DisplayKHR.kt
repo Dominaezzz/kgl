@@ -15,13 +15,11 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import cvulkan.VkDisplayKHR
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 
 actual class DisplayKHR(override val ptr: VkDisplayKHR) : VkHandleNative<VkDisplayKHR>(), VkHandle {
 	override fun close() {
 		TODO()
 	}
 }
-

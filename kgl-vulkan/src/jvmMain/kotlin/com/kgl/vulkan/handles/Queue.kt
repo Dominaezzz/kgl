@@ -16,18 +16,20 @@
 package com.kgl.vulkan.handles
 
 import com.kgl.vulkan.dsls.*
-import com.kgl.vulkan.structs.CheckpointDataNV
-import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.EXTDebugUtils.*
-import org.lwjgl.vulkan.KHRSwapchain.VK_SUBOPTIMAL_KHR
-import org.lwjgl.vulkan.KHRSwapchain.vkQueuePresentKHR
-import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints.vkGetQueueCheckpointDataNV
+import org.lwjgl.vulkan.KHRSwapchain.*
+import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints.*
 import org.lwjgl.vulkan.VK11.*
 
-actual class Queue(override val ptr: VkQueue, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleJVM<VkQueue>(), VkHandle {
+actual class Queue(
+	override val ptr: VkQueue,
+	actual val device: Device,
+	actual val queueFamilyIndex: UInt
+) : VkHandleJVM<VkQueue>(), VkHandle {
 	actual val checkpointDataNV: List<CheckpointDataNV>
 		get() {
 			val queue = this
@@ -60,7 +62,11 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		}
 	}
 
-	actual fun presentKHR(swapchains: Collection<Pair<SwapchainKHR, UInt>>, waitSemaphores: Collection<Semaphore>?, block: PresentInfoKHRBuilder.() -> Unit): Boolean {
+	actual fun presentKHR(
+		swapchains: Collection<Pair<SwapchainKHR, UInt>>,
+		waitSemaphores: Collection<Semaphore>?,
+		block: PresentInfoKHRBuilder.() -> Unit
+	): Boolean {
 		val queue = this
 		MemoryStack.stackPush()
 		try {
@@ -141,4 +147,3 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		}
 	}
 }
-

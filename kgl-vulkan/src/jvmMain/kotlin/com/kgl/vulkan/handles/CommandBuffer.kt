@@ -18,35 +18,31 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.AMDBufferMarker.vkCmdWriteBufferMarkerAMD
-import org.lwjgl.vulkan.AMDDrawIndirectCount.vkCmdDrawIndexedIndirectCountAMD
-import org.lwjgl.vulkan.AMDDrawIndirectCount.vkCmdDrawIndirectCountAMD
-import org.lwjgl.vulkan.EXTConditionalRendering.vkCmdBeginConditionalRenderingEXT
-import org.lwjgl.vulkan.EXTConditionalRendering.vkCmdEndConditionalRenderingEXT
+import org.lwjgl.vulkan.AMDBufferMarker.*
+import org.lwjgl.vulkan.AMDDrawIndirectCount.*
+import org.lwjgl.vulkan.EXTConditionalRendering.*
 import org.lwjgl.vulkan.EXTDebugMarker.*
 import org.lwjgl.vulkan.EXTDebugUtils.*
-import org.lwjgl.vulkan.EXTDiscardRectangles.vkCmdSetDiscardRectangleEXT
-import org.lwjgl.vulkan.EXTSampleLocations.vkCmdSetSampleLocationsEXT
+import org.lwjgl.vulkan.EXTDiscardRectangles.*
+import org.lwjgl.vulkan.EXTSampleLocations.*
 import org.lwjgl.vulkan.EXTTransformFeedback.*
-import org.lwjgl.vulkan.KHRCreateRenderpass2.vkCmdEndRenderPass2KHR
-import org.lwjgl.vulkan.KHRDrawIndirectCount.vkCmdDrawIndexedIndirectCountKHR
-import org.lwjgl.vulkan.KHRDrawIndirectCount.vkCmdDrawIndirectCountKHR
-import org.lwjgl.vulkan.KHRPushDescriptor.vkCmdPushDescriptorSetKHR
-import org.lwjgl.vulkan.KHRPushDescriptor.vkCmdPushDescriptorSetWithTemplateKHR
-import org.lwjgl.vulkan.NVClipSpaceWScaling.vkCmdSetViewportWScalingNV
-import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints.vkCmdSetCheckpointNV
+import org.lwjgl.vulkan.KHRCreateRenderpass2.*
+import org.lwjgl.vulkan.KHRDrawIndirectCount.*
+import org.lwjgl.vulkan.KHRPushDescriptor.*
+import org.lwjgl.vulkan.NVClipSpaceWScaling.*
+import org.lwjgl.vulkan.NVDeviceDiagnosticCheckpoints.*
 import org.lwjgl.vulkan.NVMeshShader.*
 import org.lwjgl.vulkan.NVRayTracing.*
-import org.lwjgl.vulkan.NVScissorExclusive.vkCmdSetExclusiveScissorNV
+import org.lwjgl.vulkan.NVScissorExclusive.*
 import org.lwjgl.vulkan.NVShadingRateImage.*
-import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCmdProcessCommandsNVX
-import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkCmdReserveSpaceForCommandsNVX
+import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.*
 import org.lwjgl.vulkan.VK11.*
 
-actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val commandPool: CommandPool) : VkHandleJVM<VkCommandBuffer>(), VkHandle {
+actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val commandPool: CommandPool) :
+	VkHandleJVM<VkCommandBuffer>(), VkHandle {
 	override fun close() {
 		vkFreeCommandBuffers(commandPool.device.ptr, commandPool.ptr, ptr)
 	}
@@ -92,8 +88,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBindPipeline(commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
-					pipeline.toVkType())
+			vkCmdBindPipeline(
+				commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
+				pipeline.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -134,15 +132,17 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun setDepthBias(
-			depthBiasConstantFactor: Float,
-			depthBiasClamp: Float,
-			depthBiasSlopeFactor: Float
+		depthBiasConstantFactor: Float,
+		depthBiasClamp: Float,
+		depthBiasSlopeFactor: Float
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdSetDepthBias(commandBuffer.toVkType(), depthBiasConstantFactor.toVkType(),
-					depthBiasClamp.toVkType(), depthBiasSlopeFactor.toVkType())
+			vkCmdSetDepthBias(
+				commandBuffer.toVkType(), depthBiasConstantFactor.toVkType(),
+				depthBiasClamp.toVkType(), depthBiasSlopeFactor.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -152,8 +152,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdSetDepthBounds(commandBuffer.toVkType(), minDepthBounds.toVkType(),
-					maxDepthBounds.toVkType())
+			vkCmdSetDepthBounds(
+				commandBuffer.toVkType(), minDepthBounds.toVkType(),
+				maxDepthBounds.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -163,8 +165,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdSetStencilCompareMask(commandBuffer.toVkType(), faceMask.toVkType(),
-					compareMask.toVkType())
+			vkCmdSetStencilCompareMask(
+				commandBuffer.toVkType(), faceMask.toVkType(),
+				compareMask.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -174,8 +178,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdSetStencilWriteMask(commandBuffer.toVkType(), faceMask.toVkType(),
-					writeMask.toVkType())
+			vkCmdSetStencilWriteMask(
+				commandBuffer.toVkType(), faceMask.toVkType(),
+				writeMask.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -185,8 +191,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdSetStencilReference(commandBuffer.toVkType(), faceMask.toVkType(),
-					reference.toVkType())
+			vkCmdSetStencilReference(
+				commandBuffer.toVkType(), faceMask.toVkType(),
+				reference.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -197,33 +205,37 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun bindDescriptorSets(
-			pipelineBindPoint: PipelineBindPoint,
-			layout: PipelineLayout,
-			firstSet: UInt,
-			descriptorSets: Collection<DescriptorSet>,
-			dynamicOffsets: UIntArray?
+		pipelineBindPoint: PipelineBindPoint,
+		layout: PipelineLayout,
+		firstSet: UInt,
+		descriptorSets: Collection<DescriptorSet>,
+		dynamicOffsets: UIntArray?
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBindDescriptorSets(commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
-					layout.toVkType(), firstSet.toVkType(), descriptorSets.toVkType(),
-					dynamicOffsets?.toVkType())
+			vkCmdBindDescriptorSets(
+				commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
+				layout.toVkType(), firstSet.toVkType(), descriptorSets.toVkType(),
+				dynamicOffsets?.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun bindIndexBuffer(
-			buffer: Buffer,
-			offset: ULong,
-			indexType: IndexType
+		buffer: Buffer,
+		offset: ULong,
+		indexType: IndexType
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBindIndexBuffer(commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
-					indexType.toVkType())
+			vkCmdBindIndexBuffer(
+				commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
+				indexType.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -234,73 +246,82 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		MemoryStack.stackPush()
 		try {
 			vkCmdBindVertexBuffers(commandBuffer.toVkType(), firstBinding.toVkType(),
-					buffers.map { it.first }.toVkType(), buffers.map { it.second.toLong() }.toLongArray().toVkType())
+				buffers.map { it.first }.toVkType(), buffers.map { it.second.toLong() }.toLongArray().toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun draw(
-			vertexCount: UInt,
-			instanceCount: UInt,
-			firstVertex: UInt,
-			firstInstance: UInt
+		vertexCount: UInt,
+		instanceCount: UInt,
+		firstVertex: UInt,
+		firstInstance: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDraw(commandBuffer.toVkType(), vertexCount.toVkType(), instanceCount.toVkType(),
-					firstVertex.toVkType(), firstInstance.toVkType())
+			vkCmdDraw(
+				commandBuffer.toVkType(), vertexCount.toVkType(), instanceCount.toVkType(),
+				firstVertex.toVkType(), firstInstance.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndexed(
-			indexCount: UInt,
-			instanceCount: UInt,
-			firstIndex: UInt,
-			vertexOffset: Int,
-			firstInstance: UInt
+		indexCount: UInt,
+		instanceCount: UInt,
+		firstIndex: UInt,
+		vertexOffset: Int,
+		firstInstance: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndexed(commandBuffer.toVkType(), indexCount.toVkType(),
-					instanceCount.toVkType(), firstIndex.toVkType(), vertexOffset.toVkType(),
-					firstInstance.toVkType())
+			vkCmdDrawIndexed(
+				commandBuffer.toVkType(), indexCount.toVkType(),
+				instanceCount.toVkType(), firstIndex.toVkType(), vertexOffset.toVkType(),
+				firstInstance.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndirect(
-			buffer: Buffer,
-			offset: ULong,
-			drawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		drawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndirect(commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
-					drawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndirect(
+				commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
+				drawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndexedIndirect(
-			buffer: Buffer,
-			offset: ULong,
-			drawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		drawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndexedIndirect(commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
-					drawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndexedIndirect(
+				commandBuffer.toVkType(), buffer.toVkType(), offset.toVkType(),
+				drawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -310,8 +331,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDispatch(commandBuffer.toVkType(), groupCountX.toVkType(), groupCountY.toVkType(),
-					groupCountZ.toVkType())
+			vkCmdDispatch(
+				commandBuffer.toVkType(), groupCountX.toVkType(), groupCountY.toVkType(),
+				groupCountZ.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -333,73 +356,93 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val targets = BufferCopysBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkBufferCopy::callocStack, ::BufferCopyBuilder)
-			vkCmdCopyBuffer(commandBuffer.toVkType(), srcBuffer.toVkType(), dstBuffer.toVkType(),
-					targetArray)
+			vkCmdCopyBuffer(
+				commandBuffer.toVkType(), srcBuffer.toVkType(), dstBuffer.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun copyImage(
-			srcImage: Image,
-			srcImageLayout: ImageLayout,
-			dstImage: Image,
-			dstImageLayout: ImageLayout,
-			block: ImageCopysBuilder.() -> Unit
+		srcImage: Image,
+		srcImageLayout: ImageLayout,
+		dstImage: Image,
+		dstImageLayout: ImageLayout,
+		block: ImageCopysBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = ImageCopysBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkImageCopy::callocStack, ::ImageCopyBuilder)
-			vkCmdCopyImage(commandBuffer.toVkType(), srcImage.toVkType(), srcImageLayout.toVkType(),
-					dstImage.toVkType(), dstImageLayout.toVkType(), targetArray)
+			vkCmdCopyImage(
+				commandBuffer.toVkType(), srcImage.toVkType(), srcImageLayout.toVkType(),
+				dstImage.toVkType(), dstImageLayout.toVkType(), targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun blitImage(
-			srcImage: Image,
-			srcImageLayout: ImageLayout,
-			dstImage: Image,
-			dstImageLayout: ImageLayout,
-			filter: Filter,
-			block: ImageBlitsBuilder.() -> Unit
+		srcImage: Image,
+		srcImageLayout: ImageLayout,
+		dstImage: Image,
+		dstImageLayout: ImageLayout,
+		filter: Filter,
+		block: ImageBlitsBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = ImageBlitsBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkImageBlit::callocStack, ::ImageBlitBuilder)
-			vkCmdBlitImage(commandBuffer.toVkType(), srcImage.toVkType(), srcImageLayout.toVkType(),
-					dstImage.toVkType(), dstImageLayout.toVkType(), targetArray, filter.toVkType())
+			vkCmdBlitImage(
+				commandBuffer.toVkType(), srcImage.toVkType(), srcImageLayout.toVkType(),
+				dstImage.toVkType(), dstImageLayout.toVkType(), targetArray, filter.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun copyBufferToImage(srcBuffer: Buffer, dstImage: Image, dstImageLayout: ImageLayout, block: BufferImageCopysBuilder.() -> Unit) {
+	actual fun copyBufferToImage(
+		srcBuffer: Buffer,
+		dstImage: Image,
+		dstImageLayout: ImageLayout,
+		block: BufferImageCopysBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = BufferImageCopysBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkBufferImageCopy::callocStack, ::BufferImageCopyBuilder)
-			vkCmdCopyBufferToImage(commandBuffer.toVkType(), srcBuffer.toVkType(),
-					dstImage.toVkType(), dstImageLayout.toVkType(), targetArray)
+			vkCmdCopyBufferToImage(
+				commandBuffer.toVkType(), srcBuffer.toVkType(),
+				dstImage.toVkType(), dstImageLayout.toVkType(), targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun copyImageToBuffer(srcImage: Image, srcImageLayout: ImageLayout, dstBuffer: Buffer, block: BufferImageCopysBuilder.() -> Unit) {
+	actual fun copyImageToBuffer(
+		srcImage: Image,
+		srcImageLayout: ImageLayout,
+		dstBuffer: Buffer,
+		block: BufferImageCopysBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = BufferImageCopysBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkBufferImageCopy::callocStack, ::BufferImageCopyBuilder)
-			vkCmdCopyImageToBuffer(commandBuffer.toVkType(), srcImage.toVkType(),
-					srcImageLayout.toVkType(), dstBuffer.toVkType(), targetArray)
+			vkCmdCopyImageToBuffer(
+				commandBuffer.toVkType(), srcImage.toVkType(),
+				srcImageLayout.toVkType(), dstBuffer.toVkType(), targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -419,54 +462,78 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdFillBuffer(commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
-					size.toVkType(), data.toVkType())
+			vkCmdFillBuffer(
+				commandBuffer.toVkType(), dstBuffer.toVkType(), dstOffset.toVkType(),
+				size.toVkType(), data.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun resolveImage(srcImage: Image, srcImageLayout: ImageLayout, dstImage: Image, dstImageLayout: ImageLayout, block: ImageResolvesBuilder.() -> Unit) {
+	actual fun resolveImage(
+		srcImage: Image,
+		srcImageLayout: ImageLayout,
+		dstImage: Image,
+		dstImageLayout: ImageLayout,
+		block: ImageResolvesBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = ImageResolvesBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkImageResolve::callocStack, ::ImageResolveBuilder)
-			vkCmdResolveImage(commandBuffer.toVkType(), srcImage.toVkType(),
-					srcImageLayout.toVkType(), dstImage.toVkType(), dstImageLayout.toVkType(),
-					targetArray)
+			vkCmdResolveImage(
+				commandBuffer.toVkType(), srcImage.toVkType(),
+				srcImageLayout.toVkType(), dstImage.toVkType(), dstImageLayout.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun pipelineBarrier(srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, dependencies: VkFlag<Dependency>?, block: BarrierBuilder.() -> Unit) {
+	actual fun pipelineBarrier(
+		srcStages: VkFlag<PipelineStage>,
+		dstStages: VkFlag<PipelineStage>,
+		dependencies: VkFlag<Dependency>?,
+		block: BarrierBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val builder = BarrierBuilder().apply(block)
-			vkCmdPipelineBarrier(commandBuffer.toVkType(), srcStages.toVkType(),
-					dstStages.toVkType(), dependencies.toVkType(),
-					builder.targets.mapToStackArray(VkMemoryBarrier::callocStack, ::MemoryBarrierBuilder),
-					builder.targets1.mapToStackArray(VkBufferMemoryBarrier::callocStack, ::BufferMemoryBarrierBuilder),
-					builder.targets2.mapToStackArray(VkImageMemoryBarrier::callocStack, ::ImageMemoryBarrierBuilder))
+			vkCmdPipelineBarrier(
+				commandBuffer.toVkType(), srcStages.toVkType(),
+				dstStages.toVkType(), dependencies.toVkType(),
+				builder.targets.mapToStackArray(VkMemoryBarrier::callocStack, ::MemoryBarrierBuilder),
+				builder.targets1.mapToStackArray(VkBufferMemoryBarrier::callocStack, ::BufferMemoryBarrierBuilder),
+				builder.targets2.mapToStackArray(VkImageMemoryBarrier::callocStack, ::ImageMemoryBarrierBuilder)
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun waitEvents(events: Collection<Event>, srcStages: VkFlag<PipelineStage>, dstStages: VkFlag<PipelineStage>, block: BarrierBuilder.() -> Unit) {
+	actual fun waitEvents(
+		events: Collection<Event>,
+		srcStages: VkFlag<PipelineStage>,
+		dstStages: VkFlag<PipelineStage>,
+		block: BarrierBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val builder = BarrierBuilder().apply(block)
-			vkCmdWaitEvents(commandBuffer.toVkType(),
-					events.toVkType(),
-					srcStages.toVkType(),
-					dstStages.toVkType(),
-					builder.targets.mapToStackArray(VkMemoryBarrier::callocStack, ::MemoryBarrierBuilder),
-					builder.targets1.mapToStackArray(VkBufferMemoryBarrier::callocStack, ::BufferMemoryBarrierBuilder),
-					builder.targets2.mapToStackArray(VkImageMemoryBarrier::callocStack, ::ImageMemoryBarrierBuilder))
+			vkCmdWaitEvents(
+				commandBuffer.toVkType(),
+				events.toVkType(),
+				srcStages.toVkType(),
+				dstStages.toVkType(),
+				builder.targets.mapToStackArray(VkMemoryBarrier::callocStack, ::MemoryBarrierBuilder),
+				builder.targets1.mapToStackArray(VkBufferMemoryBarrier::callocStack, ::BufferMemoryBarrierBuilder),
+				builder.targets2.mapToStackArray(VkImageMemoryBarrier::callocStack, ::ImageMemoryBarrierBuilder)
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -496,8 +563,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBeginQuery(commandBuffer.toVkType(), queryPool.toVkType(), query.toVkType(),
-					flags.toVkType())
+			vkCmdBeginQuery(
+				commandBuffer.toVkType(), queryPool.toVkType(), query.toVkType(),
+				flags.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -514,10 +583,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun beginConditionalRenderingEXT(
-			buffer: Buffer,
-			offset: ULong,
-			flags: VkFlag<ConditionalRenderingEXT>?,
-			block: ConditionalRenderingBeginInfoEXTBuilder.() -> Unit
+		buffer: Buffer,
+		offset: ULong,
+		flags: VkFlag<ConditionalRenderingEXT>?,
+		block: ConditionalRenderingBeginInfoEXTBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
@@ -543,76 +612,84 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun resetQueryPool(
-			queryPool: QueryPool,
-			firstQuery: UInt,
-			queryCount: UInt
+		queryPool: QueryPool,
+		firstQuery: UInt,
+		queryCount: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdResetQueryPool(commandBuffer.toVkType(), queryPool.toVkType(),
-					firstQuery.toVkType(), queryCount.toVkType())
+			vkCmdResetQueryPool(
+				commandBuffer.toVkType(), queryPool.toVkType(),
+				firstQuery.toVkType(), queryCount.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun writeTimestamp(
-			pipelineStage: PipelineStage,
-			queryPool: QueryPool,
-			query: UInt
+		pipelineStage: PipelineStage,
+		queryPool: QueryPool,
+		query: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdWriteTimestamp(commandBuffer.toVkType(), pipelineStage.toVkType(),
-					queryPool.toVkType(), query.toVkType())
+			vkCmdWriteTimestamp(
+				commandBuffer.toVkType(), pipelineStage.toVkType(),
+				queryPool.toVkType(), query.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun copyQueryPoolResults(
-			queryPool: QueryPool,
-			firstQuery: UInt,
-			queryCount: UInt,
-			dstBuffer: Buffer,
-			dstOffset: ULong,
-			stride: ULong,
-			flags: VkFlag<QueryResult>?
+		queryPool: QueryPool,
+		firstQuery: UInt,
+		queryCount: UInt,
+		dstBuffer: Buffer,
+		dstOffset: ULong,
+		stride: ULong,
+		flags: VkFlag<QueryResult>?
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdCopyQueryPoolResults(commandBuffer.toVkType(), queryPool.toVkType(),
-					firstQuery.toVkType(), queryCount.toVkType(), dstBuffer.toVkType(),
-					dstOffset.toVkType(), stride.toVkType(), flags.toVkType())
+			vkCmdCopyQueryPoolResults(
+				commandBuffer.toVkType(), queryPool.toVkType(),
+				firstQuery.toVkType(), queryCount.toVkType(), dstBuffer.toVkType(),
+				dstOffset.toVkType(), stride.toVkType(), flags.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun pushConstants(
-			layout: PipelineLayout,
-			stageFlags: VkFlag<ShaderStage>,
-			offset: UInt,
-			values: Memory
+		layout: PipelineLayout,
+		stageFlags: VkFlag<ShaderStage>,
+		offset: UInt,
+		values: Memory
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdPushConstants(commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
-					offset.toVkType(), values.buffer)
+			vkCmdPushConstants(
+				commandBuffer.toVkType(), layout.toVkType(), stageFlags.toVkType(),
+				offset.toVkType(), values.buffer
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun beginRenderPass(
-			renderPass: RenderPass,
-			framebuffer: Framebuffer,
-			contents: SubpassContents,
-			block: RenderPassBeginInfoBuilder.() -> Unit
+		renderPass: RenderPass,
+		framebuffer: Framebuffer,
+		contents: SubpassContents,
+		block: RenderPassBeginInfoBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
@@ -696,58 +773,64 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun drawIndirectCountAMD(
-			buffer: Buffer,
-			offset: ULong,
-			countBuffer: Buffer,
-			countBufferOffset: ULong,
-			maxDrawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		countBuffer: Buffer,
+		countBufferOffset: ULong,
+		maxDrawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndirectCountAMD(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
-					maxDrawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndirectCountAMD(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
+				maxDrawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndexedIndirectCountAMD(
-			buffer: Buffer,
-			offset: ULong,
-			countBuffer: Buffer,
-			countBufferOffset: ULong,
-			maxDrawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		countBuffer: Buffer,
+		countBufferOffset: ULong,
+		maxDrawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndexedIndirectCountAMD(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
-					maxDrawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndexedIndirectCountAMD(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
+				maxDrawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun processCommandsNVX(
-			objectTable: ObjectTableNVX,
-			indirectCommandsLayout: IndirectCommandsLayoutNVX,
-			targetCommandBuffer: CommandBuffer?,
-			sequencesCountBuffer: Buffer?,
-			sequencesIndexBuffer: Buffer?,
-			block: CmdProcessCommandsInfoNVXBuilder.() -> Unit
+		objectTable: ObjectTableNVX,
+		indirectCommandsLayout: IndirectCommandsLayoutNVX,
+		targetCommandBuffer: CommandBuffer?,
+		sequencesCountBuffer: Buffer?,
+		sequencesIndexBuffer: Buffer?,
+		block: CmdProcessCommandsInfoNVXBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val target = VkCmdProcessCommandsInfoNVX.callocStack()
 			val builder = CmdProcessCommandsInfoNVXBuilder(target)
-			builder.init(objectTable, indirectCommandsLayout, targetCommandBuffer,
-					sequencesCountBuffer, sequencesIndexBuffer)
+			builder.init(
+				objectTable, indirectCommandsLayout, targetCommandBuffer,
+				sequencesCountBuffer, sequencesIndexBuffer
+			)
 			builder.apply(block)
 			vkCmdProcessCommandsNVX(commandBuffer.toVkType(), target)
 		} finally {
@@ -756,9 +839,9 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun reserveSpaceForCommandsNVX(
-			objectTable: ObjectTableNVX,
-			indirectCommandsLayout: IndirectCommandsLayoutNVX,
-			block: CmdReserveSpaceForCommandsInfoNVXBuilder.() -> Unit
+		objectTable: ObjectTableNVX,
+		indirectCommandsLayout: IndirectCommandsLayoutNVX,
+		block: CmdReserveSpaceForCommandsInfoNVXBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
@@ -774,18 +857,20 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun pushDescriptorSetKHR(
-			pipelineBindPoint: PipelineBindPoint,
-			layout: PipelineLayout,
-			set: UInt,
-			block: WriteDescriptorSetsBuilder.() -> Unit
+		pipelineBindPoint: PipelineBindPoint,
+		layout: PipelineLayout,
+		set: UInt,
+		block: WriteDescriptorSetsBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = WriteDescriptorSetsBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkWriteDescriptorSet::callocStack, ::WriteDescriptorSetBuilder)
-			vkCmdPushDescriptorSetKHR(commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
-					layout.toVkType(), set.toVkType(), targetArray)
+			vkCmdPushDescriptorSetKHR(
+				commandBuffer.toVkType(), pipelineBindPoint.toVkType(),
+				layout.toVkType(), set.toVkType(), targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -802,37 +887,41 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun dispatchBase(
-			baseGroupX: UInt,
-			baseGroupY: UInt,
-			baseGroupZ: UInt,
-			groupCountX: UInt,
-			groupCountY: UInt,
-			groupCountZ: UInt
+		baseGroupX: UInt,
+		baseGroupY: UInt,
+		baseGroupZ: UInt,
+		groupCountX: UInt,
+		groupCountY: UInt,
+		groupCountZ: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDispatchBase(commandBuffer.toVkType(), baseGroupX.toVkType(),
-					baseGroupY.toVkType(), baseGroupZ.toVkType(), groupCountX.toVkType(),
-					groupCountY.toVkType(), groupCountZ.toVkType())
+			vkCmdDispatchBase(
+				commandBuffer.toVkType(), baseGroupX.toVkType(),
+				baseGroupY.toVkType(), baseGroupZ.toVkType(), groupCountX.toVkType(),
+				groupCountY.toVkType(), groupCountZ.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun pushDescriptorSetWithTemplateKHR(
-			descriptorUpdateTemplate: DescriptorUpdateTemplate,
-			layout: PipelineLayout,
-			set: UInt,
-			data: Memory
+		descriptorUpdateTemplate: DescriptorUpdateTemplate,
+		layout: PipelineLayout,
+		set: UInt,
+		data: Memory
 	) {
 		TODO()
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdPushDescriptorSetWithTemplateKHR(commandBuffer.toVkType(),
-					descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
-					0)
+			vkCmdPushDescriptorSetWithTemplateKHR(
+				commandBuffer.toVkType(),
+				descriptorUpdateTemplate.toVkType(), layout.toVkType(), set.toVkType(),
+				0
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -844,8 +933,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val targets = ViewportWScalingNVsBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkViewportWScalingNV::callocStack, ::ViewportWScalingNVBuilder)
-			vkCmdSetViewportWScalingNV(commandBuffer.toVkType(), firstViewport.toVkType(),
-					targetArray)
+			vkCmdSetViewportWScalingNV(
+				commandBuffer.toVkType(), firstViewport.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -857,8 +948,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val targets = Rect2DsBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkRect2D::callocStack, ::Rect2DBuilder)
-			vkCmdSetDiscardRectangleEXT(commandBuffer.toVkType(), firstDiscardRectangle.toVkType(),
-					targetArray)
+			vkCmdSetDiscardRectangleEXT(
+				commandBuffer.toVkType(), firstDiscardRectangle.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -920,8 +1013,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdWriteBufferMarkerAMD(commandBuffer.toVkType(), pipelineStage.toVkType(),
-					dstBuffer.toVkType(), dstOffset.toVkType(), marker.toVkType())
+			vkCmdWriteBufferMarkerAMD(
+				commandBuffer.toVkType(), pipelineStage.toVkType(),
+				dstBuffer.toVkType(), dstOffset.toVkType(), marker.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -942,38 +1037,42 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun drawIndirectCountKHR(
-			buffer: Buffer,
-			offset: ULong,
-			countBuffer: Buffer,
-			countBufferOffset: ULong,
-			maxDrawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		countBuffer: Buffer,
+		countBufferOffset: ULong,
+		maxDrawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndirectCountKHR(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
-					maxDrawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndirectCountKHR(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
+				maxDrawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndexedIndirectCountKHR(
-			buffer: Buffer,
-			offset: ULong,
-			countBuffer: Buffer,
-			countBufferOffset: ULong,
-			maxDrawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		countBuffer: Buffer,
+		countBufferOffset: ULong,
+		maxDrawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndexedIndirectCountKHR(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
-					maxDrawCount.toVkType(), stride.toVkType())
+			vkCmdDrawIndexedIndirectCountKHR(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
+				maxDrawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -991,97 +1090,109 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 	}
 
 	actual fun bindTransformFeedbackBuffersEXT(
-			firstBinding: UInt,
-			buffers: Collection<Buffer>,
-			offsets: ULongArray,
-			sizes: ULongArray
+		firstBinding: UInt,
+		buffers: Collection<Buffer>,
+		offsets: ULongArray,
+		sizes: ULongArray
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBindTransformFeedbackBuffersEXT(commandBuffer.toVkType(), firstBinding.toVkType(),
-					buffers.toVkType(), offsets.toVkType(), sizes.toVkType())
+			vkCmdBindTransformFeedbackBuffersEXT(
+				commandBuffer.toVkType(), firstBinding.toVkType(),
+				buffers.toVkType(), offsets.toVkType(), sizes.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun beginTransformFeedbackEXT(
-			firstCounterBuffer: UInt,
-			counterBuffers: Collection<Buffer>?,
-			counterBufferOffsets: ULongArray
+		firstCounterBuffer: UInt,
+		counterBuffers: Collection<Buffer>?,
+		counterBufferOffsets: ULongArray
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBeginTransformFeedbackEXT(commandBuffer.toVkType(), firstCounterBuffer.toVkType(),
-					counterBuffers?.toVkType(), counterBufferOffsets.toVkType())
+			vkCmdBeginTransformFeedbackEXT(
+				commandBuffer.toVkType(), firstCounterBuffer.toVkType(),
+				counterBuffers?.toVkType(), counterBufferOffsets.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun endTransformFeedbackEXT(
-			firstCounterBuffer: UInt,
-			counterBuffers: Collection<Buffer>?,
-			counterBufferOffsets: ULongArray
+		firstCounterBuffer: UInt,
+		counterBuffers: Collection<Buffer>?,
+		counterBufferOffsets: ULongArray
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdEndTransformFeedbackEXT(commandBuffer.toVkType(), firstCounterBuffer.toVkType(),
-					counterBuffers?.toVkType(), counterBufferOffsets.toVkType())
+			vkCmdEndTransformFeedbackEXT(
+				commandBuffer.toVkType(), firstCounterBuffer.toVkType(),
+				counterBuffers?.toVkType(), counterBufferOffsets.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun beginQueryIndexedEXT(
-			queryPool: QueryPool,
-			query: UInt,
-			flags: VkFlag<QueryControl>?,
-			index: UInt
+		queryPool: QueryPool,
+		query: UInt,
+		flags: VkFlag<QueryControl>?,
+		index: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBeginQueryIndexedEXT(commandBuffer.toVkType(), queryPool.toVkType(),
-					query.toVkType(), flags.toVkType(), index.toVkType())
+			vkCmdBeginQueryIndexedEXT(
+				commandBuffer.toVkType(), queryPool.toVkType(),
+				query.toVkType(), flags.toVkType(), index.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun endQueryIndexedEXT(
-			queryPool: QueryPool,
-			query: UInt,
-			index: UInt
+		queryPool: QueryPool,
+		query: UInt,
+		index: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdEndQueryIndexedEXT(commandBuffer.toVkType(), queryPool.toVkType(),
-					query.toVkType(), index.toVkType())
+			vkCmdEndQueryIndexedEXT(
+				commandBuffer.toVkType(), queryPool.toVkType(),
+				query.toVkType(), index.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawIndirectByteCountEXT(
-			instanceCount: UInt,
-			firstInstance: UInt,
-			counterBuffer: Buffer,
-			counterBufferOffset: ULong,
-			counterOffset: UInt,
-			vertexStride: UInt
+		instanceCount: UInt,
+		firstInstance: UInt,
+		counterBuffer: Buffer,
+		counterBufferOffset: ULong,
+		counterOffset: UInt,
+		vertexStride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawIndirectByteCountEXT(commandBuffer.toVkType(), instanceCount.toVkType(),
-					firstInstance.toVkType(), counterBuffer.toVkType(),
-					counterBufferOffset.toVkType(), counterOffset.toVkType(),
-					vertexStride.toVkType())
+			vkCmdDrawIndirectByteCountEXT(
+				commandBuffer.toVkType(), instanceCount.toVkType(),
+				firstInstance.toVkType(), counterBuffer.toVkType(),
+				counterBufferOffset.toVkType(), counterOffset.toVkType(),
+				vertexStride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -1093,8 +1204,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		try {
 			val targets = Rect2DsBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(VkRect2D::callocStack, ::Rect2DBuilder)
-			vkCmdSetExclusiveScissorNV(commandBuffer.toVkType(), firstExclusiveScissor.toVkType(),
-					targetArray)
+			vkCmdSetExclusiveScissorNV(
+				commandBuffer.toVkType(), firstExclusiveScissor.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -1104,8 +1217,10 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdBindShadingRateImageNV(commandBuffer.toVkType(), imageView.toVkType(),
-					imageLayout.toVkType())
+			vkCmdBindShadingRateImageNV(
+				commandBuffer.toVkType(), imageView.toVkType(),
+				imageLayout.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -1116,22 +1231,31 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		MemoryStack.stackPush()
 		try {
 			val targets = ShadingRatePaletteNVsBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkShadingRatePaletteNV::callocStack, ::ShadingRatePaletteNVBuilder)
-			vkCmdSetViewportShadingRatePaletteNV(commandBuffer.toVkType(), firstViewport.toVkType(),
-					targetArray)
+			val targetArray =
+				targets.mapToStackArray(VkShadingRatePaletteNV::callocStack, ::ShadingRatePaletteNVBuilder)
+			vkCmdSetViewportShadingRatePaletteNV(
+				commandBuffer.toVkType(), firstViewport.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun setCoarseSampleOrderNV(sampleOrderType: CoarseSampleOrderTypeNV, block: CoarseSampleOrderCustomNVsBuilder.() -> Unit) {
+	actual fun setCoarseSampleOrderNV(
+		sampleOrderType: CoarseSampleOrderTypeNV,
+		block: CoarseSampleOrderCustomNVsBuilder.() -> Unit
+	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
 			val targets = CoarseSampleOrderCustomNVsBuilder().apply(block).targets
-			val targetArray = targets.mapToStackArray(VkCoarseSampleOrderCustomNV::callocStack, ::CoarseSampleOrderCustomNVBuilder)
-			vkCmdSetCoarseSampleOrderNV(commandBuffer.toVkType(), sampleOrderType.toVkType(),
-					targetArray)
+			val targetArray =
+				targets.mapToStackArray(VkCoarseSampleOrderCustomNV::callocStack, ::CoarseSampleOrderCustomNVBuilder)
+			vkCmdSetCoarseSampleOrderNV(
+				commandBuffer.toVkType(), sampleOrderType.toVkType(),
+				targetArray
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -1141,89 +1265,99 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawMeshTasksNV(commandBuffer.toVkType(), taskCount.toVkType(),
-					firstTask.toVkType())
+			vkCmdDrawMeshTasksNV(
+				commandBuffer.toVkType(), taskCount.toVkType(),
+				firstTask.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawMeshTasksIndirectNV(
-			buffer: Buffer,
-			offset: ULong,
-			drawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		drawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawMeshTasksIndirectNV(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), drawCount.toVkType(), stride.toVkType())
+			vkCmdDrawMeshTasksIndirectNV(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), drawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun drawMeshTasksIndirectCountNV(
-			buffer: Buffer,
-			offset: ULong,
-			countBuffer: Buffer,
-			countBufferOffset: ULong,
-			maxDrawCount: UInt,
-			stride: UInt
+		buffer: Buffer,
+		offset: ULong,
+		countBuffer: Buffer,
+		countBufferOffset: ULong,
+		maxDrawCount: UInt,
+		stride: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdDrawMeshTasksIndirectCountNV(commandBuffer.toVkType(), buffer.toVkType(),
-					offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
-					maxDrawCount.toVkType(), stride.toVkType())
+			vkCmdDrawMeshTasksIndirectCountNV(
+				commandBuffer.toVkType(), buffer.toVkType(),
+				offset.toVkType(), countBuffer.toVkType(), countBufferOffset.toVkType(),
+				maxDrawCount.toVkType(), stride.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun copyAccelerationStructureNV(
-			dst: AccelerationStructureNV,
-			src: AccelerationStructureNV,
-			mode: CopyAccelerationStructureModeNV
+		dst: AccelerationStructureNV,
+		src: AccelerationStructureNV,
+		mode: CopyAccelerationStructureModeNV
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdCopyAccelerationStructureNV(commandBuffer.toVkType(), dst.toVkType(),
-					src.toVkType(), mode.toVkType())
+			vkCmdCopyAccelerationStructureNV(
+				commandBuffer.toVkType(), dst.toVkType(),
+				src.toVkType(), mode.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun writeAccelerationStructuresPropertiesNV(
-			accelerationStructures: Collection<AccelerationStructureNV>,
-			queryType: QueryType,
-			queryPool: QueryPool,
-			firstQuery: UInt
+		accelerationStructures: Collection<AccelerationStructureNV>,
+		queryType: QueryType,
+		queryPool: QueryPool,
+		firstQuery: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdWriteAccelerationStructuresPropertiesNV(commandBuffer.toVkType(),
-					accelerationStructures.toVkType(), queryType.toVkType(), queryPool.toVkType(),
-					firstQuery.toVkType())
+			vkCmdWriteAccelerationStructuresPropertiesNV(
+				commandBuffer.toVkType(),
+				accelerationStructures.toVkType(), queryType.toVkType(), queryPool.toVkType(),
+				firstQuery.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun buildAccelerationStructureNV(
-			instanceData: Buffer?,
-			instanceOffset: ULong,
-			update: Boolean,
-			dst: AccelerationStructureNV,
-			src: AccelerationStructureNV?,
-			scratch: Buffer,
-			scratchOffset: ULong,
-			block: AccelerationStructureInfoNVBuilder.() -> Unit
+		instanceData: Buffer?,
+		instanceOffset: ULong,
+		update: Boolean,
+		dst: AccelerationStructureNV,
+		src: AccelerationStructureNV?,
+		scratch: Buffer,
+		scratchOffset: ULong,
+		block: AccelerationStructureInfoNVBuilder.() -> Unit
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
@@ -1232,43 +1366,46 @@ actual class CommandBuffer(override val ptr: VkCommandBuffer, actual val command
 			val builder = AccelerationStructureInfoNVBuilder(target)
 			builder.init()
 			builder.apply(block)
-			vkCmdBuildAccelerationStructureNV(commandBuffer.toVkType(), target,
-					instanceData.toVkType(), instanceOffset.toVkType(), update.toVkType(),
-					dst.toVkType(), src.toVkType(), scratch.toVkType(), scratchOffset.toVkType())
+			vkCmdBuildAccelerationStructureNV(
+				commandBuffer.toVkType(), target,
+				instanceData.toVkType(), instanceOffset.toVkType(), update.toVkType(),
+				dst.toVkType(), src.toVkType(), scratch.toVkType(), scratchOffset.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
 	actual fun traceRaysNV(
-			raygenShaderBindingTableBuffer: Buffer,
-			raygenShaderBindingOffset: ULong,
-			missShaderBindingTableBuffer: Buffer?,
-			missShaderBindingOffset: ULong,
-			missShaderBindingStride: ULong,
-			hitShaderBindingTableBuffer: Buffer?,
-			hitShaderBindingOffset: ULong,
-			hitShaderBindingStride: ULong,
-			callableShaderBindingTableBuffer: Buffer?,
-			callableShaderBindingOffset: ULong,
-			callableShaderBindingStride: ULong,
-			width: UInt,
-			height: UInt,
-			depth: UInt
+		raygenShaderBindingTableBuffer: Buffer,
+		raygenShaderBindingOffset: ULong,
+		missShaderBindingTableBuffer: Buffer?,
+		missShaderBindingOffset: ULong,
+		missShaderBindingStride: ULong,
+		hitShaderBindingTableBuffer: Buffer?,
+		hitShaderBindingOffset: ULong,
+		hitShaderBindingStride: ULong,
+		callableShaderBindingTableBuffer: Buffer?,
+		callableShaderBindingOffset: ULong,
+		callableShaderBindingStride: ULong,
+		width: UInt,
+		height: UInt,
+		depth: UInt
 	) {
 		val commandBuffer = this
 		MemoryStack.stackPush()
 		try {
-			vkCmdTraceRaysNV(commandBuffer.toVkType(), raygenShaderBindingTableBuffer.toVkType(),
-					raygenShaderBindingOffset.toVkType(), missShaderBindingTableBuffer.toVkType(),
-					missShaderBindingOffset.toVkType(), missShaderBindingStride.toVkType(),
-					hitShaderBindingTableBuffer.toVkType(), hitShaderBindingOffset.toVkType(),
-					hitShaderBindingStride.toVkType(), callableShaderBindingTableBuffer.toVkType(),
-					callableShaderBindingOffset.toVkType(), callableShaderBindingStride.toVkType(),
-					width.toVkType(), height.toVkType(), depth.toVkType())
+			vkCmdTraceRaysNV(
+				commandBuffer.toVkType(), raygenShaderBindingTableBuffer.toVkType(),
+				raygenShaderBindingOffset.toVkType(), missShaderBindingTableBuffer.toVkType(),
+				missShaderBindingOffset.toVkType(), missShaderBindingStride.toVkType(),
+				hitShaderBindingTableBuffer.toVkType(), hitShaderBindingOffset.toVkType(),
+				hitShaderBindingStride.toVkType(), callableShaderBindingTableBuffer.toVkType(),
+				callableShaderBindingOffset.toVkType(), callableShaderBindingStride.toVkType(),
+				width.toVkType(), height.toVkType(), depth.toVkType()
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

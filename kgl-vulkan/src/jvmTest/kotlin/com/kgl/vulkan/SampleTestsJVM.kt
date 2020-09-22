@@ -15,8 +15,7 @@
  */
 package com.kgl.vulkan
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SampleTestsJVM {
 	@Test

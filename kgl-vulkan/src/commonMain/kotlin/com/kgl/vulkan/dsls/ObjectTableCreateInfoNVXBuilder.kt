@@ -15,11 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.enums.ObjectEntryUsageNVX
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.StructMarker
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 expect class ObjectTableCreateInfoNVXBuilder {
@@ -36,8 +33,8 @@ expect class ObjectTableCreateInfoNVXBuilder {
 	fun next(block: Next<ObjectTableCreateInfoNVXBuilder>.() -> Unit)
 
 	internal fun init(
-			objectEntryTypes: Collection<ObjectEntryTypeNVX>,
-			objectEntryCounts: UIntArray,
-			objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>
+		objectEntryTypes: Collection<ObjectEntryTypeNVX>,
+		objectEntryCounts: UIntArray,
+		objectEntryUsageFlags: Collection<VkFlag<ObjectEntryUsageNVX>>
 	)
 }

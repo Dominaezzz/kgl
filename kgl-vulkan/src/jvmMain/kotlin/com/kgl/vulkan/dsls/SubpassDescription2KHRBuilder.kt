@@ -15,15 +15,9 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.PipelineBindPoint
-import com.kgl.vulkan.enums.SubpassDescription
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.mapToStackArray
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.vulkan.KHRCreateRenderpass2
-import org.lwjgl.vulkan.VkAttachmentReference2KHR
-import org.lwjgl.vulkan.VkSubpassDescription2KHR
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
 
 actual class SubpassDescription2KHRBuilder(internal val target: VkSubpassDescription2KHR) {
 	actual var flags: VkFlag<SubpassDescription>?
@@ -46,17 +40,32 @@ actual class SubpassDescription2KHRBuilder(internal val target: VkSubpassDescrip
 
 	actual fun inputAttachments(block: AttachmentReference2KHRsBuilder.() -> Unit) {
 		val targets = AttachmentReference2KHRsBuilder().apply(block).targets
-		target.pInputAttachments(targets.mapToStackArray(VkAttachmentReference2KHR::callocStack, ::AttachmentReference2KHRBuilder))
+		target.pInputAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference2KHR::callocStack,
+				::AttachmentReference2KHRBuilder
+			)
+		)
 	}
 
 	actual fun colorAttachments(block: AttachmentReference2KHRsBuilder.() -> Unit) {
 		val targets = AttachmentReference2KHRsBuilder().apply(block).targets
-		target.pColorAttachments(targets.mapToStackArray(VkAttachmentReference2KHR::callocStack, ::AttachmentReference2KHRBuilder))
+		target.pColorAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference2KHR::callocStack,
+				::AttachmentReference2KHRBuilder
+			)
+		)
 	}
 
 	actual fun resolveAttachments(block: AttachmentReference2KHRsBuilder.() -> Unit) {
 		val targets = AttachmentReference2KHRsBuilder().apply(block).targets
-		target.pResolveAttachments(targets.mapToStackArray(VkAttachmentReference2KHR::callocStack, ::AttachmentReference2KHRBuilder))
+		target.pResolveAttachments(
+			targets.mapToStackArray(
+				VkAttachmentReference2KHR::callocStack,
+				::AttachmentReference2KHRBuilder
+			)
+		)
 	}
 
 	actual fun depthStencilAttachment(block: AttachmentReference2KHRBuilder.() -> Unit) {

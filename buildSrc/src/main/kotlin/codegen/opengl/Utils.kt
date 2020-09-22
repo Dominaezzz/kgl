@@ -16,7 +16,6 @@
 package codegen.opengl
 
 import codegen.*
-import codegen.C_OPAQUE_POINTER
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 
@@ -32,14 +31,14 @@ internal fun CTypeDecl.toKtInteropParamType(): TypeName {
 	return if (name == "void" && asteriskCount == 1) {
 		if (isConst) {
 			ClassName("kotlinx.cinterop", "CValuesRef")
-					.parameterizedBy(STAR)
+				.parameterizedBy(STAR)
 		} else {
 			C_OPAQUE_POINTER
 		}.copy(nullable = true)
 	} else if (asteriskCount > 0) {
 		ClassName("kotlinx.cinterop", if (isConst) "CValuesRef" else "CPointer")
-				.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
-				.copy(nullable = true)
+			.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
+			.copy(nullable = true)
 	} else {
 		if (name == "GLsync") {
 			ClassName("copengl", name).copy(nullable = true)
@@ -54,8 +53,8 @@ internal fun CTypeDecl.toKtInteropType(): TypeName {
 		C_OPAQUE_POINTER.copy(nullable = true)
 	} else if (asteriskCount > 0) {
 		ClassName("kotlinx.cinterop", "CPointer")
-				.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
-				.copy(nullable = true)
+			.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
+			.copy(nullable = true)
 	} else {
 		if (name == "GLsync") {
 			ClassName("copengl", name).copy(nullable = true)
@@ -70,7 +69,7 @@ internal fun glTypeToKtInteropType(name: String, asteriskCount: Int): TypeName {
 		ClassName("kotlinx.cinterop", "COpaquePointerVar")
 	} else if (asteriskCount > 0) {
 		ClassName("kotlinx.cinterop", "CPointerVar")
-				.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
+			.parameterizedBy(glTypeToKtInteropType(name, asteriskCount - 1))
 	} else {
 		ClassName("copengl", name + "Var")
 	}
@@ -78,43 +77,43 @@ internal fun glTypeToKtInteropType(name: String, asteriskCount: Int): TypeName {
 
 
 internal val primitiveTypes = mapOf(
-		"GLchar" to BYTE,
+	"GLchar" to BYTE,
 
-		"GLboolean" to BOOLEAN,
-		"GLbyte" to BYTE,
-		"GLubyte" to U_BYTE,
-		"GLshort" to SHORT,
-		"GLushort" to U_SHORT,
-		"GLint" to INT,
-		"GLuint" to U_INT,
-		"GLfixed" to INT,
-		"GLint64" to LONG,
-		"GLuint64" to U_LONG,
+	"GLboolean" to BOOLEAN,
+	"GLbyte" to BYTE,
+	"GLubyte" to U_BYTE,
+	"GLshort" to SHORT,
+	"GLushort" to U_SHORT,
+	"GLint" to INT,
+	"GLuint" to U_INT,
+	"GLfixed" to INT,
+	"GLint64" to LONG,
+	"GLuint64" to U_LONG,
 
-		// "GLsizei" to UINT,
-		"GLsizei" to INT,
+	// "GLsizei" to UINT,
+	"GLsizei" to INT,
 
-		//"GLenum" to INT,
-		"GLenum" to U_INT,
+	//"GLenum" to INT,
+	"GLenum" to U_INT,
 
-		/* These should be able to store sizeof(void*) */
-		"GLintptr" to LONG ,
-		"GLsizeiptr" to LONG,
-		// "GLsizeiptr" to ULONG,
-		"GLsync" to LONG /* Probably should be here since, `typedef struct __GLsync *GLsync;` */,
+	/* These should be able to store sizeof(void*) */
+	"GLintptr" to LONG,
+	"GLsizeiptr" to LONG,
+	// "GLsizeiptr" to ULONG,
+	"GLsync" to LONG /* Probably should be here since, `typedef struct __GLsync *GLsync;` */,
 
-		"GLbitfield" to U_INT,
-		// "GLbitfield" to INT,
+	"GLbitfield" to U_INT,
+	// "GLbitfield" to INT,
 
-		//"GLhalf" to null,
+	//"GLhalf" to null,
 
-		"GLfloat" to FLOAT,
-		"GLclampf" to FLOAT /* From 0.0f to 1.0f */,
-		"GLdouble" to DOUBLE,
-		"GLclampd" to DOUBLE /* From 0.0 to 1.0 */
+	"GLfloat" to FLOAT,
+	"GLclampf" to FLOAT /* From 0.0f to 1.0f */,
+	"GLdouble" to DOUBLE,
+	"GLclampd" to DOUBLE /* From 0.0 to 1.0 */
 )
 internal val primitiveTypeAliases = mapOf(
-		// "GLeglImageOES" to "void*",
-		"GLint64EXT" to "GLint64",
-		"GLuint64EXT" to "GLuint64"
+	// "GLeglImageOES" to "void*",
+	"GLint64EXT" to "GLint64",
+	"GLuint64EXT" to "GLuint64"
 )

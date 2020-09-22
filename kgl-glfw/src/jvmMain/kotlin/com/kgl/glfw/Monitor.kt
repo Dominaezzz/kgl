@@ -15,9 +15,9 @@
  */
 package com.kgl.glfw
 
+import org.lwjgl.glfw.*
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.glfw.GLFWVidMode
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 
 actual class Monitor(val ptr: Long) {
 	actual val name: String get() = glfwGetMonitorName(ptr)!!

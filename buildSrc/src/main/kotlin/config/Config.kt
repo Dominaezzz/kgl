@@ -15,7 +15,7 @@
  */
 package config
 
-import org.gradle.internal.os.OperatingSystem
+import org.gradle.internal.os.*
 
 object Config {
 	val OS = OperatingSystem.current()!!

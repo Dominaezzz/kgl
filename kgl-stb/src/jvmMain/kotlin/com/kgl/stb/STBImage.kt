@@ -15,20 +15,19 @@
  */
 package com.kgl.stb
 
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.core.Closeable
-import io.ktor.utils.io.core.internal.DangerousInternalIoApi
-import org.lwjgl.stb.STBIIOCallbacks
+import io.ktor.utils.io.bits.*
+import io.ktor.utils.io.core.*
+import io.ktor.utils.io.core.internal.*
+import org.lwjgl.stb.*
 import org.lwjgl.stb.STBImage.*
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.MemoryUtil
+import org.lwjgl.system.*
+import java.nio.*
 import java.nio.Buffer
-import java.nio.ByteBuffer
-import java.nio.IntBuffer
 
 actual class STBImage(
-		actual val buffer: Memory,
-		actual val info: STBInfo) : Closeable {
+	actual val buffer: Memory,
+	actual val info: STBInfo
+) : Closeable {
 
 	override fun close() {
 		stbi_image_free(buffer.buffer)
@@ -37,15 +36,15 @@ actual class STBImage(
 	actual companion object {
 		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : Buffer> genericLoad(
-				buffer: Memory, desiredChannels: Channels?,
-				crossinline block: (
-						buffer: ByteBuffer,
-						x: IntBuffer,
-						y: IntBuffer,
-						channels_in_file: IntBuffer,
-						desired_channels: Int
-				) -> T?,
-				convert: (T) -> ByteBuffer
+			buffer: Memory, desiredChannels: Channels?,
+			crossinline block: (
+				buffer: ByteBuffer,
+				x: IntBuffer,
+				y: IntBuffer,
+				channels_in_file: IntBuffer,
+				desired_channels: Int
+			) -> T?,
+			convert: (T) -> ByteBuffer
 		): STBImage {
 			MemoryStack.stackPush()
 			try {
@@ -58,8 +57,8 @@ actual class STBImage(
 				val bytes = convert(result ?: throw STBException(failureReason))
 
 				return STBImage(
-						Memory(bytes),
-						STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
+					Memory(bytes),
+					STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
 				)
 			} finally {
 				MemoryStack.stackPop()
@@ -83,16 +82,16 @@ actual class STBImage(
 
 		@OptIn(DangerousInternalIoApi::class)
 		private inline fun <reified T : Buffer> genericLoad(
-				callbacks: STBIOCallbacks, desiredChannels: Channels?,
-				crossinline block: (
-						clbk: STBIIOCallbacks,
-						user: Long,
-						x: IntBuffer,
-						y: IntBuffer,
-						channels_in_file: IntBuffer,
-						desired_channels: Int
-				) -> T?,
-				convert: (T) -> ByteBuffer
+			callbacks: STBIOCallbacks, desiredChannels: Channels?,
+			crossinline block: (
+				clbk: STBIIOCallbacks,
+				user: Long,
+				x: IntBuffer,
+				y: IntBuffer,
+				channels_in_file: IntBuffer,
+				desired_channels: Int
+			) -> T?,
+			convert: (T) -> ByteBuffer
 		): STBImage {
 			MemoryStack.stackPush()
 			try {
@@ -106,8 +105,8 @@ actual class STBImage(
 					val bytes = convert(result ?: throw STBException(failureReason))
 
 					STBImage(
-							Memory(bytes),
-							STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
+						Memory(bytes),
+						STBInfo(x[0], y[0], Channels.values()[channels[0] - 1])
 					)
 				}
 			} finally {
@@ -118,6 +117,7 @@ actual class STBImage(
 		actual fun load(buffer: Memory, desiredChannels: Channels?): STBImage {
 			return genericLoad(buffer, desiredChannels, ::stbi_load_from_memory) { it }
 		}
+
 		actual fun load(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_load_from_callbacks) { it }
 		}
@@ -127,6 +127,7 @@ actual class STBImage(
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Short.SIZE_BYTES)
 			}
 		}
+
 		actual fun load16(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_load_16_from_callbacks) {
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Short.SIZE_BYTES)
@@ -138,6 +139,7 @@ actual class STBImage(
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Int.SIZE_BYTES)
 			}
 		}
+
 		actual fun loadf(callbacks: STBIOCallbacks, desiredChannels: Channels?): STBImage {
 			return genericLoad(callbacks, desiredChannels, ::stbi_loadf_from_callbacks) {
 				MemoryUtil.memByteBuffer(MemoryUtil.memAddress(it), it.capacity() * Int.SIZE_BYTES)
@@ -147,6 +149,7 @@ actual class STBImage(
 		actual fun setHdrToLdrGamma(gamma: Float) {
 			stbi_hdr_to_ldr_gamma(gamma)
 		}
+
 		actual fun setHdrToLdrScale(scale: Float) {
 			stbi_hdr_to_ldr_scale(scale)
 		}
@@ -154,6 +157,7 @@ actual class STBImage(
 		actual fun setLdrToHdrGamma(gamma: Float) {
 			stbi_ldr_to_hdr_gamma(gamma)
 		}
+
 		actual fun setLdrToHdrScale(scale: Float) {
 			stbi_ldr_to_hdr_scale(scale)
 		}
@@ -166,6 +170,7 @@ actual class STBImage(
 				MemoryStack.stackPop()
 			}
 		}
+
 		actual fun isHdr(buffer: Memory): Boolean {
 			return stbi_is_hdr_from_memory(buffer.buffer)
 		}
@@ -190,6 +195,7 @@ actual class STBImage(
 				MemoryStack.stackPop()
 			}
 		}
+
 		actual fun loadInfo(callbacks: STBIOCallbacks): STBInfo {
 			MemoryStack.stackPush()
 			try {
@@ -219,6 +225,7 @@ actual class STBImage(
 				MemoryStack.stackPop()
 			}
 		}
+
 		actual fun is16Bit(buffer: Memory): Boolean {
 			return stbi_is_16_bit_from_memory(buffer.buffer)
 		}

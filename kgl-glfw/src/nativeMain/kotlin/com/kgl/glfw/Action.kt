@@ -15,9 +15,7 @@
  */
 package com.kgl.glfw
 
-import cglfw.GLFW_PRESS
-import cglfw.GLFW_RELEASE
-import cglfw.GLFW_REPEAT
+import cglfw.*
 
 actual enum class Action(val value: Int) {
 	Release(GLFW_RELEASE),

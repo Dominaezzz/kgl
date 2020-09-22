@@ -15,14 +15,10 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugReportEXT
-import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import org.lwjgl.system.MemoryUtil
-import org.lwjgl.vulkan.EXTDebugReport
-import org.lwjgl.vulkan.VK10
-import org.lwjgl.vulkan.VkDebugReportCallbackCreateInfoEXT
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 
 actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebugReportCallbackCreateInfoEXT) {
 	actual var flags: VkFlag<DebugReportEXT>?
@@ -35,11 +31,11 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 		target.pUserData(0)
 		target.pfnCallback { flags, objectType, `object`, location, messageCode, pLayerPrefix, pMessage, _ ->
 			callback(
-					DebugReportEXT.fromMultiple(flags),
-					DebugReportObjectTypeEXT.from(objectType),
-					`object`.toULong(), location.toULong(), messageCode,
-					MemoryUtil.memUTF8(pLayerPrefix),
-					MemoryUtil.memUTF8(pMessage)
+				DebugReportEXT.fromMultiple(flags),
+				DebugReportObjectTypeEXT.from(objectType),
+				`object`.toULong(), location.toULong(), messageCode,
+				MemoryUtil.memUTF8(pLayerPrefix),
+				MemoryUtil.memUTF8(pMessage)
 			)
 			VK10.VK_FALSE
 		}
@@ -54,5 +50,3 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 		target.pNext(0)
 	}
 }
-
-

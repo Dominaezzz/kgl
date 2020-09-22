@@ -15,10 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.enums.QueryResult
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.VK11.*
 
 actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
@@ -34,17 +34,19 @@ actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHa
 	}
 
 	actual fun getResults(
-			firstQuery: UInt,
-			queryCount: UInt,
-			data: Memory,
-			stride: ULong,
-			flags: VkFlag<QueryResult>?
+		firstQuery: UInt,
+		queryCount: UInt,
+		data: Memory,
+		stride: ULong,
+		flags: VkFlag<QueryResult>?
 	): Boolean {
 		MemoryStack.stackPush()
 		try {
-			val result = vkGetQueryPoolResults(device.toVkType(), ptr,
-					firstQuery.toVkType(), queryCount.toVkType(), data.buffer,
-					stride.toVkType(), flags.toVkType())
+			val result = vkGetQueryPoolResults(
+				device.toVkType(), ptr,
+				firstQuery.toVkType(), queryCount.toVkType(), data.buffer,
+				stride.toVkType(), flags.toVkType()
+			)
 			return when (result) {
 				VK_SUCCESS -> true
 				VK_NOT_READY -> false
@@ -55,4 +57,3 @@ actual class QueryPool(override val ptr: Long, actual val device: Device) : VkHa
 		}
 	}
 }
-

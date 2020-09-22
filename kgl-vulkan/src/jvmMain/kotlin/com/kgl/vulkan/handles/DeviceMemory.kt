@@ -15,22 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.bits.of
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.KHRExternalMemoryFd.vkGetMemoryFdKHR
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.KHRExternalMemoryFd.*
 import org.lwjgl.vulkan.VK11.*
-import org.lwjgl.vulkan.VkMemoryGetFdInfoKHR
 
-actual class DeviceMemory(override val ptr: Long,
-                          actual val device: Device,
-                          actual val size: ULong,
-                          actual val memoryTypeIndex: UInt
+actual class DeviceMemory(
+	override val ptr: Long,
+	actual val device: Device,
+	actual val size: ULong,
+	actual val memoryTypeIndex: UInt
 ) : VkHandleJVM<Long>(), VkHandle {
 	actual val commitment: ULong
 		get() {
@@ -63,8 +60,10 @@ actual class DeviceMemory(override val ptr: Long,
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocPointer(1)
-			val result = vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
-					size.toVkType(), 0U.toVkType(), outputPtr)
+			val result = vkMapMemory(
+				device.toVkType(), memory.toVkType(), offset.toVkType(),
+				size.toVkType(), 0U.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return Memory.of(outputPtr.getByteBuffer(size.toInt()))
 		} finally {
@@ -101,4 +100,3 @@ actual class DeviceMemory(override val ptr: Long,
 		}
 	}
 }
-

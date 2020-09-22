@@ -15,10 +15,9 @@
  */
 package com.kgl.glfw
 
-import org.lwjgl.PointerBuffer
+import org.lwjgl.*
 import org.lwjgl.glfw.GLFW.*
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.MemoryUtil
+import org.lwjgl.system.*
 
 actual object Glfw {
 	actual var time: Double
@@ -31,7 +30,8 @@ actual object Glfw {
 	actual val timerFrequency: ULong get() = glfwGetTimerFrequency().toULong()
 
 	actual var currentContext: Window?
-		get() = glfwGetCurrentContext().takeIf { it != 0L }?.let { MemoryUtil.memGlobalRefToObject(glfwGetWindowUserPointer(it)) }
+		get() = glfwGetCurrentContext().takeIf { it != 0L }
+			?.let { MemoryUtil.memGlobalRefToObject(glfwGetWindowUserPointer(it)) }
 		set(value) {
 			glfwMakeContextCurrent(value?.ptr ?: 0L)
 		}
