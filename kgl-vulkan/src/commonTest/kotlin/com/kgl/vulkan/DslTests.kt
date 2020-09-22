@@ -23,20 +23,22 @@ import kotlin.test.*
 
 @Ignore
 class DslTests {
-	private val instance: Instance = TODO("Only to be used for static analysis.")
-	private val physicalDevice: PhysicalDevice = TODO("Only to be used for static analysis.")
-	private val physicalDevice1: PhysicalDevice = TODO("Only to be used for static analysis.")
-	private val physicalDevice2: PhysicalDevice = TODO("Only to be used for static analysis.")
-	private val device: Device = TODO("Only to be used for static analysis.")
-	private val surfaceKHR: SurfaceKHR = TODO("Only to be used for static analysis.")
-	private val image: Image = TODO("Only to be used for static analysis.")
-	private val pipelineLayout: PipelineLayout = TODO("Only to be used for static analysis.")
-	private val renderPass: RenderPass = TODO("Only to be used for static analysis.")
-	private val shaderModule: ShaderModule = TODO("Only to be used for static analysis.")
-	private val commandPool: CommandPool = TODO("Only to be used for static analysis.")
-	private val commandBuffer: CommandBuffer = TODO("Only to be used for static analysis.")
-	private val framebuffer: Framebuffer = TODO("Only to be used for static analysis.")
-	private val queue: Queue = TODO("Only to be used for static analysis.")
+	private val nothing: Nothing = error("Only to be used for static analysis.")
+
+	private val instance: Instance = nothing
+	private val physicalDevice: PhysicalDevice = nothing
+	private val physicalDevice1: PhysicalDevice = nothing
+	private val physicalDevice2: PhysicalDevice = nothing
+	private val device: Device = nothing
+	private val surfaceKHR: SurfaceKHR = nothing
+	private val image: Image = nothing
+	private val pipelineLayout: PipelineLayout = nothing
+	private val renderPass: RenderPass = nothing
+	private val shaderModule: ShaderModule = nothing
+	private val commandPool: CommandPool = nothing
+	private val commandBuffer: CommandBuffer = nothing
+	private val framebuffer: Framebuffer = nothing
+	private val queue: Queue = nothing
 
 	// Should do!
 	//vkCmdBeginRenderPass2KHR didn't work out. Command with multiple structs not supported yet.

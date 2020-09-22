@@ -93,7 +93,7 @@ subprojects {
 			Config.OS.isWindows -> listOf(
 				"publishMingw"
 			)
-			else -> TODO()
+			else -> error("unknown host")
 		}
 
 		val publishTasks = tasks.withType<PublishToMavenRepository>().matching { task ->
