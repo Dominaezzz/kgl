@@ -1,8 +1,6 @@
-import config.Config
-import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import org.jetbrains.kotlin.konan.target.HostManager
-import java.io.ByteArrayOutputStream
+import config.*
+import org.jetbrains.kotlin.gradle.dsl.*
+import java.io.*
 
 plugins {
 	kotlin("multiplatform") version ("1.4.10") apply false
@@ -24,8 +22,6 @@ subprojects {
 
 	repositories {
 		jcenter()
-		//mavenCentral()
-		//mavenLocal()
 	}
 
 	afterEvaluate {
@@ -36,24 +32,6 @@ subprojects {
 					useExperimentalAnnotation("kotlin.RequiresOptIn")
 					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
 					useExperimentalAnnotation("io.ktor.utils.io.core.ExperimentalIoApi")
-				}
-			}
-
-			// Hack until https://youtrack.jetbrains.com/issue/KT-30498
-			targets.withType<KotlinNativeTarget> {
-				// Disable cross-platform build
-				if (konanTarget != HostManager.host) {
-					compilations.all {
-						cinterops.all {
-							tasks.named(interopProcessingTaskName).configure {
-								enabled = false
-							}
-						}
-						compileKotlinTask.enabled = false
-					}
-					binaries.all {
-						linkTask.enabled = false
-					}
 				}
 			}
 		}
@@ -100,19 +78,28 @@ subprojects {
 			}
 		}
 
-		val publishTasks = tasks.withType<PublishToMavenRepository>()
-				.matching {
-					when {
-						Config.OS.isWindows -> it.name.startsWith("publishMingw")
-						Config.OS.isMacOsX -> it.name.startsWith("publishMacos") || it.name.startsWith("publishIos")
-						Config.OS.isLinux -> it.name.startsWith("publishLinux") ||
-								it.name.startsWith("publishJs") ||
-								it.name.startsWith("publishJvm") ||
-								it.name.startsWith("publishMetadata") ||
-								it.name.startsWith("publishKotlinMultiplatform")
-						else -> TODO()
-					}
-				}
+		val taskPrefixes = when {
+			Config.OS.isLinux -> listOf(
+				"publishLinux",
+				"publishJs",
+				"publishJvm",
+				"publishMetadata",
+				"publishKotlinMultiplatform"
+			)
+			Config.OS.isMacOsX -> listOf(
+				"publishMacos",
+				"publishIos"
+			)
+			Config.OS.isWindows -> listOf(
+				"publishMingw"
+			)
+			else -> TODO()
+		}
+
+		val publishTasks = tasks.withType<PublishToMavenRepository>().matching { task ->
+			taskPrefixes.any { task.name.startsWith(it) }
+		}
+
 		tasks.register("smartPublish") {
 			dependsOn(publishTasks)
 		}
