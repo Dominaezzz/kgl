@@ -15,11 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.PipelineBindPoint
-import com.kgl.vulkan.enums.SubpassDescription
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.StructMarker
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 expect class SubpassDescriptionBuilder {

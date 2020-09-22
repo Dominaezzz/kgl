@@ -15,6 +15,6 @@
  */
 package com.kgl.vulkan.utils
 
-import io.ktor.utils.io.core.Closeable
+import io.ktor.utils.io.core.*
 
 interface VkHandle : Closeable

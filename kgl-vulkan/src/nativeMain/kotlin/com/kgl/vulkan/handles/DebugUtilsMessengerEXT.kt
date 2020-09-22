@@ -15,15 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkDebugUtilsMessengerEXT
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class DebugUtilsMessengerEXT(override val ptr: VkDebugUtilsMessengerEXT, actual val instance: Instance, private val userData: StableRef<*>) : VkHandleNative<VkDebugUtilsMessengerEXT>(), VkHandle {
+actual class DebugUtilsMessengerEXT(
+	override val ptr: VkDebugUtilsMessengerEXT,
+	actual val instance: Instance,
+	private val userData: StableRef<*>
+) : VkHandleNative<VkDebugUtilsMessengerEXT>(), VkHandle {
 	internal val dispatchTable = instance.dispatchTable
 
 	override fun close() {
@@ -38,4 +39,3 @@ actual class DebugUtilsMessengerEXT(override val ptr: VkDebugUtilsMessengerEXT, 
 		}
 	}
 }
-

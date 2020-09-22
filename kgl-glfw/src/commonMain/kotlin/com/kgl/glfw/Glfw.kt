@@ -15,8 +15,7 @@
  */
 package com.kgl.glfw
 
-import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
+import kotlin.time.*
 
 expect object Glfw {
 	var time: Double

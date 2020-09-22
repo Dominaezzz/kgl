@@ -15,24 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_SUCCESS
-import cvulkan.VkDeviceMemory
-import cvulkan.VkMemoryGetFdInfoKHR
-import io.ktor.utils.io.bits.Memory
-import io.ktor.utils.io.bits.of
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
 import kotlinx.cinterop.*
 
 actual class DeviceMemory(
-		override val ptr: VkDeviceMemory,
-		actual val device: Device,
-		actual val size: ULong,
-		actual val memoryTypeIndex: UInt
+	override val ptr: VkDeviceMemory,
+	actual val device: Device,
+	actual val size: ULong,
+	actual val memoryTypeIndex: UInt
 ) : VkHandleNative<VkDeviceMemory>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
@@ -69,8 +63,10 @@ actual class DeviceMemory(
 		try {
 			val outputVar = VirtualStack.alloc<COpaquePointerVar>()
 			val outputPtr = outputVar.ptr
-			val result = dispatchTable.vkMapMemory(device.toVkType(), memory.toVkType(), offset.toVkType(),
-					size.toVkType(), 0U.toVkType(), outputPtr)
+			val result = dispatchTable.vkMapMemory(
+				device.toVkType(), memory.toVkType(), offset.toVkType(),
+				size.toVkType(), 0U.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return Memory.of(outputVar.value!!, size.toInt())
 		} finally {
@@ -108,4 +104,3 @@ actual class DeviceMemory(
 		}
 	}
 }
-

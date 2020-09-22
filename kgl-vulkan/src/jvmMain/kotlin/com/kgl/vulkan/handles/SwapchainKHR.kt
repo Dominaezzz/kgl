@@ -15,26 +15,24 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.AcquireNextImageInfoKHRBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.enums.ImageType
-import com.kgl.vulkan.enums.SurfaceCounterEXT
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.EXTDisplayControl.vkGetSwapchainCounterEXT
-import org.lwjgl.vulkan.GOOGLEDisplayTiming.vkGetRefreshCycleDurationGOOGLE
-import org.lwjgl.vulkan.KHRSharedPresentableImage.vkGetSwapchainStatusKHR
+import org.lwjgl.vulkan.EXTDisplayControl.*
+import org.lwjgl.vulkan.GOOGLEDisplayTiming.*
+import org.lwjgl.vulkan.KHRSharedPresentableImage.*
 import org.lwjgl.vulkan.KHRSwapchain.*
 
 actual class SwapchainKHR(
-		override val ptr: Long,
-		actual val surface: SurfaceKHR,
-		actual val device: Device,
-		actual val imageFormat: Format,
-		actual val imageExtent: Extent2D,
-		actual val imageArrayLayers: UInt
+	override val ptr: Long,
+	actual val surface: SurfaceKHR,
+	actual val device: Device,
+	actual val imageFormat: Format,
+	actual val imageExtent: Extent2D,
+	actual val imageArrayLayers: UInt
 ) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		MemoryStack.stackPush()
@@ -50,23 +48,31 @@ actual class SwapchainKHR(
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = vkGetSwapchainImagesKHR(device.toVkType(), toVkType(),
-						outputCountPtr, null)
+				val result = vkGetSwapchainImagesKHR(
+					device.toVkType(), toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK11.VK_SUCCESS -> Unit
 					VK11.VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = MemoryStack.stackGet().mallocLong(outputCountPtr[0])
-				val result1 = vkGetSwapchainImagesKHR(device.toVkType(), toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = vkGetSwapchainImagesKHR(
+					device.toVkType(), toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK11.VK_SUCCESS -> Unit
 					VK11.VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result1)
 				}
-				return List(outputCountPtr[0]) { Image(outputPtr[it], device, ImageType.`2D`, imageFormat, 1U,
-						Extent3D(imageExtent.width, imageExtent.height, 1U), imageArrayLayers) }
+				return List(outputCountPtr[0]) {
+					Image(
+						outputPtr[it], device, ImageType.`2D`, imageFormat, 1U,
+						Extent3D(imageExtent.width, imageExtent.height, 1U), imageArrayLayers
+					)
+				}
 			} finally {
 				MemoryStack.stackPop()
 			}
@@ -91,8 +97,10 @@ actual class SwapchainKHR(
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkAcquireNextImageKHR(device.toVkType(), toVkType(),
-					timeout.toVkType(), semaphore.toVkType(), fence.toVkType(), outputPtr)
+			val result = vkAcquireNextImageKHR(
+				device.toVkType(), toVkType(),
+				timeout.toVkType(), semaphore.toVkType(), fence.toVkType(), outputPtr
+			)
 			return when (result) {
 				VK11.VK_SUCCESS -> Acquire.Success(outputPtr[0].toUInt(), false)
 				VK11.VK_TIMEOUT -> Acquire.Timeout
@@ -105,7 +113,11 @@ actual class SwapchainKHR(
 		}
 	}
 
-	actual fun acquireNextImage2(semaphore: Semaphore?, fence: Fence?, block: AcquireNextImageInfoKHRBuilder.() -> Unit): Acquire {
+	actual fun acquireNextImage2(
+		semaphore: Semaphore?,
+		fence: Fence?,
+		block: AcquireNextImageInfoKHRBuilder.() -> Unit
+	): Acquire {
 		MemoryStack.stackPush()
 		try {
 			val target = VkAcquireNextImageInfoKHR.callocStack()
@@ -156,16 +168,20 @@ actual class SwapchainKHR(
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = GOOGLEDisplayTiming.vkGetPastPresentationTimingGOOGLE(device.toVkType(), toVkType(),
-						outputCountPtr, null)
+				val result = GOOGLEDisplayTiming.vkGetPastPresentationTimingGOOGLE(
+					device.toVkType(), toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK11.VK_SUCCESS -> Unit
 					VK11.VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VkPastPresentationTimingGOOGLE.mallocStack(outputCountPtr[0])
-				val result1 = GOOGLEDisplayTiming.vkGetPastPresentationTimingGOOGLE(device.toVkType(), toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = GOOGLEDisplayTiming.vkGetPastPresentationTimingGOOGLE(
+					device.toVkType(), toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK11.VK_SUCCESS -> Unit
 					VK11.VK_INCOMPLETE -> Unit
@@ -177,4 +193,3 @@ actual class SwapchainKHR(
 			}
 		}
 }
-

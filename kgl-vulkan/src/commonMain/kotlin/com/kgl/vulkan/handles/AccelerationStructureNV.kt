@@ -15,17 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
-import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
-import com.kgl.vulkan.structs.MemoryRequirements2
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class AccelerationStructureNV : VkHandle {
 	val device: Device
 
 	fun getHandle(pData: Memory)
 
-	fun getMemoryRequirements(type: AccelerationStructureMemoryRequirementsTypeNV, block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit = {}): MemoryRequirements2
+	fun getMemoryRequirements(
+		type: AccelerationStructureMemoryRequirementsTypeNV,
+		block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit = {}
+	): MemoryRequirements2
 }
-

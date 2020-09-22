@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.structs
 
-import com.kgl.vulkan.enums.StructureType
+import com.kgl.vulkan.enums.*
 
 abstract class BaseOutStructure {
 	abstract val sType: StructureType

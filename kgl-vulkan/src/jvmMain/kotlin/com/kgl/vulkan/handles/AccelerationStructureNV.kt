@@ -15,29 +15,27 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.AccelerationStructureMemoryRequirementsInfoNVBuilder
-import com.kgl.vulkan.enums.AccelerationStructureMemoryRequirementsTypeNV
-import com.kgl.vulkan.structs.MemoryRequirements2
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
 import org.lwjgl.vulkan.NVRayTracing.*
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
-import org.lwjgl.vulkan.VkAccelerationStructureMemoryRequirementsInfoNV
-import org.lwjgl.vulkan.VkMemoryRequirements2KHR
+import org.lwjgl.vulkan.VK11.*
 
-actual class AccelerationStructureNV(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class AccelerationStructureNV(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(),
+	VkHandle {
 	override fun close() {
 		val accelerationStructure = this
 		val device = accelerationStructure.device
 		MemoryStack.stackPush()
 		try {
-			vkDestroyAccelerationStructureNV(device.toVkType(), accelerationStructure.toVkType(),
-					null)
+			vkDestroyAccelerationStructureNV(
+				device.toVkType(), accelerationStructure.toVkType(),
+				null
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
@@ -48,15 +46,20 @@ actual class AccelerationStructureNV(override val ptr: Long, actual val device: 
 		val device = accelerationStructure.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkGetAccelerationStructureHandleNV(device.toVkType(),
-					accelerationStructure.toVkType(), pData.buffer)
+			val result = vkGetAccelerationStructureHandleNV(
+				device.toVkType(),
+				accelerationStructure.toVkType(), pData.buffer
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun getMemoryRequirements(type: AccelerationStructureMemoryRequirementsTypeNV, block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit): MemoryRequirements2 {
+	actual fun getMemoryRequirements(
+		type: AccelerationStructureMemoryRequirementsTypeNV,
+		block: AccelerationStructureMemoryRequirementsInfoNVBuilder.() -> Unit
+	): MemoryRequirements2 {
 		MemoryStack.stackPush()
 		try {
 			val target = VkAccelerationStructureMemoryRequirementsInfoNV.callocStack()
@@ -71,4 +74,3 @@ actual class AccelerationStructureNV(override val ptr: Long, actual val device: 
 		}
 	}
 }
-

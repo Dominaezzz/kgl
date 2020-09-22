@@ -19,22 +19,24 @@ import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
-import org.lwjgl.system.MemoryStack
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.EXTCalibratedTimestamps.vkGetPhysicalDeviceCalibrateableTimeDomainsEXT
-import org.lwjgl.vulkan.EXTDirectModeDisplay.vkReleaseDisplayEXT
-import org.lwjgl.vulkan.EXTDisplaySurfaceCounter.vkGetPhysicalDeviceSurfaceCapabilities2EXT
-import org.lwjgl.vulkan.EXTSampleLocations.vkGetPhysicalDeviceMultisamplePropertiesEXT
+import org.lwjgl.vulkan.EXTCalibratedTimestamps.*
+import org.lwjgl.vulkan.EXTDirectModeDisplay.*
+import org.lwjgl.vulkan.EXTDisplaySurfaceCounter.*
+import org.lwjgl.vulkan.EXTSampleLocations.*
 import org.lwjgl.vulkan.KHRDisplay.*
 import org.lwjgl.vulkan.KHRGetDisplayProperties2.*
-import org.lwjgl.vulkan.KHRGetSurfaceCapabilities2.vkGetPhysicalDeviceSurfaceCapabilities2KHR
-import org.lwjgl.vulkan.KHRGetSurfaceCapabilities2.vkGetPhysicalDeviceSurfaceFormats2KHR
+import org.lwjgl.vulkan.KHRGetSurfaceCapabilities2.*
 import org.lwjgl.vulkan.KHRSurface.*
-import org.lwjgl.vulkan.KHRSwapchain.vkGetPhysicalDevicePresentRectanglesKHR
-import org.lwjgl.vulkan.NVExternalMemoryCapabilities.vkGetPhysicalDeviceExternalImageFormatPropertiesNV
+import org.lwjgl.vulkan.KHRSwapchain.*
+import org.lwjgl.vulkan.NVExternalMemoryCapabilities.*
 import org.lwjgl.vulkan.VK11.*
 
-actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val instance: Instance) : VkHandleJVM<VkPhysicalDevice>(), VkHandle {
+actual class PhysicalDevice(
+	override val ptr: VkPhysicalDevice,
+	actual val instance: Instance
+) : VkHandleJVM<VkPhysicalDevice>(), VkHandle {
 	actual val properties: PhysicalDeviceProperties
 		get() {
 			val physicalDevice = this
@@ -54,11 +56,15 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr,
-						null)
+				vkGetPhysicalDeviceQueueFamilyProperties(
+					physicalDevice.toVkType(), outputCountPtr,
+					null
+				)
 				val outputPtr = VkQueueFamilyProperties.mallocStack(outputCountPtr[0])
-				vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice.toVkType(), outputCountPtr,
-						outputPtr)
+				vkGetPhysicalDeviceQueueFamilyProperties(
+					physicalDevice.toVkType(), outputCountPtr,
+					outputPtr
+				)
 				return List(outputCountPtr[0]) { QueueFamilyProperties.from(outputPtr[it]) }
 			} finally {
 				MemoryStack.stackPop()
@@ -97,16 +103,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(),
-						outputCountPtr, null)
+				val result = vkEnumerateDeviceLayerProperties(
+					physicalDevice.toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VkLayerProperties.mallocStack(outputCountPtr[0])
-				val result1 = vkEnumerateDeviceLayerProperties(physicalDevice.toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = vkEnumerateDeviceLayerProperties(
+					physicalDevice.toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -124,16 +134,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = vkGetPhysicalDeviceDisplayPropertiesKHR(physicalDevice.toVkType(),
-						outputCountPtr, null)
+				val result = vkGetPhysicalDeviceDisplayPropertiesKHR(
+					physicalDevice.toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VkDisplayPropertiesKHR.mallocStack(outputCountPtr[0])
-				val result1 = vkGetPhysicalDeviceDisplayPropertiesKHR(physicalDevice.toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = vkGetPhysicalDeviceDisplayPropertiesKHR(
+					physicalDevice.toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -151,8 +165,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = vkGetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice.toVkType(),
-						outputCountPtr, null)
+				val result = vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
+					physicalDevice.toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -160,8 +176,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				}
 				val outputPtr = VkDisplayPlanePropertiesKHR.mallocStack(outputCountPtr[0])
 				val result1 =
-						vkGetPhysicalDeviceDisplayPlanePropertiesKHR(physicalDevice.toVkType(),
-								outputCountPtr, outputPtr)
+					vkGetPhysicalDeviceDisplayPlanePropertiesKHR(
+						physicalDevice.toVkType(),
+						outputCountPtr, outputPtr
+					)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -205,11 +223,15 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice.toVkType(), outputCountPtr,
-						null)
+				vkGetPhysicalDeviceQueueFamilyProperties2(
+					physicalDevice.toVkType(), outputCountPtr,
+					null
+				)
 				val outputPtr = VkQueueFamilyProperties2.mallocStack(outputCountPtr[0])
-				vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice.toVkType(), outputCountPtr,
-						outputPtr)
+				vkGetPhysicalDeviceQueueFamilyProperties2(
+					physicalDevice.toVkType(), outputCountPtr,
+					outputPtr
+				)
 				return List(outputCountPtr[0]) { QueueFamilyProperties2.from(outputPtr[it]) }
 			} finally {
 				MemoryStack.stackPop()
@@ -235,16 +257,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				val result = vkGetPhysicalDeviceDisplayProperties2KHR(physicalDevice.toVkType(),
-						outputCountPtr, null)
+				val result = vkGetPhysicalDeviceDisplayProperties2KHR(
+					physicalDevice.toVkType(),
+					outputCountPtr, null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = VkDisplayProperties2KHR.mallocStack(outputCountPtr[0])
-				val result1 = vkGetPhysicalDeviceDisplayProperties2KHR(physicalDevice.toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = vkGetPhysicalDeviceDisplayProperties2KHR(
+					physicalDevice.toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -263,8 +289,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
 				val result =
-						vkGetPhysicalDeviceDisplayPlaneProperties2KHR(physicalDevice.toVkType(),
-								outputCountPtr, null)
+					vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
+						physicalDevice.toVkType(),
+						outputCountPtr, null
+					)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -272,8 +300,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 				}
 				val outputPtr = VkDisplayPlaneProperties2KHR.mallocStack(outputCountPtr[0])
 				val result1 =
-						vkGetPhysicalDeviceDisplayPlaneProperties2KHR(physicalDevice.toVkType(),
-								outputCountPtr, outputPtr)
+					vkGetPhysicalDeviceDisplayPlaneProperties2KHR(
+						physicalDevice.toVkType(),
+						outputCountPtr, outputPtr
+					)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -292,16 +322,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
 				val result =
-						vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice.toVkType(),
-								outputCountPtr, null)
+					vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
+						physicalDevice.toVkType(),
+						outputCountPtr, null
+					)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr = MemoryStack.stackGet().mallocInt(outputCountPtr[0])
-				val result1 = vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(physicalDevice.toVkType(),
-						outputCountPtr, outputPtr)
+				val result1 = vkGetPhysicalDeviceCalibrateableTimeDomainsEXT(
+					physicalDevice.toVkType(),
+					outputCountPtr, outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -322,8 +356,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkFormatProperties.mallocStack()
-			vkGetPhysicalDeviceFormatProperties(physicalDevice.toVkType(), format.toVkType(),
-					outputPtr)
+			vkGetPhysicalDeviceFormatProperties(
+				physicalDevice.toVkType(), format.toVkType(),
+				outputPtr
+			)
 			return FormatProperties.from(outputPtr)
 		} finally {
 			MemoryStack.stackPop()
@@ -331,19 +367,21 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 	}
 
 	actual fun getImageFormatProperties(
-			format: Format,
-			type: ImageType,
-			tiling: ImageTiling,
-			usage: VkFlag<ImageUsage>,
-			flags: VkFlag<ImageCreate>?
+		format: Format,
+		type: ImageType,
+		tiling: ImageTiling,
+		usage: VkFlag<ImageUsage>,
+		flags: VkFlag<ImageCreate>?
 	): ImageFormatProperties {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkImageFormatProperties.mallocStack()
-			val result = vkGetPhysicalDeviceImageFormatProperties(physicalDevice.toVkType(),
-					format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
-					flags.toVkType(), outputPtr)
+			val result = vkGetPhysicalDeviceImageFormatProperties(
+				physicalDevice.toVkType(),
+				format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
+				flags.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return ImageFormatProperties.from(outputPtr)
 		} finally {
@@ -352,9 +390,9 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 	}
 
 	actual fun createDevice(
-			enabledLayerNames: Collection<String>?,
-			enabledExtensionNames: Collection<String>?,
-			block: DeviceCreateInfoBuilder.() -> Unit
+		enabledLayerNames: Collection<String>?,
+		enabledExtensionNames: Collection<String>?,
+		block: DeviceCreateInfoBuilder.() -> Unit
 	): Device {
 		val physicalDevice = this
 		MemoryStack.stackPush()
@@ -377,16 +415,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
-					layerName.toVkType(), outputCountPtr, null)
+			val result = vkEnumerateDeviceExtensionProperties(
+				physicalDevice.toVkType(),
+				layerName.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkExtensionProperties.mallocStack(outputCountPtr[0])
-			val result1 = vkEnumerateDeviceExtensionProperties(physicalDevice.toVkType(),
-					layerName.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkEnumerateDeviceExtensionProperties(
+				physicalDevice.toVkType(),
+				layerName.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -399,23 +441,27 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 	}
 
 	actual fun getSparseImageFormatProperties(
-			format: Format,
-			type: ImageType,
-			samples: SampleCount,
-			usage: VkFlag<ImageUsage>,
-			tiling: ImageTiling
+		format: Format,
+		type: ImageType,
+		samples: SampleCount,
+		usage: VkFlag<ImageUsage>,
+		tiling: ImageTiling
 	): List<SparseImageFormatProperties> {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
-					format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
-					tiling.toVkType(), outputCountPtr, null)
+			vkGetPhysicalDeviceSparseImageFormatProperties(
+				physicalDevice.toVkType(),
+				format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
+				tiling.toVkType(), outputCountPtr, null
+			)
 			val outputPtr = VkSparseImageFormatProperties.mallocStack(outputCountPtr[0])
-			vkGetPhysicalDeviceSparseImageFormatProperties(physicalDevice.toVkType(),
-					format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
-					tiling.toVkType(), outputCountPtr, outputPtr)
+			vkGetPhysicalDeviceSparseImageFormatProperties(
+				physicalDevice.toVkType(),
+				format.toVkType(), type.toVkType(), samples.toVkType(), usage.toVkType(),
+				tiling.toVkType(), outputCountPtr, outputPtr
+			)
 			return List(outputCountPtr[0]) { SparseImageFormatProperties.from(outputPtr[it]) }
 		} finally {
 			MemoryStack.stackPop()
@@ -427,16 +473,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetDisplayPlaneSupportedDisplaysKHR(physicalDevice.toVkType(),
-					planeIndex.toVkType(), outputCountPtr, null)
+			val result = vkGetDisplayPlaneSupportedDisplaysKHR(
+				physicalDevice.toVkType(),
+				planeIndex.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = MemoryStack.stackGet().mallocLong(outputCountPtr[0])
-			val result1 = vkGetDisplayPlaneSupportedDisplaysKHR(physicalDevice.toVkType(),
-					planeIndex.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetDisplayPlaneSupportedDisplaysKHR(
+				physicalDevice.toVkType(),
+				planeIndex.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -453,16 +503,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetDisplayModePropertiesKHR(physicalDevice.toVkType(),
-					display.toVkType(), outputCountPtr, null)
+			val result = vkGetDisplayModePropertiesKHR(
+				physicalDevice.toVkType(),
+				display.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkDisplayModePropertiesKHR.mallocStack(outputCountPtr[0])
-			val result1 = vkGetDisplayModePropertiesKHR(physicalDevice.toVkType(),
-					display.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetDisplayModePropertiesKHR(
+				physicalDevice.toVkType(),
+				display.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -474,7 +528,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		}
 	}
 
-	actual fun createDisplayModeKHR(display: DisplayKHR, block: DisplayModeCreateInfoKHRBuilder.() -> Unit): DisplayModeKHR {
+	actual fun createDisplayModeKHR(
+		display: DisplayKHR,
+		block: DisplayModeCreateInfoKHRBuilder.() -> Unit
+	): DisplayModeKHR {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
@@ -483,8 +540,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init()
 			builder.apply(block)
 			val outputPtr = MemoryStack.stackGet().mallocLong(1)
-			val result = vkCreateDisplayModeKHR(physicalDevice.toVkType(), display.toVkType(),
-					target, null, outputPtr)
+			val result = vkCreateDisplayModeKHR(
+				physicalDevice.toVkType(), display.toVkType(),
+				target, null, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayModeKHR(outputPtr[0], this, display)
 		} finally {
@@ -497,8 +556,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice.toVkType(),
-					queueFamilyIndex.toVkType(), surface.toVkType(), outputPtr)
+			val result = vkGetPhysicalDeviceSurfaceSupportKHR(
+				physicalDevice.toVkType(),
+				queueFamilyIndex.toVkType(), surface.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return outputPtr[0].toBoolean()
 		} finally {
@@ -511,8 +572,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkSurfaceCapabilitiesKHR.mallocStack()
-			val result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputPtr)
+			val result = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilitiesKHR.from(outputPtr)
 		} finally {
@@ -525,16 +588,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, null)
+			val result = vkGetPhysicalDeviceSurfaceFormatsKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkSurfaceFormatKHR.mallocStack(outputCountPtr[0])
-			val result1 = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetPhysicalDeviceSurfaceFormatsKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -551,16 +618,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, null)
+			val result = vkGetPhysicalDeviceSurfacePresentModesKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = MemoryStack.stackGet().mallocInt(outputCountPtr[0])
-			val result1 = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetPhysicalDeviceSurfacePresentModesKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -573,21 +644,23 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 	}
 
 	actual fun getExternalImageFormatPropertiesNV(
-			format: Format,
-			type: ImageType,
-			tiling: ImageTiling,
-			usage: VkFlag<ImageUsage>,
-			flags: VkFlag<ImageCreate>?,
-			externalHandleType: VkFlag<ExternalMemoryHandleTypeNV>?
+		format: Format,
+		type: ImageType,
+		tiling: ImageTiling,
+		usage: VkFlag<ImageUsage>,
+		flags: VkFlag<ImageCreate>?,
+		externalHandleType: VkFlag<ExternalMemoryHandleTypeNV>?
 	): ExternalImageFormatPropertiesNV {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkExternalImageFormatPropertiesNV.mallocStack()
 			val result =
-					vkGetPhysicalDeviceExternalImageFormatPropertiesNV(physicalDevice.toVkType(),
-							format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
-							flags.toVkType(), externalHandleType.toVkType(), outputPtr)
+				vkGetPhysicalDeviceExternalImageFormatPropertiesNV(
+					physicalDevice.toVkType(),
+					format.toVkType(), type.toVkType(), tiling.toVkType(), usage.toVkType(),
+					flags.toVkType(), externalHandleType.toVkType(), outputPtr
+				)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return ExternalImageFormatPropertiesNV.from(outputPtr)
 		} finally {
@@ -600,8 +673,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkFormatProperties2.mallocStack()
-			vkGetPhysicalDeviceFormatProperties2(physicalDevice.toVkType(), format.toVkType(),
-					outputPtr)
+			vkGetPhysicalDeviceFormatProperties2(
+				physicalDevice.toVkType(), format.toVkType(),
+				outputPtr
+			)
 			return FormatProperties2.from(outputPtr)
 		} finally {
 			MemoryStack.stackPop()
@@ -617,8 +692,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init()
 			builder.apply(block)
 			val outputPtr = VkImageFormatProperties2.mallocStack()
-			val result = vkGetPhysicalDeviceImageFormatProperties2(physicalDevice.toVkType(),
-					target, outputPtr)
+			val result = vkGetPhysicalDeviceImageFormatProperties2(
+				physicalDevice.toVkType(),
+				target, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return ImageFormatProperties2.from(outputPtr)
 		} finally {
@@ -635,11 +712,15 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init()
 			builder.apply(block)
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			vkGetPhysicalDeviceSparseImageFormatProperties2(physicalDevice.toVkType(), target,
-					outputCountPtr, null)
+			vkGetPhysicalDeviceSparseImageFormatProperties2(
+				physicalDevice.toVkType(), target,
+				outputCountPtr, null
+			)
 			val outputPtr = VkSparseImageFormatProperties2.mallocStack(outputCountPtr[0])
-			vkGetPhysicalDeviceSparseImageFormatProperties2(physicalDevice.toVkType(), target,
-					outputCountPtr, outputPtr)
+			vkGetPhysicalDeviceSparseImageFormatProperties2(
+				physicalDevice.toVkType(), target,
+				outputCountPtr, outputPtr
+			)
 			return List(outputCountPtr[0]) { SparseImageFormatProperties2.from(outputPtr[it]) }
 		} finally {
 			MemoryStack.stackPop()
@@ -655,8 +736,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init()
 			builder.apply(block)
 			val outputPtr = VkExternalBufferProperties.mallocStack()
-			vkGetPhysicalDeviceExternalBufferProperties(physicalDevice.toVkType(), target,
-					outputPtr)
+			vkGetPhysicalDeviceExternalBufferProperties(
+				physicalDevice.toVkType(), target,
+				outputPtr
+			)
 			return ExternalBufferProperties.from(outputPtr)
 		} finally {
 			MemoryStack.stackPop()
@@ -672,8 +755,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init()
 			builder.apply(block)
 			val outputPtr = VkExternalSemaphoreProperties.mallocStack()
-			vkGetPhysicalDeviceExternalSemaphoreProperties(physicalDevice.toVkType(), target,
-					outputPtr)
+			vkGetPhysicalDeviceExternalSemaphoreProperties(
+				physicalDevice.toVkType(), target,
+				outputPtr
+			)
 			return ExternalSemaphoreProperties.from(outputPtr)
 		} finally {
 			MemoryStack.stackPop()
@@ -712,8 +797,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkSurfaceCapabilities2EXT.mallocStack()
-			val result = vkGetPhysicalDeviceSurfaceCapabilities2EXT(physicalDevice.toVkType(),
-					surface.toVkType(), outputPtr)
+			val result = vkGetPhysicalDeviceSurfaceCapabilities2EXT(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilities2EXT.from(outputPtr)
 		} finally {
@@ -726,16 +813,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, null)
+			val result = vkGetPhysicalDevicePresentRectanglesKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkRect2D.mallocStack(outputCountPtr[0])
-			val result1 = vkGetPhysicalDevicePresentRectanglesKHR(physicalDevice.toVkType(),
-					surface.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetPhysicalDevicePresentRectanglesKHR(
+				physicalDevice.toVkType(),
+				surface.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -752,15 +843,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkMultisamplePropertiesEXT.mallocStack()
-			vkGetPhysicalDeviceMultisamplePropertiesEXT(physicalDevice.toVkType(),
-					samples.toVkType(), outputPtr)
+			vkGetPhysicalDeviceMultisamplePropertiesEXT(
+				physicalDevice.toVkType(),
+				samples.toVkType(), outputPtr
+			)
 			return MultisamplePropertiesEXT.from(outputPtr)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 
-	actual fun getSurfaceCapabilities2KHR(surface: SurfaceKHR, block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit): SurfaceCapabilities2KHR {
+	actual fun getSurfaceCapabilities2KHR(
+		surface: SurfaceKHR,
+		block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit
+	): SurfaceCapabilities2KHR {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
@@ -769,8 +865,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init(surface)
 			builder.apply(block)
 			val outputPtr = VkSurfaceCapabilities2KHR.mallocStack()
-			val result = vkGetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice.toVkType(),
-					target, outputPtr)
+			val result = vkGetPhysicalDeviceSurfaceCapabilities2KHR(
+				physicalDevice.toVkType(),
+				target, outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return SurfaceCapabilities2KHR.from(outputPtr)
 		} finally {
@@ -778,7 +876,10 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		}
 	}
 
-	actual fun getSurfaceFormats2KHR(surface: SurfaceKHR, block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit): List<SurfaceFormat2KHR> {
+	actual fun getSurfaceFormats2KHR(
+		surface: SurfaceKHR,
+		block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit
+	): List<SurfaceFormat2KHR> {
 		val physicalDevice = this
 		MemoryStack.stackPush()
 		try {
@@ -787,16 +888,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 			builder.init(surface)
 			builder.apply(block)
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice.toVkType(), target,
-					outputCountPtr, null)
+			val result = vkGetPhysicalDeviceSurfaceFormats2KHR(
+				physicalDevice.toVkType(), target,
+				outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkSurfaceFormat2KHR.mallocStack(outputCountPtr[0])
-			val result1 = vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice.toVkType(), target,
-					outputCountPtr, outputPtr)
+			val result1 = vkGetPhysicalDeviceSurfaceFormats2KHR(
+				physicalDevice.toVkType(), target,
+				outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -813,16 +918,20 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		MemoryStack.stackPush()
 		try {
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-			val result = vkGetDisplayModeProperties2KHR(physicalDevice.toVkType(),
-					display.toVkType(), outputCountPtr, null)
+			val result = vkGetDisplayModeProperties2KHR(
+				physicalDevice.toVkType(),
+				display.toVkType(), outputCountPtr, null
+			)
 			when (result) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
 				else -> handleVkResult(result)
 			}
 			val outputPtr = VkDisplayModeProperties2KHR.mallocStack(outputCountPtr[0])
-			val result1 = vkGetDisplayModeProperties2KHR(physicalDevice.toVkType(),
-					display.toVkType(), outputCountPtr, outputPtr)
+			val result1 = vkGetDisplayModeProperties2KHR(
+				physicalDevice.toVkType(),
+				display.toVkType(), outputCountPtr, outputPtr
+			)
 			when (result1) {
 				VK_SUCCESS -> Unit
 				VK_INCOMPLETE -> Unit
@@ -834,4 +943,3 @@ actual class PhysicalDevice(override val ptr: VkPhysicalDevice, actual val insta
 		}
 	}
 }
-

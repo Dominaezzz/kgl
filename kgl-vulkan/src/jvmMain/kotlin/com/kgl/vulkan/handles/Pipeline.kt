@@ -15,18 +15,12 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.enums.ShaderInfoTypeAMD
-import com.kgl.vulkan.enums.ShaderStage
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.NVRayTracing.vkCompileDeferredNV
-import org.lwjgl.vulkan.NVRayTracing.vkGetRayTracingShaderGroupHandlesNV
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
-import org.lwjgl.vulkan.VK11.vkDestroyPipeline
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.NVRayTracing.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -41,9 +35,9 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 	}
 
 	actual fun getShaderInfoAMD(
-			shaderStage: ShaderStage,
-			infoType: ShaderInfoTypeAMD,
-			info: Memory?
+		shaderStage: ShaderStage,
+		infoType: ShaderInfoTypeAMD,
+		info: Memory?
 	) {
 		TODO()
 		val pipeline = this
@@ -67,8 +61,10 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		val device = pipeline.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkCompileDeferredNV(device.toVkType(), pipeline.toVkType(),
-					shader.toVkType())
+			val result = vkCompileDeferredNV(
+				device.toVkType(), pipeline.toVkType(),
+				shader.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
@@ -80,12 +76,13 @@ actual class Pipeline(override val ptr: Long, actual val device: Device) : VkHan
 		val device = pipeline.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkGetRayTracingShaderGroupHandlesNV(device.toVkType(), pipeline.toVkType(),
-					firstGroup.toVkType(), groupCount.toVkType(), data.buffer)
+			val result = vkGetRayTracingShaderGroupHandlesNV(
+				device.toVkType(), pipeline.toVkType(),
+				firstGroup.toVkType(), groupCount.toVkType(), data.buffer
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

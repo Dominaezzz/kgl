@@ -15,23 +15,23 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.VK11.vkDestroyDescriptorUpdateTemplate
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.VK11.*
 
-actual class DescriptorUpdateTemplate(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class DescriptorUpdateTemplate(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(),
+	VkHandle {
 	override fun close() {
 		val descriptorUpdateTemplate = this
 		val device = descriptorUpdateTemplate.device
 		MemoryStack.stackPush()
 		try {
-			vkDestroyDescriptorUpdateTemplate(device.toVkType(),
-					descriptorUpdateTemplate.toVkType(), null)
+			vkDestroyDescriptorUpdateTemplate(
+				device.toVkType(),
+				descriptorUpdateTemplate.toVkType(), null
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

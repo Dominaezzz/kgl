@@ -15,19 +15,14 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.structs.Extent2D
-import com.kgl.vulkan.structs.from
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkExtent2D
-import cvulkan.VkRenderPass
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.invoke
-import kotlinx.cinterop.ptr
+import com.kgl.core.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class RenderPass(override val ptr: VkRenderPass, actual val device: Device) : VkHandleNative<VkRenderPass>(), VkHandle {
+actual class RenderPass(override val ptr: VkRenderPass, actual val device: Device) : VkHandleNative<VkRenderPass>(),
+	VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	actual val renderAreaGranularity: Extent2D
@@ -56,4 +51,3 @@ actual class RenderPass(override val ptr: VkRenderPass, actual val device: Devic
 		}
 	}
 }
-

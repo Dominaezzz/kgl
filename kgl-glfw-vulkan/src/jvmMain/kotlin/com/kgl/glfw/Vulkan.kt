@@ -15,13 +15,11 @@
  */
 package com.kgl.glfw
 
-import com.kgl.vulkan.handles.Instance
-import com.kgl.vulkan.handles.PhysicalDevice
-import com.kgl.vulkan.handles.SurfaceKHR
-import com.kgl.vulkan.utils.handleVkResult
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 import org.lwjgl.glfw.GLFWVulkan.*
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.VK10.VK_SUCCESS
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.VK10.*
 
 actual val Glfw.isVulkanSupported: Boolean get() = glfwVulkanSupported()
 actual val Glfw.requiredInstanceExtensions: Array<String>?

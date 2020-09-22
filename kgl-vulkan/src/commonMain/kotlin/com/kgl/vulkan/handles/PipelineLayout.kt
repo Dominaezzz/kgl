@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.*
 
 expect class PipelineLayout : VkHandle {
 	val device: Device
 }
-

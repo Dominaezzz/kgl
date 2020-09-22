@@ -15,15 +15,15 @@
  */
 package com.kgl.vulkan.utils
 
-import cvulkan.PFN_vkGetInstanceProcAddr
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.COpaquePointer
+import cvulkan.*
+import kotlinx.cinterop.*
 import platform.posix.*
 
 object Loader {
-	private val module: COpaquePointer = dlopen("libvulkan.so", RTLD_NOW or RTLD_LOCAL) ?:
-	dlopen("libvulkan.so.1", RTLD_NOW or RTLD_LOCAL) ?:
-	throw Exception("'libvulkan.so' not found!")
+	private val module: COpaquePointer =
+		dlopen("libvulkan.so", RTLD_NOW or RTLD_LOCAL) ?: dlopen("libvulkan.so.1", RTLD_NOW or RTLD_LOCAL)
+		?: throw Exception("'libvulkan.so' not found!")
 
-	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr = dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
+	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
+		dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
 }

@@ -15,7 +15,7 @@
  */
 package codegen.opengl
 
-import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.*
 
 
 internal val GL_MASK = ClassName("com.kgl.opengl.utils", "GLMask")

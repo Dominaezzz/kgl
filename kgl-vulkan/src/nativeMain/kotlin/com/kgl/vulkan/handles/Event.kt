@@ -15,16 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_EVENT_RESET
-import cvulkan.VK_EVENT_SET
-import cvulkan.VK_SUCCESS
-import cvulkan.VkEvent
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHandleNative<VkEvent>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -81,4 +75,3 @@ actual class Event(override val ptr: VkEvent, actual val device: Device) : VkHan
 		}
 	}
 }
-

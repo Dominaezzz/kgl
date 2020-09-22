@@ -15,11 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.VK11.*
 
 actual class Event(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
@@ -75,4 +72,3 @@ actual class Event(override val ptr: Long, actual val device: Device) : VkHandle
 		}
 	}
 }
-

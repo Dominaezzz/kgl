@@ -15,17 +15,11 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.enums.PipelineBindPoint
-import com.kgl.vulkan.enums.SubpassDescription
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.mapToStackArray
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkAttachmentReference
-import cvulkan.VkSubpassDescription
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.ptr
+import com.kgl.core.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class SubpassDescriptionBuilder(internal val target: VkSubpassDescription) {
 	actual var flags: VkFlag<SubpassDescription>?
@@ -75,4 +69,3 @@ actual class SubpassDescriptionBuilder(internal val target: VkSubpassDescription
 		target.preserveAttachmentCount = preserveAttachments?.size?.toUInt() ?: 0U
 	}
 }
-

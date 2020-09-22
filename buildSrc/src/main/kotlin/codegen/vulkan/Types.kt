@@ -15,8 +15,7 @@
  */
 package codegen.vulkan
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.*
 
 
 val VK_ENUM = ClassName("com.kgl.vulkan.utils", "VkEnum")

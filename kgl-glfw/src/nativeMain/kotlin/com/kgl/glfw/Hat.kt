@@ -1,10 +1,7 @@
 package com.kgl.glfw
 
-import cglfw.GLFW_HAT_DOWN
-import cglfw.GLFW_HAT_LEFT
-import cglfw.GLFW_HAT_RIGHT
-import cglfw.GLFW_HAT_UP
-import com.kgl.core.Flag
+import cglfw.*
+import com.kgl.core.*
 
 actual enum class Hat(override val value: Int) : Flag<Hat> {
 	UP(GLFW_HAT_UP),

@@ -15,9 +15,9 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.MemoryGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class DeviceMemory : VkHandle {
 	val device: Device
@@ -32,4 +32,3 @@ expect class DeviceMemory : VkHandle {
 
 	fun getFdKHR(block: MemoryGetFdInfoKHRBuilder.() -> Unit = {}): Int
 }
-

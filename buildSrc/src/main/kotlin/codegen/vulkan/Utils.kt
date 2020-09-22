@@ -15,11 +15,8 @@
  */
 package codegen.vulkan
 
-import codegen.CTypeDecl
-import com.squareup.kotlinpoet.FunSpec
-import com.squareup.kotlinpoet.KModifier
-import com.squareup.kotlinpoet.PropertySpec
-import com.squareup.kotlinpoet.TypeSpec
+import codegen.*
+import com.squareup.kotlinpoet.*
 
 
 inline fun <TKey, TValue> buildMap(block: MutableMap<TKey, TValue>.() -> Unit): Map<TKey, TValue> {
@@ -31,15 +28,22 @@ inline fun <TKey, TValue> buildMap(block: MutableMap<TKey, TValue>.() -> Unit): 
 data class MultiPlatform<T>(val common: T, val jvm: T, val native: T)
 enum class Platform { COMMON, JVM, NATIVE }
 
-fun buildTypeSpec(init: () -> TypeSpec.Builder, block: TypeSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<TypeSpec> {
+fun buildTypeSpec(
+	init: () -> TypeSpec.Builder,
+	block: TypeSpec.Builder.(platform: Platform) -> Unit
+): MultiPlatform<TypeSpec> {
 	return MultiPlatform(
-			init().addModifiers(KModifier.EXPECT).apply { block(Platform.COMMON) }.build(),
-			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build(),
-			init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
+		init().addModifiers(KModifier.EXPECT).apply { block(Platform.COMMON) }.build(),
+		init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build(),
+		init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
 	)
 }
 
-fun buildFunSpec(init: () -> FunSpec.Builder, auto: Boolean = true, block: FunSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<FunSpec> {
+fun buildFunSpec(
+	init: () -> FunSpec.Builder,
+	auto: Boolean = true,
+	block: FunSpec.Builder.(platform: Platform) -> Unit
+): MultiPlatform<FunSpec> {
 	val jvm = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build()
 	val native = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
 
@@ -55,7 +59,10 @@ fun buildFunSpec(init: () -> FunSpec.Builder, auto: Boolean = true, block: FunSp
 	return MultiPlatform(commonBuilder.build(), jvm, native)
 }
 
-fun buildPropertySpec(init: () -> PropertySpec.Builder, block: PropertySpec.Builder.(platform: Platform) -> Unit): MultiPlatform<PropertySpec> {
+fun buildPropertySpec(
+	init: () -> PropertySpec.Builder,
+	block: PropertySpec.Builder.(platform: Platform) -> Unit
+): MultiPlatform<PropertySpec> {
 	val jvm = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.JVM) }.build()
 	val native = init().addModifiers(KModifier.ACTUAL).apply { block(Platform.NATIVE) }.build()
 
@@ -65,11 +72,14 @@ fun buildPropertySpec(init: () -> PropertySpec.Builder, block: PropertySpec.Buil
 	return MultiPlatform(commonBuilder.build(), jvm, native)
 }
 
-fun buildPlatformFunction(init: () -> FunSpec.Builder, block: FunSpec.Builder.(platform: Platform) -> Unit): MultiPlatform<FunSpec?> {
+fun buildPlatformFunction(
+	init: () -> FunSpec.Builder,
+	block: FunSpec.Builder.(platform: Platform) -> Unit
+): MultiPlatform<FunSpec?> {
 	return MultiPlatform(
-			null,
-			init().apply { block(Platform.JVM) }.build(),
-			init().apply { block(Platform.NATIVE) }.build()
+		null,
+		init().apply { block(Platform.JVM) }.build(),
+		init().apply { block(Platform.NATIVE) }.build()
 	)
 }
 
@@ -94,10 +104,10 @@ val CTypeDecl.isWritable: Boolean get() = !isConst && asteriskCount > 0
 val camelCase = Regex("([a-z])([A-Z]+)")
 
 private val abbreviations = setOf(
-		"gcn",
-		"glsl",
-		"gpu",
-		"pvrtc"
+	"gcn",
+	"glsl",
+	"gpu",
+	"pvrtc"
 )
 
 fun String.pascalToSnakeCase(): String {
@@ -106,13 +116,13 @@ fun String.pascalToSnakeCase(): String {
 
 fun String.snakeToPascalCase(): String {
 	return splitToSequence("_")
-			.map {
-				val lower = it.toLowerCase()
-				if (lower in abbreviations) {
-					it.toUpperCase()
-				} else {
-					lower.capitalize()
-				}
+		.map {
+			val lower = it.toLowerCase()
+			if (lower in abbreviations) {
+				it.toUpperCase()
+			} else {
+				lower.capitalize()
 			}
-			.joinToString("")
+		}
+		.joinToString("")
 }

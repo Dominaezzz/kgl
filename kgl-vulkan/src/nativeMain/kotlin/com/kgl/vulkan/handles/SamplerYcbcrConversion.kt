@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkSamplerYcbcrConversion
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class SamplerYcbcrConversion(override val ptr: VkSamplerYcbcrConversion, actual val device: Device) : VkHandleNative<VkSamplerYcbcrConversion>(), VkHandle {
+actual class SamplerYcbcrConversion(
+	override val ptr: VkSamplerYcbcrConversion,
+	actual val device: Device
+) : VkHandleNative<VkSamplerYcbcrConversion>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -36,4 +37,3 @@ actual class SamplerYcbcrConversion(override val ptr: VkSamplerYcbcrConversion, 
 		}
 	}
 }
-

@@ -15,10 +15,9 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkShaderModuleCreateInfo
-import kotlinx.cinterop.reinterpret
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class ShaderModuleCreateInfoBuilder(internal val target: VkShaderModuleCreateInfo) {
 	actual fun next(block: Next<ShaderModuleCreateInfoBuilder>.() -> Unit) {

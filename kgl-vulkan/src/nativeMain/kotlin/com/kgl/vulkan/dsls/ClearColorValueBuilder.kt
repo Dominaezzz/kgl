@@ -15,8 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import cvulkan.VkClearColorValue
-import kotlinx.cinterop.set
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class ClearColorValueBuilder(internal val target: VkClearColorValue) {
 	internal actual fun init(r: Float, g: Float, b: Float, a: Float) {

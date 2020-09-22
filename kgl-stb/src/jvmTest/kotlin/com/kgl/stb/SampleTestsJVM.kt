@@ -1,11 +1,10 @@
 package com.kgl.stb
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SampleTestsJVM {
-    @Test
-    fun testHello() {
-        assertTrue("JVM" in "JVM")
-    }
+	@Test
+	fun testHello() {
+		assertTrue("JVM" in "JVM")
+	}
 }

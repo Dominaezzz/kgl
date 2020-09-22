@@ -15,20 +15,17 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugReportEXT
-import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.StructMarker
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
 
 typealias DebugReportCallbackEXT = (
-		flags: VkFlag<DebugReportEXT>,
-		objectType: DebugReportObjectTypeEXT,
-		`object`: ULong,
-		location: ULong,
-		messageCode: Int,
-		layerPrefix: String,
-		message: String
+	flags: VkFlag<DebugReportEXT>,
+	objectType: DebugReportObjectTypeEXT,
+	`object`: ULong,
+	location: ULong,
+	messageCode: Int,
+	layerPrefix: String,
+	message: String
 ) -> Unit
 
 @StructMarker

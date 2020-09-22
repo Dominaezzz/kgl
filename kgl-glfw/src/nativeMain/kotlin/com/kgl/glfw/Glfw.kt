@@ -18,8 +18,9 @@ package com.kgl.glfw
 import cglfw.*
 import cnames.structs.GLFWmonitor
 import com.kgl.core.VirtualStack
-import kotlin.native.concurrent.ThreadLocal
 import kotlinx.cinterop.*
+import kotlinx.cinterop.CPointer
+import kotlin.native.concurrent.ThreadLocal
 
 @ThreadLocal
 actual object Glfw {

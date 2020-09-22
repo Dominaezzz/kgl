@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkSurfaceKHR
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class SurfaceKHR(override val ptr: VkSurfaceKHR, actual val instance: Instance) : VkHandleNative<VkSurfaceKHR>(), VkHandle {
+actual class SurfaceKHR(
+	override val ptr: VkSurfaceKHR,
+	actual val instance: Instance
+) : VkHandleNative<VkSurfaceKHR>(), VkHandle {
 	internal val dispatchTable = instance.dispatchTable
 
 	override fun close() {
@@ -36,4 +37,3 @@ actual class SurfaceKHR(override val ptr: VkSurfaceKHR, actual val instance: Ins
 		}
 	}
 }
-

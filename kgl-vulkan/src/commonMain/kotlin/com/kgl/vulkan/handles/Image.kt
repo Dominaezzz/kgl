@@ -15,15 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ImageMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.ImageSubresourceBuilder
-import com.kgl.vulkan.dsls.ImageViewCreateInfoBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.enums.ImageType
-import com.kgl.vulkan.enums.ImageViewType
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.*
 
 expect class Image : VkHandle {
 	val device: Device
@@ -47,14 +42,14 @@ expect class Image : VkHandle {
 	fun getSubresourceLayout(block: ImageSubresourceBuilder.() -> Unit = {}): SubresourceLayout
 
 	fun createView(
-			viewType: ImageViewType,
-			format: Format,
-			block: ImageViewCreateInfoBuilder.() -> Unit
+		viewType: ImageViewType,
+		format: Format,
+		block: ImageViewCreateInfoBuilder.() -> Unit
 	): ImageView
 
 	fun getMemoryRequirements2(block: ImageMemoryRequirementsInfo2Builder.() -> Unit = {}): MemoryRequirements2
 
-	fun getSparseMemoryRequirements2(block: ImageSparseMemoryRequirementsInfo2Builder.() -> Unit =
-			                                 {}): List<SparseImageMemoryRequirements2>
+	fun getSparseMemoryRequirements2(
+		block: ImageSparseMemoryRequirementsInfo2Builder.() -> Unit = {}
+	): List<SparseImageMemoryRequirements2>
 }
-

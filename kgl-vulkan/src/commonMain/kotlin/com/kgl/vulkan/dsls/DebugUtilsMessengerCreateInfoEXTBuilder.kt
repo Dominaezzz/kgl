@@ -15,17 +15,14 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.DebugUtilsMessengerCallbackDataEXT
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.StructMarker
-import com.kgl.vulkan.utils.VkFlag
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 
 typealias DebugUtilsMessengerCallbackEXT = (
-		messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
-		messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
-		callbackData: DebugUtilsMessengerCallbackDataEXT
+	messageSeverity: VkFlag<DebugUtilsMessageSeverityEXT>,
+	messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
+	callbackData: DebugUtilsMessengerCallbackDataEXT
 ) -> Unit
 
 @StructMarker

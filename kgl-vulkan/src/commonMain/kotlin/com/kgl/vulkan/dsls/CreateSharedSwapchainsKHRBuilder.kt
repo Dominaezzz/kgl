@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.handles.SurfaceKHR
-import com.kgl.vulkan.handles.SwapchainKHR
-import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 class CreateSharedSwapchainsKHRBuilder {
@@ -25,10 +24,10 @@ class CreateSharedSwapchainsKHRBuilder {
 	internal val surfaces: MutableList<SurfaceKHR> = mutableListOf()
 
 	fun swapchain(
-			surface: SurfaceKHR,
-			queueFamilyIndices: UIntArray,
-			oldSwapchain: SwapchainKHR? = null,
-			block: SwapchainCreateInfoKHRBuilder.() -> Unit
+		surface: SurfaceKHR,
+		queueFamilyIndices: UIntArray,
+		oldSwapchain: SwapchainKHR? = null,
+		block: SwapchainCreateInfoKHRBuilder.() -> Unit
 	) {
 		targets += {
 			it.init(surface, queueFamilyIndices, oldSwapchain)

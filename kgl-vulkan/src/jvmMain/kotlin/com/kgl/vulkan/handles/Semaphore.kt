@@ -15,19 +15,12 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ImportSemaphoreFdInfoKHRBuilder
-import com.kgl.vulkan.dsls.SemaphoreGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.KHRExternalSemaphoreFd.vkGetSemaphoreFdKHR
-import org.lwjgl.vulkan.KHRExternalSemaphoreFd.vkImportSemaphoreFdKHR
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
-import org.lwjgl.vulkan.VK11.vkDestroySemaphore
-import org.lwjgl.vulkan.VkImportSemaphoreFdInfoKHR
-import org.lwjgl.vulkan.VkSemaphoreGetFdInfoKHR
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.KHRExternalSemaphoreFd.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class Semaphore(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -75,4 +68,3 @@ actual class Semaphore(override val ptr: Long, actual val device: Device) : VkHa
 		}
 	}
 }
-

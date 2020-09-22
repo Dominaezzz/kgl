@@ -15,8 +15,7 @@
  */
 package codegen
 
-import com.squareup.kotlinpoet.ClassName
-import com.squareup.kotlinpoet.MemberName
+import com.squareup.kotlinpoet.*
 
 
 internal val VIRTUAL_STACK = ClassName("com.kgl.core", "VirtualStack")

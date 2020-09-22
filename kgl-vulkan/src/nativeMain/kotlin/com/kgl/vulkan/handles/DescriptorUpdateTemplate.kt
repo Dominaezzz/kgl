@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkDescriptorUpdateTemplate
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class DescriptorUpdateTemplate(override val ptr: VkDescriptorUpdateTemplate, actual val device: Device) : VkHandleNative<VkDescriptorUpdateTemplate>(), VkHandle {
+actual class DescriptorUpdateTemplate(
+	override val ptr: VkDescriptorUpdateTemplate,
+	actual val device: Device
+) : VkHandleNative<VkDescriptorUpdateTemplate>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -30,11 +31,12 @@ actual class DescriptorUpdateTemplate(override val ptr: VkDescriptorUpdateTempla
 		val device = descriptorUpdateTemplate.device
 		VirtualStack.push()
 		try {
-			dispatchTable.vkDestroyDescriptorUpdateTemplate!!(device.toVkType(),
-					descriptorUpdateTemplate.toVkType(), null)
+			dispatchTable.vkDestroyDescriptorUpdateTemplate!!(
+				device.toVkType(),
+				descriptorUpdateTemplate.toVkType(), null
+			)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

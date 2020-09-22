@@ -15,10 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.enums.CommandBufferLevel
-import com.kgl.vulkan.enums.CommandPoolReset
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
 
 expect class CommandPool : VkHandle {
 	val device: Device
@@ -32,4 +30,3 @@ expect class CommandPool : VkHandle {
 
 	fun trim()
 }
-

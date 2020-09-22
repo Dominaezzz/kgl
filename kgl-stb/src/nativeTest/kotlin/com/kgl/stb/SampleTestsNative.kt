@@ -1,11 +1,10 @@
 package com.kgl.stb
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SampleTestsNative {
-    @Test
-    fun testHello() {
-        assertTrue("Native" in "Native")
-    }
+	@Test
+	fun testHello() {
+		assertTrue("Native" in "Native")
+	}
 }

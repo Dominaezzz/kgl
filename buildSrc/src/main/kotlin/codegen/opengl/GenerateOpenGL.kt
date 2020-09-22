@@ -15,19 +15,12 @@
  */
 package codegen.opengl
 
-import codegen.C_OPAQUE_POINTER
-import codegen.THREAD_LOCAL
-import codegen.VIRTUAL_STACK
-import codegen.BYTE_VAR
-import codegen.CTypeDecl
-import codegen.KtxC
+import codegen.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
-import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
-import javax.xml.parsers.DocumentBuilderFactory
+import org.gradle.api.*
+import org.gradle.api.tasks.*
+import javax.xml.parsers.*
 
 open class GenerateOpenGL : DefaultTask() {
 	@InputFile
@@ -51,12 +44,12 @@ open class GenerateOpenGL : DefaultTask() {
 	@TaskAction
 	fun generate() {
 		val registry = DocumentBuilderFactory.newInstance()
-				.newDocumentBuilder()
-				.parse(registryFile.get().asFile)
-				.let {
-					it.documentElement.normalize()
-					Registry(it)
-				}
+			.newDocumentBuilder()
+			.parse(registryFile.get().asFile)
+			.let {
+				it.documentElement.normalize()
+				Registry(it)
+			}
 
 		val coreCommands = mutableSetOf<String>()
 		val coreEnums = mutableSetOf<String>()
@@ -79,20 +72,22 @@ open class GenerateOpenGL : DefaultTask() {
 			enumBuilder.primaryConstructor(FunSpec.constructorBuilder().addParameter("value", INT).build())
 
 			enumBuilder.addProperty(
-					PropertySpec.builder("value", INT)
-							.apply {
-								if (isBitmask) {
-									addModifiers(KModifier.OVERRIDE)
-								}
-							}
-							.initializer("value")
-							.build()
+				PropertySpec.builder("value", INT)
+					.apply {
+						if (isBitmask) {
+							addModifiers(KModifier.OVERRIDE)
+						}
+					}
+					.initializer("value")
+					.build()
 			)
 
 			if (isBitmask) {
-				enumBuilder.addSuperinterface(GL_MASK.parameterizedBy(
+				enumBuilder.addSuperinterface(
+					GL_MASK.parameterizedBy(
 						ClassName("com.kgl.opengl.enums", group.name)
-				))
+					)
+				)
 			}
 
 			val enumFile = FileSpec.builder("com.kgl.opengl.enums", group.name)
@@ -101,16 +96,16 @@ open class GenerateOpenGL : DefaultTask() {
 				if (entry.startsWith("GL_ALL_") && entry.endsWith("_BITS")) continue
 
 				enumBuilder.addEnumConstant(
-						entry.removePrefix("GL_").let {
-							if (isBitmask) {
-								it.removeSuffix("_BIT")
-							} else {
-								it
-							}
-						},
-						TypeSpec.anonymousClassBuilder()
-								.addSuperclassConstructorParameter(entry)
-								.build()
+					entry.removePrefix("GL_").let {
+						if (isBitmask) {
+							it.removeSuffix("_BIT")
+						} else {
+							it
+						}
+					},
+					TypeSpec.anonymousClassBuilder()
+						.addSuperclassConstructorParameter(entry)
+						.build()
 				)
 
 				enumFile.addImport("copengl", entry)
@@ -126,39 +121,44 @@ open class GenerateOpenGL : DefaultTask() {
 		}
 
 		val glFile = FileSpec.builder("com.kgl.opengl", "GL")
-				.addImport("kotlinx.cinterop", "addressOf")
-				.addImport("kotlinx.cinterop", "alloc")
-				.addImport("kotlinx.cinterop", "cstr")
-				.addImport("kotlinx.cinterop", "convert")
-				.addImport("kotlinx.cinterop", "invoke")
-				.addImport("kotlinx.cinterop", "pin")
-				.addImport("kotlinx.cinterop", "ptr")
-				.addImport("kotlinx.cinterop", "value")
-				.addImport("kotlinx.cinterop", "reinterpret")
-				.addImport("kotlinx.cinterop", "toBoolean")
-				.addImport("kotlinx.cinterop", "toByte")
-				.addImport("kotlinx.cinterop", "toCPointer")
-				.addImport("kotlinx.cinterop", "toCStringArray")
-				.addImport("kotlinx.cinterop", "toLong")
-				.addImport("com.kgl.opengl.utils", "Loader")
+			.addImport("kotlinx.cinterop", "addressOf")
+			.addImport("kotlinx.cinterop", "alloc")
+			.addImport("kotlinx.cinterop", "cstr")
+			.addImport("kotlinx.cinterop", "convert")
+			.addImport("kotlinx.cinterop", "invoke")
+			.addImport("kotlinx.cinterop", "pin")
+			.addImport("kotlinx.cinterop", "ptr")
+			.addImport("kotlinx.cinterop", "value")
+			.addImport("kotlinx.cinterop", "reinterpret")
+			.addImport("kotlinx.cinterop", "toBoolean")
+			.addImport("kotlinx.cinterop", "toByte")
+			.addImport("kotlinx.cinterop", "toCPointer")
+			.addImport("kotlinx.cinterop", "toCStringArray")
+			.addImport("kotlinx.cinterop", "toLong")
+			.addImport("com.kgl.opengl.utils", "Loader")
 
 		for (enum in registry.enums) {
 			for ((name, _) in enum.entries) {
 				if (name !in coreEnums) continue
 
 				// Add KModifier.CONST once `toUInt()` is constexpr
-				glFile.addProperty(PropertySpec.builder(name, U_INT)
-						.initializer("copengl.$name.toUInt()").build())
+				glFile.addProperty(
+					PropertySpec.builder(name, U_INT)
+						.initializer("copengl.$name.toUInt()").build()
+				)
 			}
 		}
 
-		val getProcAddressType = LambdaTypeName.get(null, listOf(ParameterSpec.unnamed(STRING)), C_OPAQUE_POINTER.copy(nullable = true))
+		val getProcAddressType =
+			LambdaTypeName.get(null, listOf(ParameterSpec.unnamed(STRING)), C_OPAQUE_POINTER.copy(nullable = true))
 
 		val glFunctions = TypeSpec.classBuilder("GLFunctions")
 		glFunctions.addModifiers(KModifier.INTERNAL)
-		glFunctions.primaryConstructor(FunSpec.constructorBuilder()
+		glFunctions.primaryConstructor(
+			FunSpec.constructorBuilder()
 				.addParameter("getProcAddress", getProcAddressType)
-				.build())
+				.build()
+		)
 
 		for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
@@ -166,21 +166,23 @@ open class GenerateOpenGL : DefaultTask() {
 			val pfnType = "PFN${(command.alias ?: command.name).toUpperCase()}PROC"
 
 			glFunctions.addProperty(
-					PropertySpec.builder(
-							command.name,
-							ClassName("copengl", pfnType).copy(nullable = true)
-					).initializer("getProcAddress(%S)?.reinterpret()", command.name).build()
+				PropertySpec.builder(
+					command.name,
+					ClassName("copengl", pfnType).copy(nullable = true)
+				).initializer("getProcAddress(%S)?.reinterpret()", command.name).build()
 			)
 		}
 
 		glFile.addType(glFunctions.build())
-		glFile.addProperty(PropertySpec.builder(
+		glFile.addProperty(
+			PropertySpec.builder(
 				"gl",
 				ClassName("com.kgl.opengl", "GLFunctions"),
 				KModifier.INTERNAL
-		).delegate("lazy { GLFunctions(Loader::kglGetProcAddress) }").addAnnotation(THREAD_LOCAL).build())
+			).delegate("lazy { GLFunctions(Loader::kglGetProcAddress) }").addAnnotation(THREAD_LOCAL).build()
+		)
 
-		loop@for (command in registry.commands) {
+		loop@ for (command in registry.commands) {
 			if (command.name !in coreCommands) continue
 
 			val tryFinallyBlocks = mutableListOf<Pair<CodeBlock, CodeBlock>>()
@@ -193,12 +195,14 @@ open class GenerateOpenGL : DefaultTask() {
 			for (param in command.params) {
 				val typeKt = param.type.toKtInteropParamType()
 
-				arguments[param.name] = CodeBlock.of(if (param.type.asteriskCount > 0 && param.type.isConst) {
-					requiresArena = true
-					param.name.escapeKt() + "?.getPointer(VirtualStack.currentFrame!!)"
-				} else {
-					param.name.escapeKt()
-				})
+				arguments[param.name] = CodeBlock.of(
+					if (param.type.asteriskCount > 0 && param.type.isConst) {
+						requiresArena = true
+						param.name.escapeKt() + "?.getPointer(VirtualStack.currentFrame!!)"
+					} else {
+						param.name.escapeKt()
+					}
+				)
 				parameters.add(ParameterSpec(param.name, typeKt))
 			}
 
@@ -209,9 +213,9 @@ open class GenerateOpenGL : DefaultTask() {
 			}
 
 			val function = FunSpec.builder(if (isReturnNotFriendly) "n${command.name}" else command.name)
-					.addParameters(parameters)
+				.addParameters(parameters)
 			val commandCall = command.params.map { arguments.getValue(it.name) }
-					.joinToCode(prefix = "gl.${command.name}!!(", suffix = ")\n")
+				.joinToCode(prefix = "gl.${command.name}!!(", suffix = ")\n")
 
 			val mainFunctionBody = CodeBlock.builder()
 			if (command.returnType.name == "void" && command.returnType.asteriskCount == 0) {
@@ -225,8 +229,8 @@ open class GenerateOpenGL : DefaultTask() {
 
 			if (requiresArena) {
 				tryFinallyBlocks += Pair(
-						CodeBlock.of("%T.push()\n", VIRTUAL_STACK),
-						CodeBlock.of("%T.pop()\n", VIRTUAL_STACK)
+					CodeBlock.of("%T.push()\n", VIRTUAL_STACK),
+					CodeBlock.of("%T.pop()\n", VIRTUAL_STACK)
 				)
 			}
 
@@ -284,14 +288,20 @@ open class GenerateOpenGL : DefaultTask() {
 					val wrapperFun = FunSpec.builder(newFunctionName)
 					wrapperFun.addParameters(parameters.dropLast(1))
 
-					val internalFunCall = (parameters.dropLast(1).map { CodeBlock.of(it.name) } + CodeBlock.of("retValue.%M", KtxC.PTR))
+					val internalFunCall =
+						(parameters.dropLast(1).map { CodeBlock.of(it.name) } + CodeBlock.of("retValue.%M", KtxC.PTR))
 							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
 
 					wrapperFun.returns(ClassName("copengl", lastArg.type.name))
 					wrapperFun.addCode(buildCodeBlock {
 						addStatement("%T.push()", VIRTUAL_STACK)
 						beginControlFlow("try")
-						addStatement("val retValue = %T.%M<%T>()", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						addStatement(
+							"val retValue = %T.%M<%T>()",
+							VIRTUAL_STACK,
+							KtxC.ALLOC,
+							ClassName("copengl", lastArg.type.name + "Var")
+						)
 						add(internalFunCall)
 						addStatement("return retValue.%M", KtxC.VALUE)
 						nextControlFlow("finally")
@@ -310,13 +320,19 @@ open class GenerateOpenGL : DefaultTask() {
 					wrapperFun.returns(ClassName("copengl", lastArg.type.name))
 					wrapperFun.addParameters(parameters.dropLast(2))
 
-					val internalFunCall = (parameters.dropLast(2).map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
-							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+					val internalFunCall = (parameters.dropLast(2)
+						.map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
+						.joinToCode(prefix = "${command.name}(", suffix = ")\n")
 
 					wrapperFun.addCode(buildCodeBlock {
 						addStatement("%T.push()", VIRTUAL_STACK)
 						beginControlFlow("try")
-						addStatement("val retValue = %T.%M<%T>()", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						addStatement(
+							"val retValue = %T.%M<%T>()",
+							VIRTUAL_STACK,
+							KtxC.ALLOC,
+							ClassName("copengl", lastArg.type.name + "Var")
+						)
 						add(internalFunCall)
 						addStatement("return retValue.%M", KtxC.VALUE)
 						nextControlFlow("finally")
@@ -337,13 +353,19 @@ open class GenerateOpenGL : DefaultTask() {
 					val objName = lastArg.name.toSingular()
 					wrapperFun.addParameter(objName, ClassName("copengl", lastArg.type.name))
 
-					val internalFunCall = (parameters.dropLast(2).map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
-							.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+					val internalFunCall = (parameters.dropLast(2)
+						.map { CodeBlock.of(it.name) } + CodeBlock.of("1") + CodeBlock.of("retValue.%M", KtxC.PTR))
+						.joinToCode(prefix = "${command.name}(", suffix = ")\n")
 
 					wrapperFun.addCode(buildCodeBlock {
 						addStatement("%T.push()", VIRTUAL_STACK)
 						beginControlFlow("try")
-						addStatement("val retValue = %T.%M<%T> { value = $objName }", VIRTUAL_STACK, KtxC.ALLOC, ClassName("copengl", lastArg.type.name + "Var"))
+						addStatement(
+							"val retValue = %T.%M<%T> { value = $objName }",
+							VIRTUAL_STACK,
+							KtxC.ALLOC,
+							ClassName("copengl", lastArg.type.name + "Var")
+						)
 						add(internalFunCall)
 						nextControlFlow("finally")
 						addStatement("%T.pop()", VIRTUAL_STACK)
@@ -360,15 +382,23 @@ open class GenerateOpenGL : DefaultTask() {
 					paramMapping[param.name] = STRING to CodeBlock.of("${param.name}.%M", KtxC.CSTR)
 				}
 				if (param.type.matches("GLboolean", 0)) {
-					paramMapping[param.name] = BOOLEAN to CodeBlock.of("(if (${param.name}) GL_TRUE else GL_FALSE).toUByte()")
+					paramMapping[param.name] =
+						BOOLEAN to CodeBlock.of("(if (${param.name}) GL_TRUE else GL_FALSE).toUByte()")
 				}
 			}
 			// If params can be nicer, then make a friendlier wrapper function.
 			if (paramMapping.isNotEmpty()) {
 				val internalFunCall = parameters.map { paramMapping[it.name]?.second ?: CodeBlock.of(it.name) }
-						.joinToCode(prefix = "${command.name}(", suffix = ")\n")
+					.joinToCode(prefix = "${command.name}(", suffix = ")\n")
 				val wrapperFun = FunSpec.builder(command.name)
-				wrapperFun.addParameters(parameters.map { param -> paramMapping[param.name]?.let { ParameterSpec(param.name, it.first) } ?: param })
+				wrapperFun.addParameters(parameters.map { param ->
+					paramMapping[param.name]?.let {
+						ParameterSpec(
+							param.name,
+							it.first
+						)
+					} ?: param
+				})
 				originalFunction.returnType?.let { wrapperFun.returns(it) }
 				wrapperFun.addCode(buildCodeBlock {
 					add("return ")
@@ -376,7 +406,7 @@ open class GenerateOpenGL : DefaultTask() {
 				})
 				glFile.addFunction(wrapperFun.build())
 			}
- 		}
+		}
 
 		with(glFile.build()) {
 			writeTo(mingwDir.get().asFile)
@@ -389,13 +419,13 @@ open class GenerateOpenGL : DefaultTask() {
 
 	private fun CTypeDecl.matches(name: String, astCount: Int, isConst: Boolean): Boolean {
 		return this.name == name &&
-				this.asteriskCount == astCount &&
-				this.isConst == isConst
+			this.asteriskCount == astCount &&
+			this.isConst == isConst
 	}
 
 	private fun CTypeDecl.matches(name: String, astCount: Int): Boolean {
 		return this.name == name &&
-				this.asteriskCount == astCount
+			this.asteriskCount == astCount
 	}
 
 	private fun CTypeDecl.matches(name: String): Boolean {

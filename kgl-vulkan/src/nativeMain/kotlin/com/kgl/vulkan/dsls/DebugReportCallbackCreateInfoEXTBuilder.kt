@@ -15,17 +15,10 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DebugReportEXT
-import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import cvulkan.VK_FALSE
-import cvulkan.VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
-import cvulkan.VkDebugReportCallbackCreateInfoEXT
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.asStableRef
-import kotlinx.cinterop.staticCFunction
-import kotlinx.cinterop.toKString
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 
 actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebugReportCallbackCreateInfoEXT) {
@@ -37,18 +30,19 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 
 	actual fun callback(callback: DebugReportCallbackEXT) {
 		target.pUserData = StableRef.create(callback).asCPointer()
-		target.pfnCallback = staticCFunction { flags, objectType, `object`, location, messageCode, pLayerPrefix, pMessage, pUserData ->
-			val theCallback = pUserData!!.asStableRef<DebugReportCallbackEXT>().get()
+		target.pfnCallback =
+			staticCFunction { flags, objectType, `object`, location, messageCode, pLayerPrefix, pMessage, pUserData ->
+				val theCallback = pUserData!!.asStableRef<DebugReportCallbackEXT>().get()
 
-			theCallback(
+				theCallback(
 					DebugReportEXT.fromMultiple(flags),
 					DebugReportObjectTypeEXT.from(objectType),
 					`object`.toULong(), location.toULong(), messageCode,
 					pLayerPrefix!!.toKString(),
 					pMessage!!.toKString()
-			)
-			VK_FALSE.toUInt()
-		}
+				)
+				VK_FALSE.toUInt()
+			}
 	}
 
 	actual fun next(block: Next<DebugReportCallbackCreateInfoEXTBuilder>.() -> Unit) {
@@ -60,4 +54,3 @@ actual class DebugReportCallbackCreateInfoEXTBuilder(internal val target: VkDebu
 		target.pNext = null
 	}
 }
-

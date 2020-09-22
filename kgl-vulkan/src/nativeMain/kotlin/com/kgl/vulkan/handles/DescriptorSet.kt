@@ -15,19 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkDescriptorSet
-import cvulkan.VkDescriptorSetVar
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.invoke
-import kotlinx.cinterop.ptr
-import kotlinx.cinterop.value
-import io.ktor.utils.io.bits.Memory
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import io.ktor.utils.io.bits.*
+import kotlinx.cinterop.*
 
-actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descriptorPool: DescriptorPool) : VkHandleNative<VkDescriptorSet>(), VkHandle {
+actual class DescriptorSet(
+	override val ptr: VkDescriptorSet,
+	actual val descriptorPool: DescriptorPool
+) : VkHandleNative<VkDescriptorSet>(), VkHandle {
 	internal val dispatchTable = descriptorPool.dispatchTable
 
 	override fun close() {
@@ -43,11 +40,12 @@ actual class DescriptorSet(override val ptr: VkDescriptorSet, actual val descrip
 	actual fun updateWithTemplate(descriptorUpdateTemplate: DescriptorUpdateTemplate, data: Memory) {
 		VirtualStack.push()
 		try {
-			dispatchTable.vkUpdateDescriptorSetWithTemplate!!(descriptorPool.device.toVkType(), toVkType(),
-					descriptorUpdateTemplate.toVkType(), data.pointer)
+			dispatchTable.vkUpdateDescriptorSetWithTemplate!!(
+				descriptorPool.device.toVkType(), toVkType(),
+				descriptorUpdateTemplate.toVkType(), data.pointer
+			)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 }
-

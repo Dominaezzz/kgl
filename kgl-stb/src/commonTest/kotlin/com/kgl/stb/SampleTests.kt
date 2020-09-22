@@ -1,12 +1,11 @@
 package com.kgl.stb
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SampleTests {
-    @Test
-    fun testMe() {
-        assertTrue(true)
-        println(STBImage.failureReason)
-    }
+	@Test
+	fun testMe() {
+		assertTrue(true)
+		println(STBImage.failureReason)
+	}
 }

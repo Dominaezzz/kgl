@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.*
 
 expect class Framebuffer : VkHandle {
 	val device: Device
@@ -25,4 +25,3 @@ expect class Framebuffer : VkHandle {
 	val height: UInt
 	val layers: UInt
 }
-

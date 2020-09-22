@@ -15,24 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.BufferMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.BufferViewCreateInfoBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.structs.MemoryRequirements
-import com.kgl.vulkan.structs.MemoryRequirements2
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
 actual class Buffer(
-		override val ptr: VkBuffer,
-		actual val device: Device,
-		actual val size: ULong
+	override val ptr: VkBuffer,
+	actual val device: Device,
+	actual val size: ULong
 ) : VkHandleNative<VkBuffer>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
@@ -73,8 +67,10 @@ actual class Buffer(
 		val device = buffer.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkBindBufferMemory(device.toVkType(), buffer.toVkType(), memory.toVkType(),
-					memoryOffset.toVkType())
+			val result = dispatchTable.vkBindBufferMemory(
+				device.toVkType(), buffer.toVkType(), memory.toVkType(),
+				memoryOffset.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			_memory = memory
 			_memoryOffset = memoryOffset
@@ -84,10 +80,10 @@ actual class Buffer(
 	}
 
 	actual fun createView(
-			format: Format,
-			offset: ULong,
-			range: ULong,
-			block: BufferViewCreateInfoBuilder.() -> Unit
+		format: Format,
+		offset: ULong,
+		range: ULong,
+		block: BufferViewCreateInfoBuilder.() -> Unit
 	): BufferView {
 		val buffer = this
 		val device = buffer.device
@@ -125,4 +121,3 @@ actual class Buffer(
 		}
 	}
 }
-

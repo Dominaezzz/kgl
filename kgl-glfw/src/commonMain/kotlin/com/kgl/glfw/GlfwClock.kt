@@ -1,8 +1,6 @@
 package com.kgl.glfw
 
-import kotlin.time.AbstractDoubleTimeSource
-import kotlin.time.DurationUnit
-import kotlin.time.ExperimentalTime
+import kotlin.time.*
 
 @ExperimentalTime
 object GlfwClock : AbstractDoubleTimeSource(DurationUnit.SECONDS) {

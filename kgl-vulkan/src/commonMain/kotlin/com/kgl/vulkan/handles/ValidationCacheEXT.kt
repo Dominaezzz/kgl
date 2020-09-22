@@ -15,8 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import io.ktor.utils.io.bits.Memory
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
 
 expect class ValidationCacheEXT : VkHandle {
 	val device: Device
@@ -25,4 +25,3 @@ expect class ValidationCacheEXT : VkHandle {
 
 	fun merge(srcCaches: Collection<ValidationCacheEXT>)
 }
-

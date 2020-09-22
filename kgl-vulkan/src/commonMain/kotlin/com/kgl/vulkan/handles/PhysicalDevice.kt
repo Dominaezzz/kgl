@@ -18,8 +18,7 @@ package com.kgl.vulkan.handles
 import com.kgl.vulkan.dsls.*
 import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.utils.*
 
 expect class PhysicalDevice : VkHandle {
 	val instance: Instance
@@ -55,27 +54,27 @@ expect class PhysicalDevice : VkHandle {
 	fun getFormatProperties(format: Format): FormatProperties
 
 	fun getImageFormatProperties(
-			format: Format,
-			type: ImageType,
-			tiling: ImageTiling,
-			usage: VkFlag<ImageUsage>,
-			flags: VkFlag<ImageCreate>?
+		format: Format,
+		type: ImageType,
+		tiling: ImageTiling,
+		usage: VkFlag<ImageUsage>,
+		flags: VkFlag<ImageCreate>?
 	): ImageFormatProperties
 
 	fun createDevice(
-			enabledLayerNames: Collection<String>? = null,
-			enabledExtensionNames: Collection<String>? = null,
-			block: DeviceCreateInfoBuilder.() -> Unit
+		enabledLayerNames: Collection<String>? = null,
+		enabledExtensionNames: Collection<String>? = null,
+		block: DeviceCreateInfoBuilder.() -> Unit
 	): Device
 
 	fun getDeviceExtensionProperties(layerName: String? = null): List<ExtensionProperties>
 
 	fun getSparseImageFormatProperties(
-			format: Format,
-			type: ImageType,
-			samples: SampleCount,
-			usage: VkFlag<ImageUsage>,
-			tiling: ImageTiling
+		format: Format,
+		type: ImageType,
+		samples: SampleCount,
+		usage: VkFlag<ImageUsage>,
+		tiling: ImageTiling
 	): List<SparseImageFormatProperties>
 
 	fun getDisplayPlaneSupportedDisplaysKHR(planeIndex: UInt): List<DisplayKHR>
@@ -93,12 +92,12 @@ expect class PhysicalDevice : VkHandle {
 	fun getSurfacePresentModesKHR(surface: SurfaceKHR): List<PresentModeKHR>
 
 	fun getExternalImageFormatPropertiesNV(
-			format: Format,
-			type: ImageType,
-			tiling: ImageTiling,
-			usage: VkFlag<ImageUsage>,
-			flags: VkFlag<ImageCreate>?,
-			externalHandleType: VkFlag<ExternalMemoryHandleTypeNV>?
+		format: Format,
+		type: ImageType,
+		tiling: ImageTiling,
+		usage: VkFlag<ImageUsage>,
+		flags: VkFlag<ImageCreate>?,
+		externalHandleType: VkFlag<ExternalMemoryHandleTypeNV>?
 	): ExternalImageFormatPropertiesNV
 
 	fun getFormatProperties2(format: Format): FormatProperties2
@@ -121,10 +120,15 @@ expect class PhysicalDevice : VkHandle {
 
 	fun getMultisamplePropertiesEXT(samples: SampleCount): MultisamplePropertiesEXT
 
-	fun getSurfaceCapabilities2KHR(surface: SurfaceKHR, block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit = {}): SurfaceCapabilities2KHR
+	fun getSurfaceCapabilities2KHR(
+		surface: SurfaceKHR,
+		block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit = {}
+	): SurfaceCapabilities2KHR
 
-	fun getSurfaceFormats2KHR(surface: SurfaceKHR, block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit = {}): List<SurfaceFormat2KHR>
+	fun getSurfaceFormats2KHR(
+		surface: SurfaceKHR,
+		block: PhysicalDeviceSurfaceInfo2KHRBuilder.() -> Unit = {}
+	): List<SurfaceFormat2KHR>
 
 	fun getDisplayModeProperties2KHR(display: DisplayKHR): List<DisplayModeProperties2KHR>
 }
-

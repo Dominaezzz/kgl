@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ImportSemaphoreFdInfoKHRBuilder
-import com.kgl.vulkan.dsls.SemaphoreGetFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
 
 expect class Semaphore : VkHandle {
 	val device: Device
@@ -26,4 +25,3 @@ expect class Semaphore : VkHandle {
 
 	fun importFdKHR(block: ImportSemaphoreFdInfoKHRBuilder.() -> Unit = {})
 }
-

@@ -15,18 +15,12 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.FenceGetFdInfoKHRBuilder
-import com.kgl.vulkan.dsls.ImportFenceFdInfoKHRBuilder
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.KHRExternalFenceFd.vkGetFenceFdKHR
-import org.lwjgl.vulkan.KHRExternalFenceFd.vkImportFenceFdKHR
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.KHRExternalFenceFd.*
 import org.lwjgl.vulkan.VK11.*
-import org.lwjgl.vulkan.VkFenceGetFdInfoKHR
-import org.lwjgl.vulkan.VkImportFenceFdInfoKHR
 
 actual class Fence(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
@@ -91,4 +85,3 @@ actual class Fence(override val ptr: Long, actual val device: Device) : VkHandle
 		}
 	}
 }
-

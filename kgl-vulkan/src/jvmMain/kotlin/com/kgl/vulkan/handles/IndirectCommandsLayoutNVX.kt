@@ -15,13 +15,12 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.vkDestroyIndirectCommandsLayoutNVX
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.NVXDeviceGeneratedCommands.*
 
-actual class IndirectCommandsLayoutNVX(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(), VkHandle {
+actual class IndirectCommandsLayoutNVX(override val ptr: Long, actual val device: Device) : VkHandleJVM<Long>(),
+	VkHandle {
 	override fun close() {
 		val indirectCommandsLayout = this
 		val device = indirectCommandsLayout.device
@@ -33,4 +32,3 @@ actual class IndirectCommandsLayoutNVX(override val ptr: Long, actual val device
 		}
 	}
 }
-

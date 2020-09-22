@@ -15,12 +15,10 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkSampler
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class Sampler(override val ptr: VkSampler, actual val device: Device) : VkHandleNative<VkSampler>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
@@ -36,4 +34,3 @@ actual class Sampler(override val ptr: VkSampler, actual val device: Device) : V
 		}
 	}
 }
-

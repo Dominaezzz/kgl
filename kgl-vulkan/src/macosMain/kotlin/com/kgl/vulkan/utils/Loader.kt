@@ -21,10 +21,10 @@ import kotlinx.cinterop.COpaquePointer
 import platform.posix.*
 
 object Loader {
-	private val module: COpaquePointer = dlopen("libvulkan.dylib", RTLD_NOW or RTLD_LOCAL) ?:
-	dlopen("libvulkan.dylib.1", RTLD_NOW or RTLD_LOCAL) ?:
-	dlopen("libMoltenVK.dylib", RTLD_NOW or RTLD_LOCAL) ?:
-	throw Exception("'libvulkan.dylib' not found!")
+	private val module: COpaquePointer =
+		dlopen("libvulkan.dylib", RTLD_NOW or RTLD_LOCAL) ?: dlopen("libvulkan.dylib.1", RTLD_NOW or RTLD_LOCAL)
+		?: dlopen("libMoltenVK.dylib", RTLD_NOW or RTLD_LOCAL) ?: throw Exception("'libvulkan.dylib' not found!")
 
-	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr = dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
+	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
+		dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
 }

@@ -15,14 +15,15 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkShaderModule
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class ShaderModule(override val ptr: VkShaderModule, actual val device: Device) : VkHandleNative<VkShaderModule>(), VkHandle {
+actual class ShaderModule(
+	override val ptr: VkShaderModule,
+	actual val device: Device
+) : VkHandleNative<VkShaderModule>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -36,4 +37,3 @@ actual class ShaderModule(override val ptr: VkShaderModule, actual val device: D
 		}
 	}
 }
-

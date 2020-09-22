@@ -15,14 +15,10 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.PipelineStage
-import com.kgl.vulkan.handles.CommandBuffer
-import com.kgl.vulkan.handles.Semaphore
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.vulkan.VK11
-import org.lwjgl.vulkan.VkSubmitInfo
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
 
 actual class SubmitInfoBuilder(internal val target: VkSubmitInfo) {
 	actual fun next(block: Next<SubmitInfoBuilder>.() -> Unit) {
@@ -30,9 +26,9 @@ actual class SubmitInfoBuilder(internal val target: VkSubmitInfo) {
 	}
 
 	internal actual fun init(
-			waitSemaphores: Collection<Pair<Semaphore, VkFlag<PipelineStage>>>?,
-			commandBuffers: Collection<CommandBuffer>?,
-			signalSemaphores: Collection<Semaphore>?
+		waitSemaphores: Collection<Pair<Semaphore, VkFlag<PipelineStage>>>?,
+		commandBuffers: Collection<CommandBuffer>?,
+		signalSemaphores: Collection<Semaphore>?
 	) {
 		target.sType(VK11.VK_STRUCTURE_TYPE_SUBMIT_INFO)
 		target.pNext(0)

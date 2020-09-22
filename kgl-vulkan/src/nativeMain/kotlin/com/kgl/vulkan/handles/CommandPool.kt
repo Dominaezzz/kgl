@@ -15,18 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.CommandBufferAllocateInfoBuilder
-import com.kgl.vulkan.enums.CommandBufferLevel
-import com.kgl.vulkan.enums.CommandPoolReset
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.utils.*
-import cvulkan.VK_SUCCESS
-import cvulkan.VkCommandBufferAllocateInfo
-import cvulkan.VkCommandBufferVar
-import cvulkan.VkCommandPool
+import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class CommandPool(override val ptr: VkCommandPool, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkCommandPool>(), VkHandle {
+actual class CommandPool(
+	override val ptr: VkCommandPool,
+	actual val device: Device,
+	actual val queueFamilyIndex: UInt
+) : VkHandleNative<VkCommandPool>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	override fun close() {
@@ -45,8 +45,10 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			val result = dispatchTable.vkResetCommandPool(device.toVkType(), commandPool.toVkType(),
-					flags.toVkType())
+			val result = dispatchTable.vkResetCommandPool(
+				device.toVkType(), commandPool.toVkType(),
+				flags.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -76,8 +78,10 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		val device = commandPool.device
 		VirtualStack.push()
 		try {
-			dispatchTable.vkFreeCommandBuffers(device.toVkType(), commandPool.toVkType(),
-					commandBuffers.size.toUInt(), commandBuffers.toVkType())
+			dispatchTable.vkFreeCommandBuffers(
+				device.toVkType(), commandPool.toVkType(),
+				commandBuffers.size.toUInt(), commandBuffers.toVkType()
+			)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -94,4 +98,3 @@ actual class CommandPool(override val ptr: VkCommandPool, actual val device: Dev
 		}
 	}
 }
-

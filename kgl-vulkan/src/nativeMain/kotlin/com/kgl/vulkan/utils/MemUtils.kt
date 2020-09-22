@@ -17,12 +17,13 @@
  */
 package com.kgl.vulkan.utils
 
-import cvulkan.VK_FALSE
-import cvulkan.VK_TRUE
-import cvulkan.VkBool32
+import cvulkan.*
 import kotlinx.cinterop.*
 
-internal inline fun <TItem, reified T : CVariable> Collection<TItem>.mapToCArray(scope: NativePlacement, block: T.(TItem) -> Unit): CArrayPointer<T> {
+internal inline fun <TItem, reified T : CVariable> Collection<TItem>.mapToCArray(
+	scope: NativePlacement,
+	block: T.(TItem) -> Unit
+): CArrayPointer<T> {
 	return scope.allocArray<T>(size).also {
 		forEachIndexed { index, item ->
 			it[index].block(item)
@@ -30,7 +31,10 @@ internal inline fun <TItem, reified T : CVariable> Collection<TItem>.mapToCArray
 	}
 }
 
-internal inline fun <TItem, reified T : CVariable> Array<TItem>.mapToCArray(scope: NativePlacement, block: T.(TItem) -> Unit): CArrayPointer<T> {
+internal inline fun <TItem, reified T : CVariable> Array<TItem>.mapToCArray(
+	scope: NativePlacement,
+	block: T.(TItem) -> Unit
+): CArrayPointer<T> {
 	return scope.allocArray(size) { block(get(it)) }
 }
 

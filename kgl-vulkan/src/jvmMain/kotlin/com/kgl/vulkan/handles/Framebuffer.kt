@@ -15,20 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.VK11.vkDestroyFramebuffer
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class Framebuffer(
-		override val ptr: Long,
-		actual val device: Device,
-		actual val renderPass: RenderPass,
-		actual val attachments: Array<ImageView>?,
-		actual val width: UInt,
-		actual val height: UInt,
-		actual val layers: UInt
+	override val ptr: Long,
+	actual val device: Device,
+	actual val renderPass: RenderPass,
+	actual val attachments: Array<ImageView>?,
+	actual val width: UInt,
+	actual val height: UInt,
+	actual val layers: UInt
 ) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		val framebuffer = this
@@ -41,4 +39,3 @@ actual class Framebuffer(
 		}
 	}
 }
-

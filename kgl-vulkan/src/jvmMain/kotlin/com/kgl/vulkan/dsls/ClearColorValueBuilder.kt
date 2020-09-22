@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import org.lwjgl.vulkan.VkClearColorValue
+import org.lwjgl.vulkan.*
 
 actual class ClearColorValueBuilder(internal val target: VkClearColorValue) {
 	internal actual fun init(r: Float, g: Float, b: Float, a: Float) {

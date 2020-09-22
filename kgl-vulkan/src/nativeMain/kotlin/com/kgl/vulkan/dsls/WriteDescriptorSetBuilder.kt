@@ -15,13 +15,10 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DescriptorType
-import com.kgl.vulkan.handles.BufferView
-import com.kgl.vulkan.handles.DescriptorSet
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.mapToStackArray
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkWriteDescriptorSet
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
 
 actual class WriteDescriptorSetBuilder(internal val target: VkWriteDescriptorSet) {
 	actual var dstBinding: UInt

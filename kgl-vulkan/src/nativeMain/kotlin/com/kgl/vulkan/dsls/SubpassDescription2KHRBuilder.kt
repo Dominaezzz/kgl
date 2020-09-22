@@ -15,18 +15,11 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.enums.PipelineBindPoint
-import com.kgl.vulkan.enums.SubpassDescription
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.mapToStackArray
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2_KHR
-import cvulkan.VkAttachmentReference2KHR
-import cvulkan.VkSubpassDescription2KHR
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.ptr
+import com.kgl.core.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class SubpassDescription2KHRBuilder(internal val target: VkSubpassDescription2KHR) {
 	actual var flags: VkFlag<SubpassDescription>?

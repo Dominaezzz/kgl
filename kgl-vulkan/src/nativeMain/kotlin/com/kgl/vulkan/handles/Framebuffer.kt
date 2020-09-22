@@ -15,21 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkFramebuffer
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class Framebuffer(
-		override val ptr: VkFramebuffer,
-		actual val device: Device,
-		actual val renderPass: RenderPass,
-		actual val attachments: Array<ImageView>?,
-		actual val width: UInt,
-		actual val height: UInt,
-		actual val layers: UInt
+	override val ptr: VkFramebuffer,
+	actual val device: Device,
+	actual val renderPass: RenderPass,
+	actual val attachments: Array<ImageView>?,
+	actual val width: UInt,
+	actual val height: UInt,
+	actual val layers: UInt
 ) : VkHandleNative<VkFramebuffer>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
@@ -44,4 +42,3 @@ actual class Framebuffer(
 		}
 	}
 }
-

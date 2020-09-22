@@ -15,26 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.DisplayPlaneInfo2KHRBuilder
-import com.kgl.vulkan.structs.DisplayPlaneCapabilities2KHR
-import com.kgl.vulkan.structs.DisplayPlaneCapabilitiesKHR
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.KHRDisplay.vkGetDisplayPlaneCapabilitiesKHR
-import org.lwjgl.vulkan.KHRGetDisplayProperties2.vkGetDisplayPlaneCapabilities2KHR
-import org.lwjgl.vulkan.VK11.VK_SUCCESS
-import org.lwjgl.vulkan.VkDisplayPlaneCapabilities2KHR
-import org.lwjgl.vulkan.VkDisplayPlaneCapabilitiesKHR
-import org.lwjgl.vulkan.VkDisplayPlaneInfo2KHR
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.KHRDisplay.*
+import org.lwjgl.vulkan.KHRGetDisplayProperties2.*
+import org.lwjgl.vulkan.VK11.*
 
 actual class DisplayModeKHR(
-		override val ptr: Long,
-		actual val physicalDevice: PhysicalDevice,
-		actual val display: DisplayKHR
+	override val ptr: Long,
+	actual val physicalDevice: PhysicalDevice,
+	actual val display: DisplayKHR
 ) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		TODO()
@@ -46,8 +39,10 @@ actual class DisplayModeKHR(
 		MemoryStack.stackPush()
 		try {
 			val outputPtr = VkDisplayPlaneCapabilitiesKHR.mallocStack()
-			val result = vkGetDisplayPlaneCapabilitiesKHR(physicalDevice.toVkType(),
-					mode.toVkType(), planeIndex.toVkType(), outputPtr)
+			val result = vkGetDisplayPlaneCapabilitiesKHR(
+				physicalDevice.toVkType(),
+				mode.toVkType(), planeIndex.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilitiesKHR.from(outputPtr)
 		} finally {
@@ -65,8 +60,10 @@ actual class DisplayModeKHR(
 			builder.init(mode)
 			builder.apply(block)
 			val outputPtr = VkDisplayPlaneCapabilities2KHR.mallocStack()
-			val result = vkGetDisplayPlaneCapabilities2KHR(physicalDevice.toVkType(), target,
-					outputPtr)
+			val result = vkGetDisplayPlaneCapabilities2KHR(
+				physicalDevice.toVkType(), target,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilities2KHR.from(outputPtr)
 		} finally {
@@ -74,4 +71,3 @@ actual class DisplayModeKHR(
 		}
 	}
 }
-

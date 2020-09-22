@@ -15,15 +15,11 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.handles.Semaphore
-import com.kgl.vulkan.handles.SwapchainKHR
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.mapToCArray
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
-import cvulkan.VkPresentInfoKHR
-import kotlinx.cinterop.value
+import com.kgl.core.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
 actual class PresentInfoKHRBuilder(internal val target: VkPresentInfoKHR) {
 	actual fun next(block: Next<PresentInfoKHRBuilder>.() -> Unit) {

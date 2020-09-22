@@ -15,10 +15,8 @@
  */
 package com.kgl.glfw
 
-import cglfw.GLFWgammaramp
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.get
-import kotlinx.cinterop.pointed
+import cglfw.*
+import kotlinx.cinterop.*
 
 actual class GammaRamp(val ptr: CPointer<GLFWgammaramp>) {
 	var red: UShortArray

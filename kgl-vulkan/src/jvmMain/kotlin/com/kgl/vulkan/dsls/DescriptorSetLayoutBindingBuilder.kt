@@ -15,13 +15,10 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.enums.DescriptorType
-import com.kgl.vulkan.enums.ShaderStage
-import com.kgl.vulkan.handles.Sampler
-import com.kgl.vulkan.utils.Next
-import com.kgl.vulkan.utils.VkFlag
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.vulkan.VkDescriptorSetLayoutBinding
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
+import org.lwjgl.vulkan.*
 
 actual class DescriptorSetLayoutBindingBuilder(internal val target: VkDescriptorSetLayoutBinding) {
 	actual var binding: UInt

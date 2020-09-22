@@ -15,15 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.toVkType
-import cvulkan.VkDebugReportCallbackEXT
-import kotlinx.cinterop.StableRef
-import kotlinx.cinterop.invoke
+import com.kgl.core.*
+import com.kgl.vulkan.utils.*
+import cvulkan.*
+import kotlinx.cinterop.*
 
-actual class DebugReportCallbackEXT(override val ptr: VkDebugReportCallbackEXT, actual val instance: Instance, private val userData: StableRef<*>) : VkHandleNative<VkDebugReportCallbackEXT>(), VkHandle {
+actual class DebugReportCallbackEXT(
+	override val ptr: VkDebugReportCallbackEXT,
+	actual val instance: Instance,
+	private val userData: StableRef<*>
+) : VkHandleNative<VkDebugReportCallbackEXT>(), VkHandle {
 	internal val dispatchTable = instance.dispatchTable
 
 	override fun close() {
@@ -36,4 +37,3 @@ actual class DebugReportCallbackEXT(override val ptr: VkDebugReportCallbackEXT, 
 		}
 	}
 }
-

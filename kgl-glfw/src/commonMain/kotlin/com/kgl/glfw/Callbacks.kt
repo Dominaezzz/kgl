@@ -1,6 +1,6 @@
 package com.kgl.glfw
 
-import com.kgl.core.Flag
+import com.kgl.core.*
 
 
 typealias ErrorCallback = (error: Int, description: String) -> Unit

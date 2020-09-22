@@ -15,7 +15,7 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 expect class ClearColorValueBuilder {

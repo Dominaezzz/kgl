@@ -15,31 +15,23 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ImageMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.ImageSparseMemoryRequirementsInfo2Builder
-import com.kgl.vulkan.dsls.ImageSubresourceBuilder
-import com.kgl.vulkan.dsls.ImageViewCreateInfoBuilder
-import com.kgl.vulkan.enums.Format
-import com.kgl.vulkan.enums.ImageType
-import com.kgl.vulkan.enums.ImageViewType
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
 import com.kgl.vulkan.structs.*
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
 import org.lwjgl.vulkan.*
-import org.lwjgl.vulkan.EXTImageDrmFormatModifier.vkGetImageDrmFormatModifierPropertiesEXT
+import org.lwjgl.vulkan.EXTImageDrmFormatModifier.*
 import org.lwjgl.vulkan.VK11.*
 
 actual class Image(
-		override val ptr: Long,
-		actual val device: Device,
-		actual val type: ImageType,
-		actual val format: Format,
-		actual val mipLevels: UInt,
-		actual val extent: Extent3D,
-		actual val arrayLayers: UInt
+	override val ptr: Long,
+	actual val device: Device,
+	actual val type: ImageType,
+	actual val format: Format,
+	actual val mipLevels: UInt,
+	actual val extent: Extent3D,
+	actual val arrayLayers: UInt
 ) : VkHandleJVM<Long>(), VkHandle {
 	internal var _memory: DeviceMemory? = null
 	internal var _memoryOffset: ULong = 0U
@@ -68,11 +60,15 @@ actual class Image(
 			MemoryStack.stackPush()
 			try {
 				val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
-				vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
-						outputCountPtr, null)
+				vkGetImageSparseMemoryRequirements(
+					device.toVkType(), image.toVkType(),
+					outputCountPtr, null
+				)
 				val outputPtr = VkSparseImageMemoryRequirements.mallocStack(outputCountPtr[0])
-				vkGetImageSparseMemoryRequirements(device.toVkType(), image.toVkType(),
-						outputCountPtr, outputPtr)
+				vkGetImageSparseMemoryRequirements(
+					device.toVkType(), image.toVkType(),
+					outputCountPtr, outputPtr
+				)
 				return List(outputCountPtr[0]) { SparseImageMemoryRequirements.from(outputPtr[it]) }
 			} finally {
 				MemoryStack.stackPop()
@@ -86,8 +82,10 @@ actual class Image(
 			MemoryStack.stackPush()
 			try {
 				val outputPtr = VkImageDrmFormatModifierPropertiesEXT.mallocStack()
-				val result = vkGetImageDrmFormatModifierPropertiesEXT(device.toVkType(),
-						image.toVkType(), outputPtr)
+				val result = vkGetImageDrmFormatModifierPropertiesEXT(
+					device.toVkType(),
+					image.toVkType(), outputPtr
+				)
 				if (result != VK_SUCCESS) handleVkResult(result)
 				return ImageDrmFormatModifierPropertiesEXT.from(outputPtr)
 			} finally {
@@ -111,8 +109,10 @@ actual class Image(
 		val device = image.device
 		MemoryStack.stackPush()
 		try {
-			val result = vkBindImageMemory(device.toVkType(), image.toVkType(), memory.toVkType(),
-					memoryOffset.toVkType())
+			val result = vkBindImageMemory(
+				device.toVkType(), image.toVkType(), memory.toVkType(),
+				memoryOffset.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			_memory = memory
 			_memoryOffset = memoryOffset
@@ -139,9 +139,9 @@ actual class Image(
 	}
 
 	actual fun createView(
-			viewType: ImageViewType,
-			format: Format,
-			block: ImageViewCreateInfoBuilder.() -> Unit
+		viewType: ImageViewType,
+		format: Format,
+		block: ImageViewCreateInfoBuilder.() -> Unit
 	): ImageView {
 		val image = this
 		val device = image.device
@@ -189,12 +189,13 @@ actual class Image(
 			val outputCountPtr = MemoryStack.stackGet().mallocInt(1)
 			vkGetImageSparseMemoryRequirements2(device.toVkType(), target, outputCountPtr, null)
 			val outputPtr = VkSparseImageMemoryRequirements2.mallocStack(outputCountPtr[0])
-			vkGetImageSparseMemoryRequirements2(device.toVkType(), target, outputCountPtr,
-					outputPtr)
+			vkGetImageSparseMemoryRequirements2(
+				device.toVkType(), target, outputCountPtr,
+				outputPtr
+			)
 			return List(outputCountPtr[0]) { SparseImageMemoryRequirements2.from(outputPtr[it]) }
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

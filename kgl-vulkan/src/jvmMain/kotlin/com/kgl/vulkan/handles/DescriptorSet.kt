@@ -15,15 +15,14 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import io.ktor.utils.io.bits.Memory
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.VK10.vkFreeDescriptorSets
-import org.lwjgl.vulkan.VK11
+import com.kgl.vulkan.utils.*
+import io.ktor.utils.io.bits.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.VK10.*
 
-actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: DescriptorPool) : VkHandleJVM<Long>(), VkHandle {
+actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: DescriptorPool) : VkHandleJVM<Long>(),
+	VkHandle {
 	override fun close() {
 		vkFreeDescriptorSets(descriptorPool.device.ptr, descriptorPool.ptr, ptr)
 	}
@@ -32,11 +31,12 @@ actual class DescriptorSet(override val ptr: Long, actual val descriptorPool: De
 		TODO()
 		MemoryStack.stackPush()
 		try {
-			VK11.vkUpdateDescriptorSetWithTemplate(descriptorPool.device.toVkType(), toVkType(),
-					descriptorUpdateTemplate.toVkType(), 0)
+			VK11.vkUpdateDescriptorSetWithTemplate(
+				descriptorPool.device.toVkType(), toVkType(),
+				descriptorUpdateTemplate.toVkType(), 0
+			)
 		} finally {
 			MemoryStack.stackPop()
 		}
 	}
 }
-

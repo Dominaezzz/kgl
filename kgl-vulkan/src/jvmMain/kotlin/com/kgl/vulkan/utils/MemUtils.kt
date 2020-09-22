@@ -17,14 +17,12 @@
  */
 package com.kgl.vulkan.utils
 
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.system.Struct
-import org.lwjgl.system.StructBuffer
+import org.lwjgl.system.*
 
 internal inline fun <TItem, reified T : Struct, reified TBuffer : StructBuffer<T, TBuffer>> Collection<TItem>.toCArray(
-		stack: MemoryStack,
-		mallocStack: (Int, MemoryStack) -> TBuffer,
-		block: T.(TItem) -> Unit
+	stack: MemoryStack,
+	mallocStack: (Int, MemoryStack) -> TBuffer,
+	block: T.(TItem) -> Unit
 ): TBuffer {
 	return mallocStack(size, stack).also {
 		forEachIndexed { index, item ->
@@ -34,23 +32,23 @@ internal inline fun <TItem, reified T : Struct, reified TBuffer : StructBuffer<T
 }
 
 internal inline fun <reified T : Struct, reified TBuffer : StructBuffer<T, TBuffer>> Collection<T.(MemoryStack) -> Unit>.toCArray(
-		stack: MemoryStack,
-		mallocStack: (Int, MemoryStack) -> TBuffer
+	stack: MemoryStack,
+	mallocStack: (Int, MemoryStack) -> TBuffer
 ): TBuffer {
 	return toCArray(stack, mallocStack) { it(stack) }
 }
 
 internal inline fun <TItem, reified T : Struct, reified TBuffer : StructBuffer<T, TBuffer>> Collection<TItem>.mapToCArray(
-		stack: MemoryStack,
-		mallocStack: (Int, MemoryStack) -> TBuffer,
-		block: T.(TItem) -> Unit
+	stack: MemoryStack,
+	mallocStack: (Int, MemoryStack) -> TBuffer,
+	block: T.(TItem) -> Unit
 ): TBuffer {
 	return toCArray(stack, mallocStack, block)
 }
 
 internal inline fun <reified T : Struct, reified TBuffer : StructBuffer<T, TBuffer>> Collection<T.(MemoryStack) -> Unit>.mapToCArray(
-		stack: MemoryStack,
-		mallocStack: (Int, MemoryStack) -> TBuffer
+	stack: MemoryStack,
+	mallocStack: (Int, MemoryStack) -> TBuffer
 ): TBuffer {
 	return mapToCArray(stack, mallocStack) { it(stack) }
 }

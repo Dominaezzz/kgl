@@ -19,6 +19,7 @@ import cglfw.*
 import cnames.structs.GLFWmonitor
 import com.kgl.core.VirtualStack
 import kotlinx.cinterop.*
+import kotlinx.cinterop.CPointer
 
 actual class Monitor(val ptr: CPointer<GLFWmonitor>) {
 	actual val name: String get() = glfwGetMonitorName(ptr)!!.toKString()

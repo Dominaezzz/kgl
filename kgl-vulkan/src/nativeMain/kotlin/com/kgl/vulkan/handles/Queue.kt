@@ -15,15 +15,18 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
+import com.kgl.core.*
 import com.kgl.vulkan.dsls.*
-import com.kgl.vulkan.structs.CheckpointDataNV
-import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Queue(override val ptr: VkQueue, actual val device: Device, actual val queueFamilyIndex: UInt) : VkHandleNative<VkQueue>(), VkHandle {
+actual class Queue(
+	override val ptr: VkQueue,
+	actual val device: Device,
+	actual val queueFamilyIndex: UInt
+) : VkHandleNative<VkQueue>(), VkHandle {
 	internal val dispatchTable = device.dispatchTable
 
 	actual val checkpointDataNV: List<CheckpointDataNV>
@@ -35,7 +38,7 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 				val outputCountPtr = outputCountVar.ptr
 				dispatchTable.vkGetQueueCheckpointDataNV!!(queue.toVkType(), outputCountPtr, null)
 				val outputPtr =
-						VirtualStack.allocArray<VkCheckpointDataNV>(outputCountVar.value.toInt())
+					VirtualStack.allocArray<VkCheckpointDataNV>(outputCountVar.value.toInt())
 				dispatchTable.vkGetQueueCheckpointDataNV!!(queue.toVkType(), outputCountPtr, outputPtr)
 				return List(outputCountVar.value.toInt()) { CheckpointDataNV.from(outputPtr[it]) }
 			} finally {
@@ -53,15 +56,21 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		try {
 			val targets = SubmitInfosBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(::SubmitInfoBuilder)
-			val result = dispatchTable.vkQueueSubmit(queue.toVkType(), targets.size.toUInt(), targetArray,
-					fence.toVkType())
+			val result = dispatchTable.vkQueueSubmit(
+				queue.toVkType(), targets.size.toUInt(), targetArray,
+				fence.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 
-	actual fun presentKHR(swapchains: Collection<Pair<SwapchainKHR, UInt>>, waitSemaphores: Collection<Semaphore>?, block: PresentInfoKHRBuilder.() -> Unit): Boolean {
+	actual fun presentKHR(
+		swapchains: Collection<Pair<SwapchainKHR, UInt>>,
+		waitSemaphores: Collection<Semaphore>?,
+		block: PresentInfoKHRBuilder.() -> Unit
+	): Boolean {
 		val queue = this
 		VirtualStack.push()
 		try {
@@ -97,8 +106,10 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		try {
 			val targets = BindSparseInfosBuilder().apply(block).targets
 			val targetArray = targets.mapToStackArray(::BindSparseInfoBuilder)
-			val result = dispatchTable.vkQueueBindSparse(queue.toVkType(), targets.size.toUInt(), targetArray,
-					fence.toVkType())
+			val result = dispatchTable.vkQueueBindSparse(
+				queue.toVkType(), targets.size.toUInt(), targetArray,
+				fence.toVkType()
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 		} finally {
 			VirtualStack.pop()
@@ -143,4 +154,3 @@ actual class Queue(override val ptr: VkQueue, actual val device: Device, actual 
 		}
 	}
 }
-

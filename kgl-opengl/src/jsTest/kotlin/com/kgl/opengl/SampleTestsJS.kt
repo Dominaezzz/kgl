@@ -1,7 +1,6 @@
 package com.kgl.opengl
 
-import kotlin.test.Test
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class SampleTestsJS {
 	@Test

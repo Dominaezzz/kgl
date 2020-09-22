@@ -15,21 +15,19 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
+import com.kgl.core.*
 import com.kgl.vulkan.dsls.*
-import com.kgl.vulkan.enums.DebugReportEXT
-import com.kgl.vulkan.enums.DebugReportObjectTypeEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageSeverityEXT
-import com.kgl.vulkan.enums.DebugUtilsMessageTypeEXT
-import com.kgl.vulkan.structs.ExtensionProperties
-import com.kgl.vulkan.structs.LayerProperties
-import com.kgl.vulkan.structs.PhysicalDeviceGroupProperties
-import com.kgl.vulkan.structs.from
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.structs.*
 import com.kgl.vulkan.utils.*
 import cvulkan.*
 import kotlinx.cinterop.*
 
-actual class Instance(override val ptr: VkInstance, private val debugUtilsMessengerCallback: StableRef<*>?, private val debugReportCallback: StableRef<*>?) : VkHandleNative<VkInstance>(), VkHandle {
+actual class Instance(
+	override val ptr: VkInstance,
+	private val debugUtilsMessengerCallback: StableRef<*>?,
+	private val debugReportCallback: StableRef<*>?
+) : VkHandleNative<VkInstance>(), VkHandle {
 	internal val dispatchTable = InstanceDispatchTable {
 		VirtualStack.push()
 		try {
@@ -38,7 +36,7 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 			VirtualStack.pop()
 		}
 	}
-	
+
 	actual val physicalDevices: List<PhysicalDevice>
 		get() {
 			val instance = this
@@ -53,9 +51,11 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 					else -> handleVkResult(result)
 				}
 				val outputPtr =
-						VirtualStack.allocArray<VkPhysicalDeviceVar>(outputCountVar.value.toInt())
-				val result1 = dispatchTable.vkEnumeratePhysicalDevices(instance.toVkType(), outputCountPtr,
-						outputPtr)
+					VirtualStack.allocArray<VkPhysicalDeviceVar>(outputCountVar.value.toInt())
+				val result1 = dispatchTable.vkEnumeratePhysicalDevices(
+					instance.toVkType(), outputCountPtr,
+					outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -74,17 +74,21 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(instance.toVkType(), outputCountPtr,
-						null)
+				val result = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(
+					instance.toVkType(), outputCountPtr,
+					null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr =
-						VirtualStack.allocArray<VkPhysicalDeviceGroupProperties>(outputCountVar.value.toInt())
-				val result1 = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(instance.toVkType(), outputCountPtr,
-						outputPtr)
+					VirtualStack.allocArray<VkPhysicalDeviceGroupProperties>(outputCountVar.value.toInt())
+				val result1 = dispatchTable.vkEnumeratePhysicalDeviceGroups!!(
+					instance.toVkType(), outputCountPtr,
+					outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -120,7 +124,10 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 		}
 	}
 
-	actual fun createDisplayPlaneSurfaceKHR(displayMode: DisplayModeKHR, block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit): SurfaceKHR {
+	actual fun createDisplayPlaneSurfaceKHR(
+		displayMode: DisplayModeKHR,
+		block: DisplaySurfaceCreateInfoKHRBuilder.() -> Unit
+	): SurfaceKHR {
 		val instance = this
 		VirtualStack.push()
 		try {
@@ -183,29 +190,31 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 	}
 
 	actual fun debugReportMessageEXT(
-			flags: VkFlag<DebugReportEXT>,
-			objectType: DebugReportObjectTypeEXT,
-			`object`: ULong,
-			location: ULong,
-			messageCode: Int,
-			layerPrefix: String,
-			message: String
+		flags: VkFlag<DebugReportEXT>,
+		objectType: DebugReportObjectTypeEXT,
+		`object`: ULong,
+		location: ULong,
+		messageCode: Int,
+		layerPrefix: String,
+		message: String
 	) {
 		val instance = this
 		VirtualStack.push()
 		try {
-			dispatchTable.vkDebugReportMessageEXT!!(instance.toVkType(), flags.toVkType(), objectType.toVkType(),
-					`object`.toVkType(), location.toVkType(), messageCode.toVkType(),
-					layerPrefix.toVkType(), message.toVkType())
+			dispatchTable.vkDebugReportMessageEXT!!(
+				instance.toVkType(), flags.toVkType(), objectType.toVkType(),
+				`object`.toVkType(), location.toVkType(), messageCode.toVkType(),
+				layerPrefix.toVkType(), message.toVkType()
+			)
 		} finally {
 			VirtualStack.pop()
 		}
 	}
 
 	actual fun submitDebugUtilsMessageEXT(
-			messageSeverity: DebugUtilsMessageSeverityEXT,
-			messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
-			block: DebugUtilsMessengerCallbackDataEXTBuilder.() -> Unit
+		messageSeverity: DebugUtilsMessageSeverityEXT,
+		messageTypes: VkFlag<DebugUtilsMessageTypeEXT>,
+		block: DebugUtilsMessengerCallbackDataEXTBuilder.() -> Unit
 	) {
 		val instance = this
 		VirtualStack.push()
@@ -214,8 +223,10 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 			val builder = DebugUtilsMessengerCallbackDataEXTBuilder(target.pointed)
 			builder.init()
 			builder.apply(block)
-			dispatchTable.vkSubmitDebugUtilsMessageEXT!!(instance.toVkType(), messageSeverity.toVkType(),
-					messageTypes.toVkType(), target)
+			dispatchTable.vkSubmitDebugUtilsMessageEXT!!(
+				instance.toVkType(), messageSeverity.toVkType(),
+				messageTypes.toVkType(), target
+			)
 		} finally {
 			VirtualStack.pop()
 		}
@@ -258,7 +269,7 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 						else -> handleVkResult(result)
 					}
 					val outputPtr =
-							VirtualStack.allocArray<VkLayerProperties>(outputCountVar.value.toInt())
+						VirtualStack.allocArray<VkLayerProperties>(outputCountVar.value.toInt())
 					val result1 = globalDispatchTable.vkEnumerateInstanceLayerProperties(outputCountPtr, outputPtr)
 					when (result1) {
 						VK_SUCCESS -> Unit
@@ -276,15 +287,23 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 			try {
 				val outputCountVar = VirtualStack.alloc<UIntVar>()
 				val outputCountPtr = outputCountVar.ptr
-				val result = globalDispatchTable.vkEnumerateInstanceExtensionProperties(layerName?.toVkType(), outputCountPtr, null)
+				val result = globalDispatchTable.vkEnumerateInstanceExtensionProperties(
+					layerName?.toVkType(),
+					outputCountPtr,
+					null
+				)
 				when (result) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
 					else -> handleVkResult(result)
 				}
 				val outputPtr =
-						VirtualStack.allocArray<VkExtensionProperties>(outputCountVar.value.toInt())
-				val result1 = globalDispatchTable.vkEnumerateInstanceExtensionProperties(layerName?.toVkType(), outputCountPtr, outputPtr)
+					VirtualStack.allocArray<VkExtensionProperties>(outputCountVar.value.toInt())
+				val result1 = globalDispatchTable.vkEnumerateInstanceExtensionProperties(
+					layerName?.toVkType(),
+					outputCountPtr,
+					outputPtr
+				)
 				when (result1) {
 					VK_SUCCESS -> Unit
 					VK_INCOMPLETE -> Unit
@@ -297,9 +316,9 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 		}
 
 		actual fun create(
-				enabledLayerNames: Collection<String>?,
-				enabledExtensionNames: Collection<String>?,
-				block: InstanceCreateInfoBuilder.() -> Unit
+			enabledLayerNames: Collection<String>?,
+			enabledExtensionNames: Collection<String>?,
+			block: InstanceCreateInfoBuilder.() -> Unit
 		): Instance {
 			VirtualStack.push()
 			try {
@@ -317,9 +336,11 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 				while (node != null) {
 					val struct = node.pointed
 					if (struct.sType == VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT) {
-						debugUtilsMessengerCallback = struct.reinterpret<VkDebugUtilsMessengerCreateInfoEXT>().pUserData?.asStableRef<Any>()
+						debugUtilsMessengerCallback =
+							struct.reinterpret<VkDebugUtilsMessengerCreateInfoEXT>().pUserData?.asStableRef<Any>()
 					} else if (struct.sType == VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT) {
-						debugReportCallback = struct.reinterpret<VkDebugReportCallbackCreateInfoEXT>().pUserData?.asStableRef<Any>()
+						debugReportCallback =
+							struct.reinterpret<VkDebugReportCallbackCreateInfoEXT>().pUserData?.asStableRef<Any>()
 					}
 					node = struct.pNext
 				}
@@ -336,4 +357,3 @@ actual class Instance(override val ptr: VkInstance, private val debugUtilsMessen
 		}
 	}
 }
-

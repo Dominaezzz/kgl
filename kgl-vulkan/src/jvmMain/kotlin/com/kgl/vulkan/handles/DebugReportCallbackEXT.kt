@@ -15,14 +15,16 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleJVM
-import com.kgl.vulkan.utils.toVkType
-import org.lwjgl.system.MemoryStack
-import org.lwjgl.vulkan.EXTDebugReport.vkDestroyDebugReportCallbackEXT
-import org.lwjgl.vulkan.VkDebugReportCallbackEXT
+import com.kgl.vulkan.utils.*
+import org.lwjgl.system.*
+import org.lwjgl.vulkan.*
+import org.lwjgl.vulkan.EXTDebugReport.*
 
-actual class DebugReportCallbackEXT(override val ptr: Long, actual val instance: Instance, private val callback: VkDebugReportCallbackEXT) : VkHandleJVM<Long>(), VkHandle {
+actual class DebugReportCallbackEXT(
+	override val ptr: Long,
+	actual val instance: Instance,
+	private val callback: VkDebugReportCallbackEXT
+) : VkHandleJVM<Long>(), VkHandle {
 	override fun close() {
 		MemoryStack.stackPush()
 		try {

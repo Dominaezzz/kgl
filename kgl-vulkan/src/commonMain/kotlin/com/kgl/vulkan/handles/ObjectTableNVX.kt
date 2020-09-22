@@ -15,9 +15,9 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.vulkan.dsls.ObjectTableEntryNVXsBuilder
-import com.kgl.vulkan.enums.ObjectEntryTypeNVX
-import com.kgl.vulkan.utils.VkHandle
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.enums.*
+import com.kgl.vulkan.utils.*
 
 expect class ObjectTableNVX : VkHandle {
 	val device: Device
@@ -26,4 +26,3 @@ expect class ObjectTableNVX : VkHandle {
 
 	fun unregisterObjects(objectEntryTypes: Collection<ObjectEntryTypeNVX>, objectIndices: UIntArray)
 }
-

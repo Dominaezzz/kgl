@@ -388,7 +388,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setCloseCallback(callback: WindowCloseCallback?): WindowCloseCallback? {
-		return setCallback(callback, { windowCloseCallback }, { windowCloseCallback = it }, ::glfwSetWindowCloseCallback) {
+		return setCallback(
+			callback,
+			{ windowCloseCallback },
+			{ windowCloseCallback = it },
+			::glfwSetWindowCloseCallback
+		) {
 			staticCFunction { window ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowCloseCallback?.invoke(context)
@@ -397,7 +402,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setRefreshCallback(callback: WindowRefreshCallback?): WindowRefreshCallback? {
-		return setCallback(callback, { windowRefreshCallback }, { windowRefreshCallback = it }, ::glfwSetWindowRefreshCallback) {
+		return setCallback(
+			callback,
+			{ windowRefreshCallback },
+			{ windowRefreshCallback = it },
+			::glfwSetWindowRefreshCallback
+		) {
 			staticCFunction { window ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowRefreshCallback?.invoke(context)
@@ -406,7 +416,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setFocusCallback(callback: WindowFocusCallback?): WindowFocusCallback? {
-		return setCallback(callback, { windowFocusCallback }, { windowFocusCallback = it }, ::glfwSetWindowFocusCallback) {
+		return setCallback(
+			callback,
+			{ windowFocusCallback },
+			{ windowFocusCallback = it },
+			::glfwSetWindowFocusCallback
+		) {
 			staticCFunction { window, focused ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowFocusCallback?.invoke(context, focused == GLFW_TRUE)
@@ -415,7 +430,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setIconifyCallback(callback: WindowIconifyCallback?): WindowIconifyCallback? {
-		return setCallback(callback, { windowIconifyCallback }, { windowIconifyCallback = it }, ::glfwSetWindowIconifyCallback) {
+		return setCallback(
+			callback,
+			{ windowIconifyCallback },
+			{ windowIconifyCallback = it },
+			::glfwSetWindowIconifyCallback
+		) {
 			staticCFunction { window, iconified ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowIconifyCallback?.invoke(context, iconified == GLFW_TRUE)
@@ -424,7 +444,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setMaximizeCallback(callback: WindowMaximizeCallback?): WindowMaximizeCallback? {
-		return setCallback(callback, { windowMaximizeCallback }, { windowMaximizeCallback = it }, ::glfwSetWindowMaximizeCallback) {
+		return setCallback(
+			callback,
+			{ windowMaximizeCallback },
+			{ windowMaximizeCallback = it },
+			::glfwSetWindowMaximizeCallback
+		) {
 			staticCFunction { window, maximized ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowMaximizeCallback?.invoke(context, maximized == GLFW_TRUE)
@@ -433,7 +458,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setContentScaleCallback(callback: WindowContentScaleCallback?): WindowContentScaleCallback? {
-		return setCallback(callback, { windowContentScaleCallback }, { windowContentScaleCallback = it }, ::glfwSetWindowContentScaleCallback) {
+		return setCallback(
+			callback,
+			{ windowContentScaleCallback },
+			{ windowContentScaleCallback = it },
+			::glfwSetWindowContentScaleCallback
+		) {
 			staticCFunction { window, x, y ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.windowContentScaleCallback?.invoke(context, x, y)
@@ -442,7 +472,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setCursorEnterCallback(callback: CursorEnterCallback?): CursorEnterCallback? {
-		return setCallback(callback, { cursorEnterCallback }, { cursorEnterCallback = it }, ::glfwSetCursorEnterCallback) {
+		return setCallback(
+			callback,
+			{ cursorEnterCallback },
+			{ cursorEnterCallback = it },
+			::glfwSetCursorEnterCallback
+		) {
 			staticCFunction { window, entered ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.cursorEnterCallback?.invoke(context, entered == GLFW_TRUE)
@@ -469,7 +504,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setFrameBufferCallback(callback: FrameBufferCallback?): FrameBufferCallback? {
-		return setCallback(callback, { frameBufferCallback }, { frameBufferCallback = it }, ::glfwSetFramebufferSizeCallback) {
+		return setCallback(
+			callback,
+			{ frameBufferCallback },
+			{ frameBufferCallback = it },
+			::glfwSetFramebufferSizeCallback
+		) {
 			staticCFunction { window, width, height ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.frameBufferCallback?.invoke(context, width, height)
@@ -499,7 +539,12 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 	}
 
 	actual fun setMouseButtonCallback(callback: MouseButtonCallback?): MouseButtonCallback? {
-		return setCallback(callback, { mouseButtonCallback }, { mouseButtonCallback = it }, ::glfwSetMouseButtonCallback) {
+		return setCallback(
+			callback,
+			{ mouseButtonCallback },
+			{ mouseButtonCallback = it },
+			::glfwSetMouseButtonCallback
+		) {
 			staticCFunction { window, button, action, mods ->
 				val context = glfwGetWindowUserPointer(window)!!.asStableRef<Window>().get()
 				context.mouseButtonCallback?.invoke(

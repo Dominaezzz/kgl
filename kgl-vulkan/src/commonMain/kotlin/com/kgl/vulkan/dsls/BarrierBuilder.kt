@@ -15,9 +15,8 @@
  */
 package com.kgl.vulkan.dsls
 
-import com.kgl.vulkan.handles.Buffer
-import com.kgl.vulkan.handles.Image
-import com.kgl.vulkan.utils.StructMarker
+import com.kgl.vulkan.handles.*
+import com.kgl.vulkan.utils.*
 
 @StructMarker
 class BarrierBuilder {
@@ -33,10 +32,10 @@ class BarrierBuilder {
 	}
 
 	fun bufferMemoryBarrier(
-			buffer: Buffer,
-			offset: ULong,
-			size: ULong,
-			block: BufferMemoryBarrierBuilder.() -> Unit = {}
+		buffer: Buffer,
+		offset: ULong,
+		size: ULong,
+		block: BufferMemoryBarrierBuilder.() -> Unit = {}
 	) {
 		targets1 += {
 			it.init(buffer, offset, size)

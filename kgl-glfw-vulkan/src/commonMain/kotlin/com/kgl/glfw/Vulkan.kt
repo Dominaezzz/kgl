@@ -15,9 +15,7 @@
  */
 package com.kgl.glfw
 
-import com.kgl.vulkan.handles.Instance
-import com.kgl.vulkan.handles.PhysicalDevice
-import com.kgl.vulkan.handles.SurfaceKHR
+import com.kgl.vulkan.handles.*
 
 expect val Glfw.isVulkanSupported: Boolean
 expect val Glfw.requiredInstanceExtensions: Array<String>?

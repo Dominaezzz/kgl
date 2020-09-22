@@ -15,25 +15,17 @@
  */
 package com.kgl.vulkan.handles
 
-import com.kgl.core.VirtualStack
-import com.kgl.vulkan.dsls.DisplayPlaneInfo2KHRBuilder
-import com.kgl.vulkan.structs.DisplayPlaneCapabilities2KHR
-import com.kgl.vulkan.structs.DisplayPlaneCapabilitiesKHR
-import com.kgl.vulkan.structs.from
-import com.kgl.vulkan.utils.VkHandle
-import com.kgl.vulkan.utils.VkHandleNative
-import com.kgl.vulkan.utils.handleVkResult
-import com.kgl.vulkan.utils.toVkType
+import com.kgl.core.*
+import com.kgl.vulkan.dsls.*
+import com.kgl.vulkan.structs.*
+import com.kgl.vulkan.utils.*
 import cvulkan.*
-import kotlinx.cinterop.alloc
-import kotlinx.cinterop.invoke
-import kotlinx.cinterop.pointed
-import kotlinx.cinterop.ptr
+import kotlinx.cinterop.*
 
 actual class DisplayModeKHR(
-		override val ptr: VkDisplayModeKHR,
-		actual val physicalDevice: PhysicalDevice,
-		actual val display: DisplayKHR
+	override val ptr: VkDisplayModeKHR,
+	actual val physicalDevice: PhysicalDevice,
+	actual val display: DisplayKHR
 ) : VkHandleNative<VkDisplayModeKHR>(), VkHandle {
 	internal val dispatchTable = physicalDevice.dispatchTable
 
@@ -48,8 +40,10 @@ actual class DisplayModeKHR(
 		try {
 			val outputVar = VirtualStack.alloc<VkDisplayPlaneCapabilitiesKHR>()
 			val outputPtr = outputVar.ptr
-			val result = dispatchTable.vkGetDisplayPlaneCapabilitiesKHR!!(physicalDevice.toVkType(),
-					mode.toVkType(), planeIndex.toVkType(), outputPtr)
+			val result = dispatchTable.vkGetDisplayPlaneCapabilitiesKHR!!(
+				physicalDevice.toVkType(),
+				mode.toVkType(), planeIndex.toVkType(), outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilitiesKHR.from(outputVar)
 		} finally {
@@ -68,8 +62,10 @@ actual class DisplayModeKHR(
 			builder.apply(block)
 			val outputVar = VirtualStack.alloc<VkDisplayPlaneCapabilities2KHR>()
 			val outputPtr = outputVar.ptr
-			val result = dispatchTable.vkGetDisplayPlaneCapabilities2KHR!!(physicalDevice.toVkType(), target,
-					outputPtr)
+			val result = dispatchTable.vkGetDisplayPlaneCapabilities2KHR!!(
+				physicalDevice.toVkType(), target,
+				outputPtr
+			)
 			if (result != VK_SUCCESS) handleVkResult(result)
 			return DisplayPlaneCapabilities2KHR.from(outputVar)
 		} finally {
@@ -77,4 +73,3 @@ actual class DisplayModeKHR(
 		}
 	}
 }
-
