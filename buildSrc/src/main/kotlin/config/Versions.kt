@@ -17,11 +17,11 @@ package config
 
 object Versions {
 	const val KTOR_IO = "1.4.0"
-	const val LWJGL = "3.2.2"
+	const val LWJGL = "3.2.2" //TODO 3.2.3 causes kgl-vulkan compile to fail
 	val LWJGL_NATIVES = when {
-		Config.OS.isWindows -> "natives-windows"
 		Config.OS.isLinux -> "natives-linux"
 		Config.OS.isMacOsX -> "natives-macos"
-		else -> throw Exception("Host platform not supported")
+		Config.OS.isWindows -> "natives-windows"
+		else -> error("Host platform not supported")
 	}
 }
