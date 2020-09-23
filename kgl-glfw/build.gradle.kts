@@ -72,18 +72,18 @@ kotlin {
 			cinterops.create("cglfw") {
 				tasks.named(interopProcessingTaskName) {
 					dependsOn(vulkanUnzipDocs)
-					if (konanTarget == KonanTarget.MACOS_X64 || !Config.isIdeaActive) {
+					if (konanTarget == KonanTarget.MACOS_X64) {
 						dependsOn(unzipMacOSBinaries)
 					}
-					if (konanTarget == KonanTarget.MINGW_X64 || !Config.isIdeaActive) {
+					if (konanTarget == KonanTarget.MINGW_X64) {
 						dependsOn(unzipWin64Binaries)
 					}
 				}
 				includeDirs(vulkanHeaderDir)
-				if (konanTarget == KonanTarget.MACOS_X64 || !Config.isIdeaActive) {
+				if (konanTarget == KonanTarget.MACOS_X64) {
 					includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
 				}
-				if (konanTarget == KonanTarget.MINGW_X64 || !Config.isIdeaActive) {
+				if (konanTarget == KonanTarget.MINGW_X64) {
 					includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
 				}
 			}
