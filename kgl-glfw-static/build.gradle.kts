@@ -1,3 +1,5 @@
+import config.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.konan.target.*
 
 plugins {
@@ -16,12 +18,14 @@ kotlin {
 		KonanTarget.MINGW_X64 to unzipWin64Binaries.destinationDir.resolve("lib-mingw-w64/libglfw3.a")
 	)
 
-	configure(listOf(linuxX64("linux"), macosX64("macos"), mingwX64("mingw"))) {
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+
+	targets.withType<KotlinNativeTarget> {
 		compilations.named("main") {
-			when (konanTarget) {
-				KonanTarget.MACOS_X64 -> compileKotlinTask.dependsOn(unzipMacOSBinaries)
-				KonanTarget.MINGW_X64 -> compileKotlinTask.dependsOn(unzipWin64Binaries)
-			}
+			if (konanTarget == KonanTarget.MACOS_X64) compileKotlinTask.dependsOn(unzipMacOSBinaries)
+			if (konanTarget == KonanTarget.MINGW_X64) compileKotlinTask.dependsOn(unzipWin64Binaries)
 
 			kotlinOptions {
 				freeCompilerArgs = listOf("-include-binary", staticLibs.getValue(konanTarget).absolutePath)
