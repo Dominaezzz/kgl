@@ -1,8 +1,7 @@
-import codegen.vulkan.GenerateVulkan
-import config.Config
-import config.Versions
-import de.undercouch.gradle.tasks.download.Download
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import codegen.vulkan.*
+import config.*
+import de.undercouch.gradle.tasks.download.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
 	kotlin("multiplatform")
@@ -45,7 +44,7 @@ val makeHtmlDocs by tasks.registering(Exec::class) {
 		args("-c", "PYTHON=python ./makeAllExts manhtml")
 	} else {
 		executable = docsDir.resolve("makeAllExts").absolutePath
-		args( "manhtml")
+		args("manhtml")
 	}
 }
 
@@ -57,81 +56,74 @@ val generateVulkan by tasks.registering(GenerateVulkan::class) {
 }
 
 kotlin {
+	jvm {
+		compilations {
+			all {
+				kotlinOptions.jvmTarget = "1.8"
+			}
+			named("main") {
+				compileKotlinTask.dependsOn(generateVulkan)
+			}
+		}
+	}
+
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+
+	targets.withType<KotlinNativeTarget> {
+		compilations.named("main") {
+			cinterops.create("cvulkan") {
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(unzipDocs)
+				}
+				includeDirs(unzipDocs.map { it.destinationDir.resolve("include") })
+			}
+			compileKotlinTask.dependsOn(generateVulkan)
+		}
+	}
+
 	sourceSets {
 		commonMain {
 			kotlin.srcDir(generateVulkan.map { it.commonDir })
-
 			dependencies {
 				implementation(kotlin("stdlib-common"))
 				api(project(":kgl-core"))
 			}
 		}
+
 		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
-	}
 
-	jvm {
-		compilations {
-			"main" {
-				compileKotlinTask.dependsOn(generateVulkan)
-
-				defaultSourceSet {
-					kotlin.srcDir(generateVulkan.map { it.jvmDir })
-				}
-
-				dependencies {
-					implementation(kotlin("stdlib-jdk8"))
-					api("org.lwjgl:lwjgl-vulkan:${Versions.LWJGL}")
-				}
+		named("jvmMain") {
+			kotlin.srcDir(generateVulkan.map { it.jvmDir })
+			dependencies {
+				api("org.lwjgl:lwjgl-vulkan:${Versions.LWJGL}")
 			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-					implementation(kotlin("test-junit"))
-					if (Versions.LWJGL_NATIVES == "natives-macos") {
-						implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-					}
+		}
+
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
+				if (Versions.LWJGL_NATIVES == "natives-macos") {
+					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
 				}
 			}
 		}
-	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
-
-	targets.withType<KotlinNativeTarget> {
-		compilations {
-			"main" {
-				compileKotlinTask.dependsOn(generateVulkan)
-
-				cinterops {
-					create("cvulkan") {
-						tasks.named(interopProcessingTaskName) {
-							dependsOn(unzipDocs)
-						}
-						includeDirs(unzipDocs.map { it.destinationDir.resolve("include") })
-					}
-				}
-
-				defaultSourceSet {
-					kotlin.srcDir(generateVulkan.map { it.nativeDir })
-					kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
-
-					kotlin.srcDir("src/nativeMain/kotlin")
-					resources.srcDir("src/nativeMain/resources")
-				}
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir(generateVulkan.map { it.nativeDir })
+				kotlin.srcDir("src/nativeMain/kotlin")
+				resources.srcDir("src/nativeMain/resources")
 			}
-
-			"test" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeTest/kotlin")
-					resources.srcDir("src/nativeTest/resources")
-				}
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
 			}
 		}
 	}
