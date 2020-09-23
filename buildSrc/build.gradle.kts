@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-	implementation(group = "com.squareup", name = "kotlinpoet", version = "1.5.0")
-	implementation(group = "com.beust", name = "klaxon", version = "5.0.5")
-	implementation(group = "org.jsoup", name = "jsoup", version = "1.11.3")
+	implementation("com.squareup:kotlinpoet:1.6.0")
+	implementation("com.beust:klaxon:5.2")
+	implementation("org.jsoup:jsoup:1.13.1")
 }
