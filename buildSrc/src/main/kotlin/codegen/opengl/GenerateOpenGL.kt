@@ -19,27 +19,21 @@ import codegen.*
 import com.squareup.kotlinpoet.*
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import org.gradle.api.*
+import org.gradle.api.file.*
+import org.gradle.api.provider.*
 import org.gradle.api.tasks.*
 import javax.xml.parsers.*
 
+@Suppress("UnstableApiUsage")
 open class GenerateOpenGL : DefaultTask() {
 	@InputFile
-	val registryFile = project.objects.fileProperty()
+	val registryFile: RegularFileProperty = project.objects.fileProperty()
 
 	@OutputDirectory
-	val outputDir = project.objects.directoryProperty()
+	val outputDir: DirectoryProperty = project.objects.directoryProperty()
 
 	@get:OutputDirectory
-	val commonNativeDir = outputDir.file("native")
-
-	@get:OutputDirectory
-	val mingwDir = outputDir.file("mingw")
-
-	@get:OutputDirectory
-	val linuxDir = outputDir.file("linux")
-
-	@get:OutputDirectory
-	val macosDir = outputDir.file("macos")
+	val nativeDir: Provider<RegularFile> = outputDir.file("native")
 
 	@TaskAction
 	fun generate() {
@@ -114,9 +108,7 @@ open class GenerateOpenGL : DefaultTask() {
 			enumFile.addType(enumBuilder.build())
 
 			with(enumFile.build()) {
-				writeTo(mingwDir.get().asFile)
-				writeTo(linuxDir.get().asFile)
-				writeTo(macosDir.get().asFile)
+				writeTo(nativeDir.get().asFile)
 			}
 		}
 
@@ -409,9 +401,7 @@ open class GenerateOpenGL : DefaultTask() {
 		}
 
 		with(glFile.build()) {
-			writeTo(mingwDir.get().asFile)
-			writeTo(linuxDir.get().asFile)
-			writeTo(macosDir.get().asFile)
+			writeTo(nativeDir.get().asFile)
 		}
 	}
 

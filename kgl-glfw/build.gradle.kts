@@ -1,7 +1,7 @@
-import config.Config
-import config.Versions
-import de.undercouch.gradle.tasks.download.Download
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import config.*
+import de.undercouch.gradle.tasks.download.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.konan.target.*
 
 plugins {
 	kotlin("multiplatform")
@@ -53,37 +53,9 @@ val unzipMacOSBinaries by tasks.registering(Copy::class) {
 }
 
 kotlin {
-	sourceSets {
-		commonMain {
-			dependencies {
-				implementation(kotlin("stdlib-common"))
-				api(project(":kgl-core"))
-			}
-		}
-		commonTest {
-			dependencies {
-				implementation(kotlin("test-common"))
-				implementation(kotlin("test-annotations-common"))
-			}
-		}
-	}
-
 	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-jdk8"))
-					api("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}")
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-					implementation(kotlin("test-junit"))
-					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-					implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				}
-			}
+		compilations.all {
+			kotlinOptions.jvmTarget = "1.8"
 		}
 	}
 
@@ -91,56 +63,74 @@ kotlin {
 	val vulkanUnzipDocs = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs")
 	val vulkanHeaderDir = vulkanUnzipDocs.map { it.destinationDir.resolve("include") }
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
 
 	targets.withType<KotlinNativeTarget> {
-		compilations {
-			"main" {
-				cinterops {
-					create("cglfw") {
-						tasks.named(interopProcessingTaskName) {
-							dependsOn(vulkanUnzipDocs)
-						}
-						includeDirs(vulkanHeaderDir)
+		compilations.named("main") {
+			cinterops.create("cglfw") {
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(vulkanUnzipDocs)
+					if (konanTarget == KonanTarget.MACOS_X64 || !Config.isIdeaActive) {
+						dependsOn(unzipMacOSBinaries)
+					}
+					if (konanTarget == KonanTarget.MINGW_X64 || !Config.isIdeaActive) {
+						dependsOn(unzipWin64Binaries)
 					}
 				}
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeMain/kotlin")
-					resources.srcDir("src/nativeMain/resources")
+				includeDirs(vulkanHeaderDir)
+				if (konanTarget == KonanTarget.MACOS_X64 || !Config.isIdeaActive) {
+					includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
+				}
+				if (konanTarget == KonanTarget.MINGW_X64 || !Config.isIdeaActive) {
+					includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
 				}
 			}
+		}
+	}
 
-			"test" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeTest/kotlin")
-					resources.srcDir("src/nativeTest/resources")
-				}
+	sourceSets {
+		commonMain {
+			dependencies {
+				implementation(kotlin("stdlib-common"))
+				api(project(":kgl-core"))
+			}
+		}
+
+		commonTest {
+			dependencies {
+				implementation(kotlin("test-common"))
+				implementation(kotlin("test-annotations-common"))
+			}
+		}
+
+		named("jvmMain") {
+			dependencies {
+				api("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}")
+			}
+		}
+
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
+				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+			}
+		}
+
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir("src/nativeMain/kotlin")
+				resources.srcDir("src/nativeMain/resources")
+			}
+
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
 				dependencies {
 					implementation(project(":kgl-glfw-static"))
 				}
-			}
-		}
-	}
-
-	if (Config.OS.isWindows || !Config.isIdeaActive) {
-		mingwX64 {
-			compilations["main"].cinterops["cglfw"].apply {
-				tasks.named(interopProcessingTaskName) {
-					dependsOn(unzipWin64Binaries)
-				}
-				includeDirs(unzipWin64Binaries.map { it.destinationDir.resolve("include") })
-			}
-		}
-	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) {
-		macosX64 {
-			compilations["main"].cinterops["cglfw"].apply {
-				tasks.named(interopProcessingTaskName) {
-					dependsOn(unzipMacOSBinaries)
-				}
-				includeDirs(unzipMacOSBinaries.map { it.destinationDir.resolve("include") })
 			}
 		}
 	}

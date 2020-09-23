@@ -1,2 +1,5 @@
 package = cstb
-headers = stb_image.h
+excludedFunctions = stbi__err
+---
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb_image.h>

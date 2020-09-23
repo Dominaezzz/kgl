@@ -1,6 +1,5 @@
-import config.Config
-import config.Versions
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import config.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
 	kotlin("multiplatform")
@@ -8,6 +7,16 @@ plugins {
 }
 
 kotlin {
+	jvm {
+		compilations.all {
+			kotlinOptions.jvmTarget = "1.8"
+		}
+	}
+
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -16,50 +25,33 @@ kotlin {
 				api(project(":kgl-vulkan"))
 			}
 		}
+
 		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
-	}
 
-	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-jdk8"))
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-					implementation(kotlin("test-junit"))
-					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-					implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				}
+		named("jvmMain") {}
+
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
+				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
 			}
 		}
-	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
-
-	targets.withType<KotlinNativeTarget> {
-		compilations {
-			"main" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeMain/kotlin")
-					resources.srcDir("src/nativeMain/resources")
-				}
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir("src/nativeMain/kotlin")
+				resources.srcDir("src/nativeMain/resources")
 			}
 
-			"test" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeTest/kotlin")
-					resources.srcDir("src/nativeTest/resources")
-				}
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
 			}
 		}
 	}

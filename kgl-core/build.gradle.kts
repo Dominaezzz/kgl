@@ -1,6 +1,5 @@
-import config.Config
-import config.Versions
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import config.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
 	kotlin("multiplatform")
@@ -8,6 +7,26 @@ plugins {
 }
 
 kotlin {
+	jvm {
+		compilations.all {
+			kotlinOptions.jvmTarget = "1.8"
+		}
+	}
+
+	js()
+
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+//TODO
+//	if (!Config.isIdeaActive) {
+//		iosArm32()
+//		iosArm64()
+//		iosX64()
+//		androidNativeArm32()
+//		androidNativeArm64()
+//	}
+
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -15,70 +34,44 @@ kotlin {
 				api("io.ktor:ktor-io:${Versions.KTOR_IO}")
 			}
 		}
+
 		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
-	}
 
-	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-jdk8"))
-					api("org.lwjgl:lwjgl:${Versions.LWJGL}")
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-					implementation(kotlin("test-junit"))
-					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				}
+		named("jvmMain") {
+			dependencies {
+				api("org.lwjgl:lwjgl:${Versions.LWJGL}")
 			}
 		}
-	}
-	js {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-js"))
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test-js"))
-				}
+
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
+				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
 			}
 		}
-	}
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64()
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64()
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64()
-	if (!Config.isIdeaActive) {
-		// iosArm32()
-		// iosArm64()
-		// iosX64()
-		// androidNativeArm32()
-		// androidNativeArm64()
-	}
 
-	targets.withType<KotlinNativeTarget> {
-		compilations {
-			"main" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeMain/kotlin")
-					resources.srcDir("src/nativeMain/resources")
-				}
+		named("jsMain") {}
+
+		named("jsTest") {
+			dependencies {
+				implementation(kotlin("test-js"))
+			}
+		}
+
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir("src/nativeMain/kotlin")
+				resources.srcDir("src/nativeMain/resources")
 			}
 
-			"test" {
-				defaultSourceSet {
-					kotlin.srcDir("src/nativeTest/kotlin")
-					resources.srcDir("src/nativeTest/resources")
-				}
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
 			}
 		}
 	}

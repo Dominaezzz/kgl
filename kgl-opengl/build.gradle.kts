@@ -1,8 +1,7 @@
-import codegen.opengl.GenerateOpenGL
-import config.Config
-import config.Versions
-import de.undercouch.gradle.tasks.download.Download
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import codegen.opengl.*
+import config.*
+import de.undercouch.gradle.tasks.download.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
 
 plugins {
 	kotlin("multiplatform")
@@ -34,6 +33,30 @@ val generateOpenGL by tasks.registering(GenerateOpenGL::class) {
 }
 
 kotlin {
+	jvm {
+		compilations.all {
+			kotlinOptions.jvmTarget = "1.8"
+		}
+	}
+
+	js()
+
+	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
+	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
+	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+
+	targets.withType<KotlinNativeTarget> {
+		compilations.named("main") {
+			cinterops.create("copengl") {
+				tasks.named(interopProcessingTaskName) {
+					dependsOn(downloadHeaders)
+				}
+				includeDirs("src/nativeInterop/opengl", downloadedHeadersDir)
+			}
+			compileKotlinTask.dependsOn(generateOpenGL)
+		}
+	}
+
 	sourceSets {
 		commonMain {
 			dependencies {
@@ -41,86 +64,49 @@ kotlin {
 				api(project(":kgl-core"))
 			}
 		}
+
 		commonTest {
 			dependencies {
 				implementation(kotlin("test-common"))
 				implementation(kotlin("test-annotations-common"))
 			}
 		}
-	}
 
-	js {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-js"))
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test-js"))
-				}
+		named("jvmMain") {
+			dependencies {
+				api("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}")
+				api("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}")
 			}
 		}
-	}
 
-	jvm {
-		compilations {
-			"main" {
-				dependencies {
-					implementation(kotlin("stdlib-jdk8"))
-					api("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}")
-					api("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}")
-				}
-			}
-			"test" {
-				dependencies {
-					implementation(kotlin("test"))
-					implementation(kotlin("test-junit"))
-					implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-					implementation("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-					implementation("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				}
+		named("jvmTest") {
+			dependencies {
+				implementation(kotlin("test-junit"))
+				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
 			}
 		}
-	}
 
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64 {
-		compilations["main"].apply {
-			defaultSourceSet {
-				kotlin.srcDir(generateOpenGL.map { it.mingwDir })
-			}
-		}
-	}
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64 {
-		compilations["main"].apply {
-			defaultSourceSet {
-				kotlin.srcDir(generateOpenGL.map { it.linuxDir })
-			}
-		}
-	}
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64 {
-		compilations["main"].apply {
-			defaultSourceSet {
-				kotlin.srcDir(generateOpenGL.map { it.macosDir })
-			}
-		}
-	}
+		named("jsMain") {}
 
-	targets.withType<KotlinNativeTarget> {
-		compilations["main"].apply {
-			cinterops.create("copengl") {
-				tasks.named(interopProcessingTaskName) {
-					dependsOn(downloadHeaders)
-				}
-				includeDirs("src/nativeInterop/opengl", downloadedHeadersDir)
+		named("jsTest") {
+			dependencies {
+				implementation(kotlin("test-js"))
 			}
-			defaultSourceSet {
-				kotlin.srcDir("src/${name.takeWhile { it.isLowerCase() }}Main/kotlin")
+		}
+
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir(generateOpenGL.map { it.nativeDir })
 				kotlin.srcDir("src/nativeMain/kotlin")
 				resources.srcDir("src/nativeMain/resources")
 			}
-			compileKotlinTask.dependsOn(generateOpenGL)
+
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
+			}
 		}
 	}
 }
