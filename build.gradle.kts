@@ -1,5 +1,7 @@
 import config.*
 import org.jetbrains.kotlin.gradle.dsl.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.konan.target.*
 import java.io.*
 
 plugins {
@@ -32,6 +34,20 @@ subprojects {
 					useExperimentalAnnotation("kotlin.RequiresOptIn")
 					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
 					useExperimentalAnnotation("io.ktor.utils.io.core.ExperimentalIoApi")
+				}
+			}
+
+			// Hack until https://youtrack.jetbrains.com/issue/KT-30498
+			// Cross-Platform builds are generally disabled, but linux targets can apparently be built
+			// on both macOS and Windows, which breaks on both of those platforms, so we disable the
+			// cinterop, compile, and link tasks for any non-host native target
+			targets.withType<KotlinNativeTarget> {
+				if (konanTarget != HostManager.host) {
+					compilations.all {
+						cinterops.all { tasks[interopProcessingTaskName].enabled = false }
+						compileKotlinTask.enabled = false
+					}
+					binaries.all { linkTask.enabled = false }
 				}
 			}
 		}
