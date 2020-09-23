@@ -21,7 +21,7 @@ jobs:
           make
           sudo make install
           cd ..
-        if: matrix.os == 'ubuntu-16.04'
+        if: matrix.os == 'ubuntu-latest'
 
       - uses: actions/setup-ruby@v1
         with:
