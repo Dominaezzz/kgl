@@ -1,4 +1,3 @@
-import config.*
 import org.jetbrains.kotlin.gradle.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.konan.target.*
@@ -17,6 +16,18 @@ exec {
 
 group = "com.kgl"
 version = stdout.toString().trim()
+
+val useSingleTarget: Boolean by extra { System.getProperty("idea.active") == "true" }
+val ktorIOVersion: String by extra("1.4.0")
+val lwjglVersion: String by extra("3.2.2") //TODO 3.2.3 causes kgl-vulkan compile to fail
+val lwjglNatives: String by extra {
+	when {
+		HostManager.hostIsLinux -> "natives-linux"
+		HostManager.hostIsMac -> "natives-macos"
+		HostManager.hostIsMingw -> "natives-windows"
+		else -> error("Host platform not supported")
+	}
+}
 
 subprojects {
 	group = rootProject.group
@@ -97,18 +108,18 @@ subprojects {
 		}
 
 		val taskPrefixes = when {
-			Config.OS.isLinux -> listOf(
+			HostManager.hostIsLinux -> listOf(
 				"publishLinux",
 				"publishJs",
 				"publishJvm",
 				"publishMetadata",
 				"publishKotlinMultiplatform"
 			)
-			Config.OS.isMacOsX -> listOf(
+			HostManager.hostIsMac -> listOf(
 				"publishMacos",
 				"publishIos"
 			)
-			Config.OS.isWindows -> listOf(
+			HostManager.hostIsMingw -> listOf(
 				"publishMingw"
 			)
 			else -> error("unknown host")
