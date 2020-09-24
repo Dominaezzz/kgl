@@ -114,7 +114,7 @@ kotlin {
 			dependencies {
 				implementation(kotlin("test-junit"))
 				if (HostManager.hostIsMac) {
-					implementation("org.lwjgl:lwjgl:$lwjglVersion:$$lwjglNatives")
+					implementation("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
 				}
 			}
 		}
