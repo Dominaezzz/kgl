@@ -26,7 +26,7 @@ subprojects {
 		jcenter()
 	}
 
-	afterEvaluate {
+	plugins.withType<KotlinMultiplatformPlugin> {
 		configure<KotlinMultiplatformExtension> {
 			sourceSets.all {
 				languageSettings.apply {
@@ -51,7 +51,9 @@ subprojects {
 				}
 			}
 		}
+	}
 
+	plugins.withType<MavenPublishPlugin> {
 		configure<PublishingExtension> {
 			val vcs: String by project
 			val bintrayOrg: String by project
