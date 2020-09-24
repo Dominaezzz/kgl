@@ -26,7 +26,7 @@ subprojects {
 		jcenter()
 	}
 
-	plugins.withType<KotlinMultiplatformPlugin> {
+	plugins.withId("org.jetbrains.kotlin.multiplatform") {
 		configure<KotlinMultiplatformExtension> {
 			sourceSets.all {
 				languageSettings.apply {
@@ -53,7 +53,7 @@ subprojects {
 		}
 	}
 
-	plugins.withType<MavenPublishPlugin> {
+	plugins.withId("maven-publish") {
 		configure<PublishingExtension> {
 			val vcs: String by project
 			val bintrayOrg: String by project
