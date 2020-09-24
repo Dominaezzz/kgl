@@ -1,7 +1,7 @@
 import codegen.opengl.*
-import config.*
 import de.undercouch.gradle.tasks.download.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.konan.target.*
 
 plugins {
 	kotlin("multiplatform")
@@ -32,6 +32,10 @@ val generateOpenGL by tasks.registering(GenerateOpenGL::class) {
 	outputDir.set(buildDir.resolve("generated-src"))
 }
 
+val useSingleTarget: Boolean by rootProject.extra
+val lwjglVersion: String by rootProject.extra
+val lwjglNatives: String by rootProject.extra
+
 kotlin {
 	jvm {
 		compilations.all {
@@ -41,9 +45,9 @@ kotlin {
 
 	js()
 
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+	if (!useSingleTarget || HostManager.hostIsLinux) linuxX64("linux")
+	if (!useSingleTarget || HostManager.hostIsMac) macosX64("macos")
+	if (!useSingleTarget || HostManager.hostIsMingw) mingwX64("mingw")
 
 	targets.withType<KotlinNativeTarget> {
 		compilations.named("main") {
@@ -74,17 +78,17 @@ kotlin {
 
 		named("jvmMain") {
 			dependencies {
-				api("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}")
-				api("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}")
+				api("org.lwjgl:lwjgl-opengl:$lwjglVersion")
+				api("org.lwjgl:lwjgl-opengles:$lwjglVersion")
 			}
 		}
 
 		named("jvmTest") {
 			dependencies {
 				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				implementation("org.lwjgl:lwjgl-opengl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				implementation("org.lwjgl:lwjgl-opengles:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
+				implementation("org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
+				implementation("org.lwjgl:lwjgl-opengles:$lwjglVersion:$lwjglNatives")
 			}
 		}
 

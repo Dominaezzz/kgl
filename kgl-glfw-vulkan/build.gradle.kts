@@ -1,10 +1,14 @@
-import config.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
 	kotlin("multiplatform")
 	`maven-publish`
 }
+
+val useSingleTarget: Boolean by rootProject.extra
+val lwjglVersion: String by rootProject.extra
+val lwjglNatives: String by rootProject.extra
 
 kotlin {
 	jvm {
@@ -13,9 +17,9 @@ kotlin {
 		}
 	}
 
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+	if (!useSingleTarget || HostManager.hostIsLinux) linuxX64("linux")
+	if (!useSingleTarget || HostManager.hostIsMac) macosX64("macos")
+	if (!useSingleTarget || HostManager.hostIsMingw) mingwX64("mingw")
 
 	sourceSets {
 		commonMain {
@@ -38,8 +42,8 @@ kotlin {
 		named("jvmTest") {
 			dependencies {
 				implementation(kotlin("test-junit"))
-				implementation("org.lwjgl:lwjgl:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
-				implementation("org.lwjgl:lwjgl-glfw:${Versions.LWJGL}:${Versions.LWJGL_NATIVES}")
+				implementation("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
+				implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
 			}
 		}
 

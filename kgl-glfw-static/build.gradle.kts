@@ -1,4 +1,3 @@
-import config.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.konan.target.*
 
@@ -11,6 +10,8 @@ evaluationDependsOn(":kgl-glfw")
 val unzipWin64Binaries by project(":kgl-glfw").tasks.getting(Copy::class)
 val unzipMacOSBinaries by project(":kgl-glfw").tasks.getting(Copy::class)
 
+val useSingleTarget: Boolean by rootProject.extra
+
 kotlin {
 	val staticLibs = mapOf(
 		KonanTarget.LINUX_X64 to file("/usr/local/lib/libglfw3.a"),
@@ -18,9 +19,9 @@ kotlin {
 		KonanTarget.MINGW_X64 to unzipWin64Binaries.destinationDir.resolve("lib-mingw-w64/libglfw3.a")
 	)
 
-	if (Config.OS.isLinux || !Config.isIdeaActive) linuxX64("linux")
-	if (Config.OS.isMacOsX || !Config.isIdeaActive) macosX64("macos")
-	if (Config.OS.isWindows || !Config.isIdeaActive) mingwX64("mingw")
+	if (!useSingleTarget || HostManager.hostIsLinux) linuxX64("linux")
+	if (!useSingleTarget || HostManager.hostIsMac) macosX64("macos")
+	if (!useSingleTarget || HostManager.hostIsMingw) mingwX64("mingw")
 
 	targets.withType<KotlinNativeTarget> {
 		compilations.named("main") {
