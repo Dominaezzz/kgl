@@ -7,7 +7,7 @@ plugins {
 }
 
 val useSingleTarget: Boolean by rootProject.extra
-val ktorIOVersion: String by rootProject.extra
+val ktorIoVersion: String by rootProject.extra
 val lwjglVersion: String by rootProject.extra
 val lwjglNatives: String by rootProject.extra
 
@@ -36,7 +36,7 @@ kotlin {
 		commonMain {
 			dependencies {
 				implementation(kotlin("stdlib-common"))
-				api("io.ktor:ktor-io:$ktorIOVersion")
+				api("io.ktor:ktor-io:$ktorIoVersion")
 			}
 		}
 

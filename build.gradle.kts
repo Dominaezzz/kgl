@@ -18,7 +18,7 @@ group = "com.kgl"
 version = stdout.toString().trim()
 
 val useSingleTarget: Boolean by extra { System.getProperty("idea.active") == "true" }
-val ktorIOVersion: String by extra("1.4.0")
+val ktorIoVersion: String by extra("1.4.0")
 val lwjglVersion: String by extra("3.2.2") //TODO 3.2.3 causes kgl-vulkan compile to fail
 val lwjglNatives: String by extra {
 	when {
