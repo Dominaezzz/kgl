@@ -249,8 +249,8 @@ actual class Window private constructor(val ptr: Long) : Closeable {
 			glfwSetInputMode(ptr, GLFW_RAW_MOUSE_MOTION, if (value) GLFW_TRUE else GLFW_FALSE)
 		}
 
-	actual fun setMonitor(monitor: Monitor, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int) {
-		glfwSetWindowMonitor(ptr, monitor.ptr, xpos, ypos, width, height, refreshRate)
+	actual fun setMonitor(monitor: Monitor?, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int) {
+		glfwSetWindowMonitor(ptr, monitor?.ptr ?: 0L, xpos, ypos, width, height, refreshRate)
 	}
 
 	actual fun setTitle(title: String) {

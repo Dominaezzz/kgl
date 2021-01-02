@@ -279,8 +279,8 @@ actual class Window private constructor(val ptr: CPointer<GLFWwindow>) : Closeab
 		}
 
 
-	actual fun setMonitor(monitor: Monitor, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int) {
-		glfwSetWindowMonitor(ptr, monitor.ptr, xpos, ypos, width, height, refreshRate)
+	actual fun setMonitor(monitor: Monitor?, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int) {
+		glfwSetWindowMonitor(ptr, monitor?.ptr, xpos, ypos, width, height, refreshRate)
 	}
 
 	actual fun setTitle(title: String) {

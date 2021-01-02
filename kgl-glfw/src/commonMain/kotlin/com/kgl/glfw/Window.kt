@@ -64,7 +64,7 @@ expect class Window(
 	var rawMouseButtonEnabled: Boolean
 
 	fun swapBuffers()
-	fun setMonitor(monitor: Monitor, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int)
+	fun setMonitor(monitor: Monitor?, xpos: Int, ypos: Int, width: Int, height: Int, refreshRate: Int)
 	fun setTitle(title: String)
 	fun setSizeLimits(minWidth: Int, minHeight: Int, maxWidth: Int, maxHeight: Int)
 	fun setAspectRatio(number: Int, denom: Int)
