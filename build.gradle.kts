@@ -34,7 +34,7 @@ subprojects {
 	version = rootProject.version
 
 	repositories {
-		jcenter()
+		mavenCentral()
 	}
 
 	plugins.withId("org.jetbrains.kotlin.multiplatform") {
