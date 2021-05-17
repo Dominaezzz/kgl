@@ -1,4 +1,3 @@
-[![Download](https://api.bintray.com/packages/dominaezzz/kotlin-native/kgl/images/download.svg)](https://bintray.com/dominaezzz/kotlin-native/kgl/_latestVersion)
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](https://www.apache.org/licenses/LICENSE-2.0)
 [![](https://github.com/Dominaezzz/kgl/workflows/Build/badge.svg)](https://github.com/Dominaezzz/kgl/actions)
 
