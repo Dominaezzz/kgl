@@ -43,11 +43,11 @@ jobs:
         with:
           arguments: 'build --stacktrace'
 
-      - name: 'Publish KGL to BinTray'
+      - name: 'Publish KGL'
         uses: eskatos/gradle-command-action@v1
         with:
           arguments: 'smartPublish --stacktrace'
         if: startsWith(github.ref, 'refs/tags/')
         env:
-          BINTRAY_API_KEY: ${{ secrets.bintray_api_key }}
-          BINTRAY_USER: ${{ secrets.bintray_user }}
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

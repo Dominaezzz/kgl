@@ -18,8 +18,12 @@ You can find some kgl-vulkan samples [here](https://github.com/Dominaezzz/kgl-vu
 ## Usage
 ```kotlin
 repositories {
-    maven("https://dl.bintray.com/dominaezzz/kotlin-native")
-    jcenter()
+    maven("https://maven.pkg.github.com/Dominaezzz/matrix-kt") {
+        credentials {
+            username = System.getenv("GITHUB_USER") // Your GitHub username.
+            password = System.getenv("GITHUB_TOKEN") // A GitHub token with `read:packages`.
+        }
+    }
 }
 
 dependencies {

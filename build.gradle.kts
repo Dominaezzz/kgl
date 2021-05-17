@@ -66,21 +66,18 @@ subprojects {
 
 	plugins.withId("maven-publish") {
 		configure<PublishingExtension> {
-			val vcs: String by project
-			val bintrayOrg: String by project
-			val bintrayRepository: String by project
-
 			repositories {
-				maven("https://api.bintray.com/maven/$bintrayOrg/$bintrayRepository/kgl/;publish=0;override=0") {
-					name = "bintray"
+				maven("https://maven.pkg.github.com/Dominaezzz/${rootProject.name}") {
+					name = "GitHubPackages"
 					credentials {
-						username = System.getenv("BINTRAY_USER")
-						password = System.getenv("BINTRAY_API_KEY")
+						username = System.getenv("GITHUB_USER")
+						password = System.getenv("GITHUB_TOKEN")
 					}
 				}
 			}
 
 			publications.withType<MavenPublication> {
+				val vcs = "https://github.com/Dominaezzz/kgl"
 				pom {
 					name.set(project.name)
 					description.set(project.description)
