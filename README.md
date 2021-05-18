@@ -17,7 +17,7 @@ You can find some kgl-vulkan samples [here](https://github.com/Dominaezzz/kgl-vu
 ## Usage
 ```kotlin
 repositories {
-    maven("https://maven.pkg.github.com/Dominaezzz/matrix-kt") {
+    maven("https://maven.pkg.github.com/Dominaezzz/kgl") {
         credentials {
             username = System.getenv("GITHUB_USER") // Your GitHub username.
             password = System.getenv("GITHUB_TOKEN") // A GitHub token with `read:packages`.
