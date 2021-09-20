@@ -1,12 +1,10 @@
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.konan.target.HostManager
 
 plugins {
 	kotlin("multiplatform")
 	`maven-publish`
 }
 
-val useSingleTarget: Boolean by rootProject.extra
 val lwjglVersion: String by rootProject.extra
 val lwjglNatives: String by rootProject.extra
 
@@ -17,14 +15,14 @@ kotlin {
 		}
 	}
 
-	if (!useSingleTarget || HostManager.hostIsLinux) linuxX64("linux")
-	if (!useSingleTarget || HostManager.hostIsMac) macosX64("macos")
-	if (!useSingleTarget || HostManager.hostIsMingw) mingwX64("mingw")
+	linuxX64()
+	macosX64()
+	mingwX64()
 
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation(kotlin("stdlib-common"))
+				implementation(kotlin("stdlib"))
 				api(project(":kgl-glfw"))
 				api(project(":kgl-vulkan"))
 			}
@@ -32,31 +30,31 @@ kotlin {
 
 		commonTest {
 			dependencies {
-				implementation(kotlin("test-common"))
-				implementation(kotlin("test-annotations-common"))
+				implementation(kotlin("test"))
 			}
 		}
 
 		named("jvmMain") {}
-
 		named("jvmTest") {
 			dependencies {
-				implementation(kotlin("test-junit"))
 				implementation("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
 				implementation("org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives")
 			}
 		}
 
-		targets.withType<KotlinNativeTarget> {
-			named("${name}Main") {
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
+		val nativeMain by creating {
+			dependsOn(commonMain.get())
+		}
+		val nativeTest by creating {
+			dependsOn(commonTest.get())
+		}
 
-			named("${name}Test") {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
+		for (target in targets.withType<KotlinNativeTarget>()) {
+			val main = getByName("${target.name}Main")
+			main.dependsOn(nativeMain)
+
+			val test = getByName("${target.name}Test")
+			test.dependsOn(nativeTest)
 		}
 	}
 }

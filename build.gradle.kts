@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.konan.target.*
 import java.io.*
 
 plugins {
-	kotlin("multiplatform") version ("1.4.10") apply false
+	kotlin("multiplatform") version ("1.5.31") apply false
 	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
@@ -17,8 +17,7 @@ exec {
 group = "com.kgl"
 version = stdout.toString().trim()
 
-val useSingleTarget: Boolean by extra { System.getProperty("idea.active") == "true" }
-val ktorIoVersion: String by extra("1.4.0")
+val ktorIoVersion: String by extra("1.6.3")
 val lwjglVersion: String by extra("3.2.2") //TODO 3.2.3 causes kgl-vulkan compile to fail
 val lwjglNatives: String by extra {
 	when {
@@ -27,6 +26,10 @@ val lwjglNatives: String by extra {
 		HostManager.hostIsMingw -> "natives-windows"
 		else -> error("Host platform not supported")
 	}
+}
+
+repositories {
+	mavenCentral()
 }
 
 subprojects {

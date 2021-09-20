@@ -1,7 +1,6 @@
 import codegen.opengl.*
 import de.undercouch.gradle.tasks.download.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
-import org.jetbrains.kotlin.konan.target.*
 
 plugins {
 	kotlin("multiplatform")
@@ -32,7 +31,6 @@ val generateOpenGL by tasks.registering(GenerateOpenGL::class) {
 	outputDir.set(buildDir.resolve("generated-src"))
 }
 
-val useSingleTarget: Boolean by rootProject.extra
 val lwjglVersion: String by rootProject.extra
 val lwjglNatives: String by rootProject.extra
 
@@ -45,9 +43,9 @@ kotlin {
 
 	js()
 
-	if (!useSingleTarget || HostManager.hostIsLinux) linuxX64("linux")
-	if (!useSingleTarget || HostManager.hostIsMac) macosX64("macos")
-	if (!useSingleTarget || HostManager.hostIsMingw) mingwX64("mingw")
+	linuxX64()
+	macosX64()
+	mingwX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations.named("main") {
@@ -64,15 +62,14 @@ kotlin {
 	sourceSets {
 		commonMain {
 			dependencies {
-				implementation(kotlin("stdlib-common"))
+				implementation(kotlin("stdlib"))
 				api(project(":kgl-core"))
 			}
 		}
 
 		commonTest {
 			dependencies {
-				implementation(kotlin("test-common"))
-				implementation(kotlin("test-annotations-common"))
+				implementation(kotlin("test"))
 			}
 		}
 
@@ -85,7 +82,6 @@ kotlin {
 
 		named("jvmTest") {
 			dependencies {
-				implementation(kotlin("test-junit"))
 				implementation("org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives")
 				implementation("org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives")
 				implementation("org.lwjgl:lwjgl-opengles:$lwjglVersion:$lwjglNatives")
@@ -93,24 +89,21 @@ kotlin {
 		}
 
 		named("jsMain") {}
+		named("jsTest") {}
 
-		named("jsTest") {
-			dependencies {
-				implementation(kotlin("test-js"))
-			}
+		val nativeMain by creating {
+			dependsOn(commonMain.get())
+		}
+		val nativeTest by creating {
+			dependsOn(commonTest.get())
 		}
 
-		targets.withType<KotlinNativeTarget> {
-			named("${name}Main") {
-				kotlin.srcDir(generateOpenGL.map { it.nativeDir })
-				kotlin.srcDir("src/nativeMain/kotlin")
-				resources.srcDir("src/nativeMain/resources")
-			}
+		for (target in targets.withType<KotlinNativeTarget>()) {
+			val main = getByName("${target.name}Main")
+			main.dependsOn(nativeMain)
 
-			named("${name}Test") {
-				kotlin.srcDir("src/nativeTest/kotlin")
-				resources.srcDir("src/nativeTest/resources")
-			}
+			val test = getByName("${target.name}Test")
+			test.dependsOn(nativeTest)
 		}
 	}
 }
