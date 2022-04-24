@@ -1,14 +1,12 @@
 package com.kgl.stb
 
 import io.ktor.utils.io.bits.*
-import io.ktor.utils.io.core.*
 
 interface STBIOCallbacks {
 	/**
 	 * Fill 'data' with 'size' bytes.
 	 * @return number of bytes actually read
 	 */
-	@OptIn(ExperimentalIoApi::class)
 	fun read(data: Memory): Int
 
 	/**

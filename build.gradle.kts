@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.konan.target.*
 import java.io.*
 
 plugins {
-	kotlin("multiplatform") version ("1.5.31") apply false
+	kotlin("multiplatform") version ("1.6.20") apply false
 	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
@@ -17,7 +17,7 @@ exec {
 group = "com.kgl"
 version = stdout.toString().trim()
 
-val ktorIoVersion: String by extra("1.6.3")
+val ktorIoVersion: String by extra("2.0.0")
 val lwjglVersion: String by extra("3.2.2") //TODO 3.2.3 causes kgl-vulkan compile to fail
 val lwjglNatives: String by extra {
 	when {
@@ -45,9 +45,8 @@ subprojects {
 			sourceSets.all {
 				languageSettings.apply {
 					enableLanguageFeature("InlineClasses")
-					useExperimentalAnnotation("kotlin.RequiresOptIn")
-					useExperimentalAnnotation("kotlin.ExperimentalUnsignedTypes")
-					useExperimentalAnnotation("io.ktor.utils.io.core.ExperimentalIoApi")
+					optIn("kotlin.RequiresOptIn")
+					optIn("kotlin.ExperimentalUnsignedTypes")
 				}
 			}
 

@@ -19,11 +19,11 @@ import cvulkan.*
 import kotlinx.cinterop.*
 import platform.posix.*
 
-object Loader {
+actual object Loader {
 	private val module: COpaquePointer =
 		dlopen("libvulkan.so", RTLD_NOW or RTLD_LOCAL) ?: dlopen("libvulkan.so.1", RTLD_NOW or RTLD_LOCAL)
 		?: throw Exception("'libvulkan.so' not found!")
 
-	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
+	internal actual val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
 		dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
 }

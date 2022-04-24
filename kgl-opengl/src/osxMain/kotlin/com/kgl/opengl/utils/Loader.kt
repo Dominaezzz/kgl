@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.vulkan.utils
+package com.kgl.opengl.utils
 
-import cvulkan.PFN_vkGetInstanceProcAddr
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.COpaquePointer
+import kotlinx.cinterop.*
 import platform.posix.*
 
-object Loader {
+actual object Loader {
 	private val module: COpaquePointer =
-		dlopen("libvulkan.dylib", RTLD_NOW or RTLD_LOCAL) ?: dlopen("libvulkan.dylib.1", RTLD_NOW or RTLD_LOCAL)
-		?: dlopen("libMoltenVK.dylib", RTLD_NOW or RTLD_LOCAL) ?: throw Exception("'libvulkan.dylib' not found!")
+		dlopen("/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL", RTLD_LAZY)
+			?: throw Exception("'OpenGL' not found!")
 
-	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
-		dlsym(module, "vkGetInstanceProcAddr")!!.reinterpret()
+	actual fun kglGetProcAddress(name: String): COpaquePointer? = dlsym(module, name)?.reinterpret()
 }

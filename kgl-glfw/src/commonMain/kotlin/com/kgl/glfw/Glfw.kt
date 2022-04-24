@@ -54,5 +54,5 @@ expect object Glfw {
 
 @ExperimentalTime
 fun Glfw.waitEvents(timeout: Duration) {
-	waitEvents(timeout.inSeconds)
+	waitEvents(timeout.toDouble(DurationUnit.SECONDS))
 }

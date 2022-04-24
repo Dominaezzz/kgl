@@ -1,5 +1,5 @@
 /**
- * Copyright [2019] [Dominic Fischer]
+ * Copyright [2022] [Dominic Fischer]
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kgl.glfw
+package com.kgl.vulkan.utils
 
-import io.ktor.utils.io.bits.*
+import cvulkan.*
 
-data class Image constructor(val pixels: Memory, val width: Int, val height: Int)
+expect object Loader {
+	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr
+}

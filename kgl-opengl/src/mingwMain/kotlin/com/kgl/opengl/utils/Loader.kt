@@ -26,7 +26,7 @@ actual object Loader {
 	private val wglGetProcAddress = GetProcAddress(module, "wglGetProcAddress")!!
 		.reinterpret<CFunction<(LPCSTR?) -> PROC?>>()
 
-	fun kglGetProcAddress(name: String): COpaquePointer? = memScoped {
+	actual fun kglGetProcAddress(name: String): COpaquePointer? = memScoped {
 		wglGetProcAddress(name.cstr.ptr) ?: GetProcAddress(module, name)
 	}
 }

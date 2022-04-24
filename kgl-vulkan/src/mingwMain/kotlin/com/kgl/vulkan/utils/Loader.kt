@@ -21,8 +21,8 @@ import platform.windows.GetProcAddress
 import platform.windows.HMODULE
 import platform.windows.LoadLibraryA
 
-object Loader {
+actual object Loader {
 	private val module: HMODULE = LoadLibraryA("vulkan-1.dll") ?: throw Exception("'vulkan-1.dll' not found!")
-	internal val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
+	internal actual val vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr =
 		GetProcAddress(module, "vkGetInstanceProcAddr")!!.reinterpret()
 }

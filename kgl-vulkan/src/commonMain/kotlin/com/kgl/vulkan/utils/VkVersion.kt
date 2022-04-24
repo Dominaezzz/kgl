@@ -15,7 +15,10 @@
  */
 package com.kgl.vulkan.utils
 
-inline class VkVersion(private val version: UInt) {
+import kotlin.jvm.*
+
+@JvmInline
+value class VkVersion(private val version: UInt) {
 	constructor(major: UInt, minor: UInt, patch: UInt) : this(major shl 22 or (minor shl 12) or patch)
 
 	val major: UInt get() = version.shr(22)

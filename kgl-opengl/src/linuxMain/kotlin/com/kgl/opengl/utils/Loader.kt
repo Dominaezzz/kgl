@@ -19,7 +19,7 @@ import copengl.glXGetProcAddressARB
 import kotlinx.cinterop.*
 
 actual object Loader {
-	fun kglGetProcAddress(name: String): COpaquePointer? = memScoped {
+	actual fun kglGetProcAddress(name: String): COpaquePointer? = memScoped {
 		glXGetProcAddressARB(name.cstr.ptr.reinterpret())
 	}
 }

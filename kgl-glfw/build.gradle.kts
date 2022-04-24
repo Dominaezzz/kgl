@@ -65,9 +65,9 @@ kotlin {
 	val vulkanUnzipDocs = project(":kgl-vulkan").tasks.named<Copy>("unzipDocs")
 	val vulkanHeaderDir = vulkanUnzipDocs.map { it.destinationDir.resolve("include") }
 
+	mingwX64()
 	linuxX64()
 	macosX64()
-	mingwX64()
 
 	targets.withType<KotlinNativeTarget> {
 		compilations.named("main") {

@@ -118,6 +118,7 @@ kotlin {
 
 		val nativeMain by creating {
 			dependsOn(commonMain.get())
+			kotlin.srcDir(generateVulkan.map { it.nativeDir })
 		}
 		val nativeTest by creating {
 			dependsOn(commonTest.get())
@@ -126,6 +127,7 @@ kotlin {
 		for (target in targets.withType<KotlinNativeTarget>()) {
 			val main = getByName("${target.name}Main")
 			main.dependsOn(nativeMain)
+			main.kotlin.srcDir("src/${target.konanTarget.family.name.toLowerCase()}Main/kotlin")
 
 			val test = getByName("${target.name}Test")
 			test.dependsOn(nativeTest)
