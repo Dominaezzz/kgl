@@ -12,7 +12,7 @@ val unzipMacOSBinaries by project(":kgl-glfw").tasks.getting(Copy::class)
 
 kotlin {
 	val staticLibs = mapOf(
-		KonanTarget.LINUX_X64 to file("/usr/local/lib/x86_64-linux-gnu/libglfw3.a"),
+		KonanTarget.LINUX_X64 to file("/usr/local/lib/libglfw3.a"),
 		KonanTarget.MACOS_X64 to unzipMacOSBinaries.destinationDir.resolve("lib-macos/libglfw3.a"),
 		KonanTarget.MINGW_X64 to unzipWin64Binaries.destinationDir.resolve("lib-mingw-w64/libglfw3.a")
 	)
