@@ -119,22 +119,19 @@ kotlin {
 			}
 		}
 
-		val nativeMain by creating {
-			dependsOn(commonMain.get())
-		}
-		val nativeTest by creating {
-			dependsOn(commonTest.get())
-			dependencies {
-				implementation(project(":kgl-glfw-static"))
+		targets.withType<KotlinNativeTarget> {
+			named("${name}Main") {
+				kotlin.srcDir("src/nativeMain/kotlin")
+				resources.srcDir("src/nativeMain/resources")
 			}
-		}
 
-		for (target in targets.withType<KotlinNativeTarget>()) {
-			val main = getByName("${target.name}Main")
-			main.dependsOn(nativeMain)
-
-			val test = getByName("${target.name}Test")
-			test.dependsOn(nativeTest)
+			named("${name}Test") {
+				kotlin.srcDir("src/nativeTest/kotlin")
+				resources.srcDir("src/nativeTest/resources")
+				dependencies {
+					implementation(project(":kgl-glfw-static"))
+				}
+			}
 		}
 	}
 }
