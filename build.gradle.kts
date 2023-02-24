@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.konan.target.*
 import java.io.*
 
 plugins {
-	kotlin("multiplatform") version ("1.6.21") apply false
+	kotlin("multiplatform") version ("1.8.0") apply false
 	id("de.undercouch.download") version ("3.4.3") apply false
 }
 
